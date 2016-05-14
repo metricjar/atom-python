@@ -8,7 +8,7 @@ from pip.download import PipSession
 install_reqs = parse_requirements('requirements.txt', session=PipSession())
 reqs = [str(ir.req) for ir in install_reqs]
 
-tests_require = ['nose', 'mock', 'responses', 'nosetests', 'flake8']
+tests_require = ['nose', 'mock', 'responses', 'flake8']
 
 if sys.version_info < (2, 7):
     tests_require.append('unittest2')
