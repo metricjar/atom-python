@@ -19,7 +19,6 @@ class AtomApi(object):
         self.session = requests.Session()
 
     def _request_get(self, stream, data):
-
         payload = {"table": stream, "data": data}
         if self.auth:
             payload['auth'] = self.auth
