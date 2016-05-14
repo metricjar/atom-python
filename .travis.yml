@@ -12,4 +12,4 @@ install: pip install tox-travis coveralls
 
 script: tox
 
-after_sucess: coveralls
+after_sucess: coveralls -v

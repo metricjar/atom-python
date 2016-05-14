@@ -1,7 +1,9 @@
 # ironSource.atom SDK for Python
  [![License][license-image]][license-url]
  [![Build status][travis-image]][travis-url]
+  [![Python supported version][python-support]][python-link]
  [![PyPI version][package-image]][package-url]
+
 
 atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Python programming language.
 
@@ -32,9 +34,11 @@ client.put_event(stream=stream, data=json.dumps(data), method="post")
 ### License
 MIT
 
-[license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
+[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/ironSource/atom-python/blob/master/LICENSE.txt
-[travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python.svg?branch=master
 [package-image]: https://badge.fury.io/py/ironSourceAtom.svg
 [package-url]: https://badge.fury.io/py/ironSourceAtom
+[python-support]:  https://img.shields.io/badge/python-2.7%2C%203.3%2C%203.4%2C%203.5-blue.svg
+[python-link]: https://www.python.org/
