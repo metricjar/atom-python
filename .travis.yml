@@ -5,14 +5,9 @@ python:
   - 3.3
   - 3.4
   - 3.5
-env:
-  - TOXENV=py27
-  - TOXENV=py33
-  - TOXENV=py34
-  - TOXENV=py35
 install:
   - pip install tox coveralls
 script:
-  - tox
+  - tox -e $(echo py$TRAVIS_PYTHON_VERSION)
 after_sucess:
   - coveralls
