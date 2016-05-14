@@ -1,9 +1,9 @@
 # ironSource.atom SDK for Python
  [![License][license-image]][license-url]
  [![Build status][travis-image]][travis-url]
-  [![Python supported version][python-support]][python-link]
+  [![Python supported version][python-support]][python-url]
  [![PyPI version][package-image]][package-url]
-
+ [![Coverage Status][coverage-image]][coverage-url]
 
 atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Python programming language.
 
@@ -41,4 +41,6 @@ MIT
 [package-image]: https://badge.fury.io/py/ironSourceAtom.svg
 [package-url]: https://badge.fury.io/py/ironSourceAtom
 [python-support]:  https://img.shields.io/badge/python-2.7%2C%203.3%2C%203.4%2C%203.5-blue.svg
-[python-link]: https://www.python.org/
+[python-url]: https://www.python.org/
+[coverage-image]: https://coveralls.io/repos/github/ironSource/atom-python/badge.svg?branch=master
+[coverage-url]: https://coveralls.io/github/ironSource/atom-python?branch=master
