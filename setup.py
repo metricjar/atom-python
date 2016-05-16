@@ -4,6 +4,7 @@ import sys
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
 from pip.download import PipSession
+from ironSourceAtom import __version__
 
 install_reqs = parse_requirements('requirements.txt', session=PipSession())
 reqs = [str(ir.req) for ir in install_reqs]
@@ -15,7 +16,7 @@ if sys.version_info < (2, 7):
 
 setup(
     name="ironSourceAtom",
-    version="1.0.0",
+    version=__version__,
     description="ironSource.atom Python SDK",
     packages=["ironSourceAtom"],
     author="ironSource.atom",
