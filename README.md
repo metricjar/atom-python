@@ -12,7 +12,7 @@ atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-m
 - [Documentation](https://ironsource.github.io/atom-python/)
 - [Installation](#Installation)
 - [Sending an event](#Using-the-API-layer-to-send-events)
--
+
 #### Installation
 ```sh
 $ pip install --upgrade ironSourceAtom
