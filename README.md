@@ -1,16 +1,18 @@
 # ironSource.atom SDK for Python
  [![License][license-image]][license-url]
- [![Build status][travis-image]][travis-url]
-  [![Python supported version][python-support]][python-url]
+ [![Docs][docs-image]][docs-url]
+ [![Python supported version][python-support]][python-url]
  [![PyPI version][package-image]][package-url]
+ [![Build status][travis-image]][travis-url]
  [![Coverage Status][coverage-image]][coverage-url]
 
 atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Python programming language.
 
 - [Signup](https://atom.ironsrc.com/#/signup)
+- [Documentation](https://ironsource.github.io/atom-python/)
 - [Installation](#Installation)
 - [Sending an event](#Using-the-API-layer-to-send-events)
-
+-
 #### Installation
 ```sh
 $ pip install --upgrade ironSourceAtom
@@ -28,9 +30,6 @@ stream = "unicorn_startup.analytics"
 data = {"user_id": "iron_user", "event_type": "signin"}
 client.put_event(stream=stream, data=json.dumps(data), method="post")
 ```
-
-
-
 ### License
 MIT
 
@@ -44,3 +43,5 @@ MIT
 [python-url]: https://www.python.org/
 [coverage-image]: https://coveralls.io/repos/github/ironSource/atom-python/badge.svg?branch=master
 [coverage-url]: https://coveralls.io/github/ironSource/atom-python?branch=master
+[docs-image]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-url]: https://ironsource.github.io/atom-python/
