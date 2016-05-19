@@ -49,7 +49,7 @@ class AtomApi(object):
         payload = {'data': base64_str}
         return self.session.get(self.url, params=payload, headers=self.headers)
 
-    def _request_post(self, stream, data):
+    def _request_post(self, stream, data, bulk=False):
         """Request with POST method
 
         This method encapsulates the data and sends it to the service.
@@ -59,12 +59,18 @@ class AtomApi(object):
         :type stream: str
         :param data: a string of data to send to the service
         :type data: str
+        :param bulk: specify if the data is bulked
+        :type bulk: bool
 
         :return: requests response object
         """
         payload = {"table": stream, "data": data}
+
         if self.auth:
             payload['auth'] = self.auth
+
+        if bulk:
+            payload['bulk'] = True
 
         return self.session.post(url=self.url, data=json.dumps(payload), headers=self.headers)
 
@@ -79,8 +85,31 @@ class AtomApi(object):
         :type stream: str
         :param data: a string of data to send to the server
         :type data: str
+
+        :return: requests response object
         """
         if method.lower() == "get":
             return self._request_get(stream=stream, data=data)
         else:
             return self._request_post(stream=stream, data=data)
+
+    def put_events(self, stream, data):
+        """A higher level method to send bulks of data
+
+        This method received a list of dicts and transforms them into JSON objects and sends them
+        to the service using HTTP(s) POST.
+
+        :param stream: the stream name
+        :type stream: str
+        :param data: a string of data to send to the server
+        :type data: str
+
+        :return: requests response object
+        """
+
+        if not isinstance(data, list):
+            raise Exception("data has to be of data type list")
+
+        data = json.dumps(data)
+
+        return self._request_post(stream=stream, data=data, bulk=True)
