@@ -13,7 +13,7 @@ except ImportError:
     from urllib import quote
     from mock import MagicMock
 
-from ironSourceAtom import api
+from ironsource.atom import ironsource_atom
 
 
 class TestApiGET(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestApiGET(unittest.TestCase):
         self.url = "http://track.atom-data.io/"
         self.data = {"event_name": "test", "id": "2"}
         self.stream = "streamname"
-        self.atom_client = api.AtomApi()
+        self.atom_client = ironsource_atom.AtomApi()
 
     @responses.activate
     def test_api_get_calls(self):
@@ -62,7 +62,7 @@ class TestApiGET(unittest.TestCase):
     @responses.activate
     def test_api_get_auth(self):
         responses.add(responses.GET, self.url, json={"Status": "Ok"}, status=200)
-        self.atom_client = api.AtomApi(auth="my_auth_key")
+        self.atom_client = ironsource_atom.AtomApi(auth="my_auth_key")
         self.atom_client._request_get(stream=self.stream, data=json.dumps(self.data))
 
         url = responses.calls[0].request.url
@@ -81,7 +81,7 @@ class TestApiPost(unittest.TestCase):
         self.url = "http://track.atom-data.io/"
         self.data = {"event_name": "test", "id": "2"}
         self.stream = "streamname"
-        self.atom_client = api.AtomApi()
+        self.atom_client = ironsource_atom.AtomApi()
 
     @responses.activate
     def test_api_post_calls(self):
@@ -108,7 +108,7 @@ class TestApiPost(unittest.TestCase):
     @responses.activate
     def test_api_post_auth(self):
         responses.add(responses.POST, self.url, json={"Status": "Ok"}, status=200)
-        self.atom_client = api.AtomApi(auth="my_auth_key")
+        self.atom_client = ironsource_atom.AtomApi(auth="my_auth_key")
         self.atom_client._request_post(stream=self.stream, data=json.dumps(self.data))
 
         body = json.loads(responses.calls[0].request.body)
@@ -120,7 +120,7 @@ class TestPutEvent(unittest.TestCase):
         self.url = "http://track.atom-data.io/"
         self.data = {"event_name": "test", "id": "2"}
         self.stream = "streamname"
-        self.atom_client = api.AtomApi()
+        self.atom_client = ironsource_atom.AtomApi()
 
     @responses.activate
     def test_put_event_get(self):
@@ -142,7 +142,7 @@ class TestPutEvents(unittest.TestCase):
         self.url = "http://track.atom-data.io/"
         self.data = [{"event_name": "test", "id": "2"}, {"event_name": "2nd", "id": "3"}]
         self.stream = "streamname"
-        self.atom_client = api.AtomApi()
+        self.atom_client = ironsource_atom.AtomApi()
 
     @responses.activate
     def test_perform_call(self):

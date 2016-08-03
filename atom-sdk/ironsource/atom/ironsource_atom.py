@@ -2,11 +2,10 @@ import requests
 import json
 import base64
 
-from ironSourceAtom import __version__
+from ironsource import __version__
 
 SDK_VERSION = __version__
 ATOM_URL = "http://track.atom-data.io/"
-
 
 class AtomApi(object):
     """AtomApi

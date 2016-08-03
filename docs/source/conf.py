@@ -16,7 +16,7 @@ import sys
 import os
 
 sys.path.append(os.path.normpath(os.path.join(__file__, "../../../", 'ironSourceAtom')))
-from ironSourceAtom import __version__, __author__, __copyright__
+from ironsource import __version__, __author__, __copyright__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
