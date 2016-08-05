@@ -1,79 +1,70 @@
-import requests
 import json
+import hmac
 import base64
+import hashlib
 
-from ironsource import __version__
+from ironsource.atom.request import Request
+from ironsource.atom.response import Response
 
-SDK_VERSION = __version__
-ATOM_URL = "http://track.atom-data.io/"
 
-class AtomApi(object):
-    """AtomApi
+class IronSourceAtom:
+    __SDK_VERSION = "1.1.0"
+    __ATOM_URL = "http://track.atom-data.io/"
 
-    This is a lower level class that interacts with the service via HTTP REST API
+    def __init__(self):
+        """AtomApi
 
-    :param url: atom URL
-    :type url: str
-    :param auth: Authentication key
-    :type auth: str
-    """
-    def __init__(self, url=ATOM_URL, auth=None):
-        self.url = url
-        self.auth = auth
-        self.headers = {
+        This is a lower level class that interacts with the service via HTTP REST API
+        """
+        self._endpoint = IronSourceAtom.__ATOM_URL
+        self._auth_key = ""
+
+        self._init_headers()
+
+    def _init_headers(self):
+        """
+        Init header map data
+        """
+        self._headers = {
             "x-ironsource-atom-sdk-type": "python",
-            "x-ironsource-atom-sdk-version": SDK_VERSION
+            "x-ironsource-atom-sdk-version": IronSourceAtom.__SDK_VERSION
         }
-        self.session = requests.Session()
 
-    def _request_get(self, stream, data):
-        """Request with GET method
-
-        This method encasulates the data object with base64 encoding and sends it to the service.
-        Sends the request according to the REST API specification
-
-        :param stream: the stream name
-        :type stream: str
-        :param data: a string of data to send to the service
-        :type data: str
-
-        :return: requests response object
+    def set_auth(self, auth_key):
         """
-        payload = {"table": stream, "data": data}
-        if self.auth:
-            payload['auth'] = self.auth
+        Init authentication key
 
-        base64_str = base64.encodestring(('%s' % (json.dumps(payload))).encode()).decode().replace('\n', '')
-
-        payload = {'data': base64_str}
-        return self.session.get(self.url, params=payload, headers=self.headers)
-
-    def _request_post(self, stream, data, bulk=False):
-        """Request with POST method
-
-        This method encapsulates the data and sends it to the service.
-        Sends the request according to the REST API specification.
-
-        :param stream: the stream name
-        :type stream: str
-        :param data: a string of data to send to the service
-        :type data: str
-        :param bulk: specify if the data is bulked
-        :type bulk: bool
-
-        :return: requests response object
+        :param auth_key: secret ket for streams
+        :type auth_key: basestring
         """
-        payload = {"table": stream, "data": data}
+        self._auth_key = auth_key
 
-        if self.auth:
-            payload['auth'] = self.auth
+    def set_endpoint(self, endpoint):
+        """
+        Init server url
 
-        if bulk:
-            payload['bulk'] = True
+        :param endpoint: host name
+        :type endpoint: basestring
+        """
+        self._endpoint = endpoint
 
-        return self.session.post(url=self.url, data=json.dumps(payload), headers=self.headers)
+    def get_endpoint(self):
+        """
+        Get current server url
 
-    def put_event(self, stream, data, method="POST"):
+        :rtype basestring
+        """
+        return self._endpoint
+
+    def get_auth(self):
+        """
+        Get auth key
+
+        :rtype basestring
+        """
+        return self._auth_key
+
+    def put_event(self, stream, data, method="POST", auth_key=""):
         """A higher level method to send data
 
         This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.
@@ -84,15 +75,21 @@ class AtomApi(object):
         :type stream: str
         :param data: a string of data to send to the server
         :type data: str
+        :param auth_key: a string of data to send to the server
+        :type auth_key: str
 
         :return: requests response object
         """
-        if method.lower() == "get":
-            return self._request_get(stream=stream, data=data)
-        else:
-            return self._request_post(stream=stream, data=data)
 
-    def put_events(self, stream, data):
+        if len(auth_key) == 0:
+            auth_key = self._auth_key
+
+        request_data = self._get_request_data(stream, auth_key, data)
+
+        return self._sendData(url=self._endpoint, data=request_data, method=method,
+                              headers=self._headers)
+
+    def put_events(self, stream, data, auth_key=""):
         """A higher level method to send bulks of data
 
         This method received a list of dicts and transforms them into JSON objects and sends them
@@ -102,13 +99,69 @@ class AtomApi(object):
         :type stream: str
         :param data: a string of data to send to the server
         :type data: str
+        :param auth_key: a string of data to send to the server
+        :type auth_key: str
 
         :return: requests response object
         """
-
         if not isinstance(data, list):
             raise Exception("data has to be of data type list")
 
+        if len(auth_key) == 0:
+            auth_key = self._auth_key
+
         data = json.dumps(data)
 
-        return self._request_post(stream=stream, data=data, bulk=True)
+        request_data = self._get_request_data(stream, auth_key, data, bulk=True)
+
+        return self._sendData(url=self._endpoint + "bulk", data=request_data, method="post",
+                              headers=self._headers)
+
+    def _get_request_data(self, stream, auth_key, data, bulk=False):
+        """
+        Create json data string from input data
+
+        :param stream: the stream name
+        :type stream: basestring
+        :param auth_key: secret key for stream
+        :type auth_key: basestring
+        :param data: data to send to the server
+        :type data: basestring
+        :param bulk: send data by bulk
+        :type bulk: bool
+
+        :return: json data
+        :rtype: basestring
+        """
+        request_data = {"table": stream, "data": data}
+
+        if len(auth_key) != 0:
+
+            auth_key_bytes = bytearray()
+            auth_key_bytes.extend(auth_key)
+
+            request_data["auth"] = hmac.new(auth_key_bytes, msg=data, digestmod=hashlib.sha256).hexdigest()
+
+        if bulk:
+            request_data["bulk"] = True
+
+        return json.dumps(request_data)
+
+    def _sendData(self, url, data, method, headers):
+        """
+        :param stream: the stream name
+        :type stream: basestring
+        :param data: data to send to the server
+        :type data: basestring
+        :param method: type of HTTP request
+        :type method: basestring
+
+        :return: response from server
+        :rtype: Response
+        """
+        request = Request(url, data, headers)
+
+        if method.lower() == "get":
+            return request.get()
+        else:
+            return request.post()

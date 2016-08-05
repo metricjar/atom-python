@@ -43,7 +43,7 @@ client.put_events(stream=streams, data=data)
 MIT
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: https://github.com/ironSource/atom-python/blob/master/LICENSE.txt
+[license-url]: https://github.com/ironSource/atom-python/blob/master/LICENSE
 [travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python
 [package-image]: https://badge.fury.io/py/ironSourceAtom.svg
