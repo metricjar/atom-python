@@ -1,63 +1,299 @@
 from ironsource_atom import IronSourceAtom
+from event_manager import EventManager
+from queue_event_manager import QueueEventManager
+from event_task_pool import EventTaskPool
+from event import Event
+
+import sys
+import time
+import math
+import random
+import logging
+
+from threading import Lock
+from threading import Thread
 
 
 class IronSourceAtomTacker:
     _TAG = "IronSourceAtomTacker"
 
-    _DEFAULT_BULK_SIZE = 500
-    _DEFAULT_BULK_BYTES_SIZE = 64 * 1024
+    _BULK_SIZE = 500
+    _BULK_BYTES_SIZE = 64 * 1024
 
-    _DEFAULT_FLUSH_INTERVAL = 1000
+    _FLUSH_INTERVAL = 1000
+
+    _TASK_WORKER_COUNT = 24
+    _TASK_POOL_SIZE = 10000
+
+    _RETRY_MIN_TIME = 1
+    _RETRY_MAX_TIME = 10
 
     def __init__(self):
+        """
+        Iron Source Atom Tracker - track and flush functionality
+        """
         self._api = IronSourceAtom()
         self._is_debug = False
+        self._is_run_worker = True
+        self._is_flush_data = False
 
-        self._bulk_size = IronSourceAtomTacker._DEFAULT_BULK_SIZE
-        self._bulk_bytes_size = IronSourceAtomTacker._DEFAULT_BULK_BYTES_SIZE
+        # calculate current milliseconds
+        self._current_milliseconds = lambda: int(round(time.time() * 1000))
 
-        self._flush_interval = IronSourceAtomTacker._DEFAULT_FLUSH_INTERVAL
-        # fixme
-        self._event_manager = None
+        self._data_lock = Lock()
+
+        self._stream_data = {}
+
+        self._retry_min_time = IronSourceAtomTacker._RETRY_MIN_TIME
+        self._retry_max_time = IronSourceAtomTacker._RETRY_MAX_TIME
+
+        self._bulk_size = IronSourceAtomTacker._BULK_SIZE
+        self._bulk_bytes_size = IronSourceAtomTacker._BULK_BYTES_SIZE
+
+        self._flush_interval = IronSourceAtomTacker._FLUSH_INTERVAL
+
+        self._event_manager = QueueEventManager()
+
+        self._task_worker_count = IronSourceAtomTacker._TASK_WORKER_COUNT
+        self._task_pool_size = IronSourceAtomTacker._TASK_POOL_SIZE
+
+        self._event_pool = EventTaskPool(thread_count=self._task_worker_count,
+                                         max_events=self._task_pool_size)
+
+        worker_thread = Thread(target=self._event_worker)
+        worker_thread.start()
+
+        # init default logger
+        self._logger = logging.getLogger()
+        self._logger.setLevel(logging.DEBUG)
+
+        stream_object = logging.StreamHandler(sys.stdout)
+        stream_object.setLevel(logging.DEBUG)
+        logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        stream_object.setFormatter(logger_formatter)
+        self._logger.addHandler(stream_object)
+
+    def stop(self):
+        """
+        Stop worker thread and event_pool thread's
+        """
+        self._is_run_worker = False
+        self._event_pool.stop()
+
+    def set_logger(self, logger):
+        """
+        Set custom logger
+
+        :param logger: custom logger object
+        :type logger: logging.Logger
+        """
+        self._logger = logger
+        self._api.set_logger(logger)
+
+    def set_task_worker_count(self, task_worker_count):
+        """
+        Set thread's count for event task pool
+
+        :param task_worker_count: count of thread's for event task pool
+        :type task_worker_count: int
+        """
+        self._task_worker_count = task_worker_count
+
+    def set_task_pool_size(self, task_pool_size):
+        """
+        Set count of queue elements for event task pool
+
+        :param task_pool_size: pool event count
+        :type task_pool_size: int
+        """
+        self._task_pool_size = task_pool_size
 
     def set_event_manager(self, event_manager):
+        """
+        Set custom event manager object
+
+        :param event_manager: custom event manager for storage data
+        :type event_manager: EventManager
+        """
         self._event_manager = event_manager
 
-    def set_task_pool_size(self, tasks_pool_size):
-        pass
-
-    def set_task_workers_count(self, task_worker_count):
-        pass
-
     def enable_debug(self, is_debug):
+        """
+        Enable print information
+
+        :param is_debug: enable print debug info
+        :type is_debug: bool
+        """
         self._is_debug = is_debug
 
     def set_endpoint(self, endpoint):
+        """
+        Set server host address
+
+        :param endpoint: server url
+        :type endpoint: basestring
+        """
         self._api.set_endpoint(endpoint)
 
     def set_auth(self, auth_key):
+        """
+        Set auth key for stream
+
+        :param auth_key: secret auth key
+        :type auth_key: basestring
+        """
         self._api.set_auth(auth_key)
 
     def set_bulk_size(self, bulk_size):
+        """
+        Set bulk count
+
+        :param bulk_size: count of bulk events
+        :type bulk_size: int
+        """
         self._bulk_size = bulk_size
 
     def set_bulk_bytes_size(self, bulk_bytes_size):
+        """
+        Set bulk bytes size
+
+        :param bulk_bytes_size: bulk size in bytes
+        :type bulk_bytes_size: int
+        """
         self._bulk_bytes_size = bulk_bytes_size
 
     def set_flush_interval(self, flush_interval):
+        """
+        Set flush interval milliseconds
+
+        :param flush_interval: interval for flush data
+        :type flush_interval: int
+        """
         self._flush_interval = flush_interval
 
-    def track(self, stream, data, auth_key = ""):
+    def track(self, stream, data, auth_key=""):
+        """
+        Track event
+
+        :param stream: name of stream
+        :type stream: basestring
+        :param data: data for sending
+        :type data: basestring
+        :param auth_key: secret auth key for stream
+        :type auth_key: basestring
+        """
         if len(auth_key) == 0:
             auth_key = self._api.get_auth()
 
-        # fixme
+        with self._data_lock:
+            if not self._stream_data.has_key(stream):
+                self._stream_data[stream] = auth_key
+
+            self._event_manager.add_event(Event(stream, data))
 
     def flush(self):
-        pass
+        """
+        Flush data from all streams
+        """
+        self._is_flush_data = True
 
+    def _event_worker(self):
+        """
+        Event worker for collect and send data
+        """
+        timer_start_time = {}
+        timer_delta_time = {}
 
+        events_buffer = {}
+        events_size = {}
+
+        def flush_data(stream, auth_key):
+            inner_buffer = list(events_buffer[stream])
+            del events_buffer[stream][:]
+            events_size[stream] = 0
+
+            self._event_pool.add_event(lambda: self._flush_data(stream, auth_key, inner_buffer))
+
+        while self._is_run_worker:
+            for stream_name, stream_value in self._stream_data.items():
+                if not timer_start_time.has_key(stream_name):
+                    timer_start_time[stream_name] = self._current_milliseconds()
+
+                if not timer_delta_time.has_key(stream_name):
+                    timer_delta_time[stream_name] = 0
+
+                timer_delta_time[stream_name] += self._current_milliseconds() - timer_start_time[stream_name]
+                timer_start_time[stream_name] = self._current_milliseconds()
+
+                if timer_delta_time[stream_name] >= self._flush_interval:
+                    timer_delta_time[stream_name] = 0
+
+                    if events_buffer.has_key(stream_name) and len(events_buffer[stream_name]) > 0:
+                        flush_data(stream_name, auth_key=self._stream_data[stream_name])
+
+                # get event data
+                event_object = self._event_manager.get_event(stream_name)
+                if event_object is None:
+                    continue
+
+                if not events_size.has_key(stream_name):
+                    events_size[stream_name] = 0
+
+                if not events_buffer.has_key(stream_name):
+                    events_buffer[stream_name] = []
+
+                events_size[stream_name] += len(event_object.data.encode("utf8"))
+                events_buffer[stream_name].append(event_object.data)
+
+                if events_size[stream_name] >= self._bulk_bytes_size:
+                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+
+                if len(events_buffer[stream_name]) > self._bulk_size:
+                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+
+                if self._is_flush_data:
+                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+
+            if self._is_flush_data:
+                self._is_flush_data = False
+
+    def _flush_data(self, stream, auth_key, data):
+        """
+        Send data to server through Iron Source Low-level API
+        """
+        attempt = 1
+
+        while True:
+            response = self._api.put_events(stream, data=data, auth_key=auth_key)
+            if 500 > response.status > 1:
+                self._print_log("Sended: " + str(data) + "; status: " + str(response.status))
+                break
+
+            duration = self._get_duration(attempt)
+            time.floatsleep(duration)
+            self._print_log("Url: " + self._api.get_endpoint() + " Retry request: " + data)
+
+    def _get_duration(self, attempt):
+        """
+        Jitter implementation
+
+        :param attempt: count of attempt
+        :type attempt: int
+        """
+        duration = self._retry_min_time * math.pow(2, attempt)
+        duration = random.uniform(0.1, 1.0) * (duration - self._retry_min_time) + self._retry_min_time
+
+        if duration > self._retry_max_time:
+            duration = self._retry_max_time
+
+        return duration
 
     def _print_log(self, log_data):
+        """
+        Print debug information
+
+        :param log_data: debug information
+        :type log_data: basestrings
+        """
         if self._is_debug:
-            print IronSourceAtomTacker._TAG + ": " + log_data
+            self._logger.info(IronSourceAtomTacker._TAG + ": " + log_data)

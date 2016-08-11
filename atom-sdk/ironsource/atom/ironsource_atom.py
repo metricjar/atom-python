@@ -1,6 +1,7 @@
 import json
 import hmac
-import base64
+import sys
+import logging
 import hashlib
 
 from ironsource.atom.request import Request
@@ -8,18 +9,32 @@ from ironsource.atom.response import Response
 
 
 class IronSourceAtom:
-    __SDK_VERSION = "1.1.0"
-    __ATOM_URL = "http://track.atom-data.io/"
+    _TAG = "IronSourceAtom"
+
+    _SDK_VERSION = "1.1.0"
+    _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
         """AtomApi
 
         This is a lower level class that interacts with the service via HTTP REST API
         """
-        self._endpoint = IronSourceAtom.__ATOM_URL
+        self._endpoint = IronSourceAtom._ATOM_URL
         self._auth_key = ""
 
+        self._is_debug = False
+
         self._init_headers()
+
+        # init default logger
+        self._logger = logging.getLogger()
+        self._logger.setLevel(logging.DEBUG)
+
+        stream_object = logging.StreamHandler(sys.stdout)
+        stream_object.setLevel(logging.DEBUG)
+        logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        stream_object.setFormatter(logger_formatter)
+        self._logger.addHandler(stream_object)
 
     def _init_headers(self):
         """
@@ -27,8 +42,26 @@ class IronSourceAtom:
         """
         self._headers = {
             "x-ironsource-atom-sdk-type": "python",
-            "x-ironsource-atom-sdk-version": IronSourceAtom.__SDK_VERSION
+            "x-ironsource-atom-sdk-version": IronSourceAtom._SDK_VERSION
         }
+
+    def set_logger(self, logger):
+        """
+        Set custom logger
+
+        :param logger: custom logger instance
+        :type logger: logging.Logger
+        """
+        self._logger = logger
+
+    def enable_debug(self, is_debug):
+        """
+        Enabling debug information
+
+        :param is_debug: enable print debug inforamtion
+        :type is_debug: bool
+        """
+        self._is_debug = is_debug
 
     def set_auth(self, auth_key):
         """
@@ -165,3 +198,13 @@ class IronSourceAtom:
             return request.get()
         else:
             return request.post()
+
+    def _print_log(self, log_info):
+        """
+        Print debug information
+
+        :param log_info: debug information
+        :type log_info: basestring
+        """
+        if self._is_debug:
+            self._logger.info(IronSourceAtomTacker._TAG + ": " + log_data)

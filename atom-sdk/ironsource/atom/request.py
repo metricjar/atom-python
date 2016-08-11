@@ -12,10 +12,10 @@ class Request:
 
         :param url: server url
         :type url: basestring
-        :param stream: name of the stream
-        :type stream: basestring
         :param data: data ot send to the server
         :type data: basestring
+        :param headers: list of header information
+        :type headers: list(String)
         """
         self._url = url
         self._data = data
@@ -26,7 +26,7 @@ class Request:
     def get(self):
         """Request with GET method
 
-        This method encasulates the data object with base64 encoding and sends it to the service.
+        This method encapsulates the data object with base64 encoding and sends it to the service.
         Sends the request according to the REST API specification
 
         :return: Response object from server

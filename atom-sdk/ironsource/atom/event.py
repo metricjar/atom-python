@@ -1,7 +1,14 @@
 
 
 class Event:
-    def __init__(self, stream, data, auth_key):
-        self._stream = stream
-        self._data = data
-        self._auth_key = auth_key
+    def __init__(self, stream, data):
+        """
+        Event object
+
+        :param stream: name of the stream
+        :type stream: basestring
+        :param data: data for sending
+        :type data: basestring
+        """
+        self.stream = stream
+        self.data = data
