@@ -1,5 +1,4 @@
 from ironsource_atom import IronSourceAtom
-from event_manager import EventManager
 from queue_event_manager import QueueEventManager
 from event_task_pool import EventTaskPool
 from event import Event
@@ -186,7 +185,7 @@ class IronSourceAtomTacker:
             auth_key = self._api.get_auth()
 
         with self._data_lock:
-            if not self._stream_data.has_key(stream):
+            if stream not in self._stream_data:
                 self._stream_data[stream] = auth_key
 
             self._event_manager.add_event(Event(stream, data))
@@ -216,10 +215,10 @@ class IronSourceAtomTacker:
 
         while self._is_run_worker:
             for stream_name, stream_value in self._stream_data.items():
-                if not timer_start_time.has_key(stream_name):
+                if stream_name not in timer_start_time:
                     timer_start_time[stream_name] = self._current_milliseconds()
 
-                if not timer_delta_time.has_key(stream_name):
+                if stream_name not in timer_delta_time:
                     timer_delta_time[stream_name] = 0
 
                 timer_delta_time[stream_name] += self._current_milliseconds() - timer_start_time[stream_name]
@@ -228,7 +227,7 @@ class IronSourceAtomTacker:
                 if timer_delta_time[stream_name] >= self._flush_interval:
                     timer_delta_time[stream_name] = 0
 
-                    if events_buffer.has_key(stream_name) and len(events_buffer[stream_name]) > 0:
+                    if stream_name in events_buffer and len(events_buffer[stream_name]) > 0:
                         flush_data(stream_name, auth_key=self._stream_data[stream_name])
 
                 # get event data
@@ -236,10 +235,10 @@ class IronSourceAtomTacker:
                 if event_object is None:
                     continue
 
-                if not events_size.has_key(stream_name):
+                if stream_name not in events_size:
                     events_size[stream_name] = 0
 
-                if not events_buffer.has_key(stream_name):
+                if stream_name not in events_buffer:
                     events_buffer[stream_name] = []
 
                 events_size[stream_name] += len(event_object.data.encode("utf8"))

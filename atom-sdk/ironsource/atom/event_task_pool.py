@@ -46,7 +46,7 @@ class EventTaskPool:
             if len(self._events) > 0:
                 try:
                     action = self._events.pop()
-                except IndexError as _:
+                except IndexError:
                     continue
 
                 action()

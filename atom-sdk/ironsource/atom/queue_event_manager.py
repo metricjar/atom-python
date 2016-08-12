@@ -1,7 +1,6 @@
 from event_manager import EventManager
 from threading import Lock
 from collections import deque
-from event import Event
 
 
 class QueueEventManager(EventManager):
@@ -21,7 +20,7 @@ class QueueEventManager(EventManager):
         :type event_object: Event
         """
         with self._dictionary_lock:
-            if not self._events.has_key(event_object.stream):
+            if event_object.stream not in self._events:
                 self._events[event_object.stream] = deque()
 
             self._events[event_object.stream].append(event_object)
@@ -34,7 +33,7 @@ class QueueEventManager(EventManager):
         :rtype Event
         """
         with self._dictionary_lock:
-            if self._events.has_key(stream) and (len(self._events[stream]) > 0):
+            if stream in self._events and (len(self._events[stream]) > 0):
                 return self._events[stream].pop()
 
         return None

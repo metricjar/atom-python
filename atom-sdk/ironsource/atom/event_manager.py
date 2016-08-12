@@ -1,7 +1,5 @@
 import abc
 
-from event import Event
-
 
 class EventManager:
     __metaclass__ = abc.ABCMeta

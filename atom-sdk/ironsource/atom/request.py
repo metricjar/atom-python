@@ -5,6 +5,7 @@ from requests.exceptions import RequestException
 
 from response import Response
 
+
 class Request:
     def __init__(self, url, data, headers):
         """
@@ -38,7 +39,7 @@ class Request:
 
         try:
             response = self._session.get(self._url, params=params, headers=self._headers)
-        except RequestException as ex:
+        except RequestException as ex:  # pragma: no cover
             if ex.response:
                 return Response(response.content, None, response.status_code)
             else:
@@ -60,7 +61,7 @@ class Request:
         """
         try:
             response = self._session.post(url=self._url, data=self._data, headers=self._headers)
-        except RequestException as ex:
+        except RequestException as ex:  # pragma: no cover
             if ex.response:
                 return Response(response.content, None, response.status_code)
             else:

@@ -5,7 +5,6 @@ import logging
 import hashlib
 
 from ironsource.atom.request import Request
-from ironsource.atom.response import Response
 
 
 class IronSourceAtom:
@@ -45,7 +44,7 @@ class IronSourceAtom:
             "x-ironsource-atom-sdk-version": IronSourceAtom._SDK_VERSION
         }
 
-    def set_logger(self, logger):
+    def set_logger(self, logger):  # pragma: no cover
         """
         Set custom logger
 
@@ -54,7 +53,7 @@ class IronSourceAtom:
         """
         self._logger = logger
 
-    def enable_debug(self, is_debug):
+    def enable_debug(self, is_debug):  # pragma: no cover
         """
         Enabling debug information
 
@@ -199,7 +198,7 @@ class IronSourceAtom:
         else:
             return request.post()
 
-    def _print_log(self, log_info):
+    def _print_log(self, log_info):  # pragma: no cover
         """
         Print debug information
 
@@ -207,4 +206,4 @@ class IronSourceAtom:
         :type log_info: basestring
         """
         if self._is_debug:
-            self._logger.info(IronSourceAtomTacker._TAG + ": " + log_data)
+            self._logger.info(IronSourceAtom._TAG + ": " + log_info)
