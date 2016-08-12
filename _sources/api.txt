@@ -1,6 +1,8 @@
-ironSourceAtom api
+ironSourceAtom API
 ==================
 
-.. automodule:: api
-    :members:
-    :private-members:
+.. automodule:: ironsource.atom.ironsource_atom
+	:members:
+	:undoc-members:
+
+

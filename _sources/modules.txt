@@ -1,0 +1,10 @@
+ironSourceAtom API1
+==================
+
+.. automodule:: ironsource.atom.ironsource_atom
+	:members:
+	:undoc-members:
+
+.. automodule:: ironsource.atom.ironsource_atom_tracker
+	:members:
+	:undoc-members:

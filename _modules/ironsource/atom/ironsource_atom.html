@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ironsource.atom.ironsource_atom &mdash; ironSourceAtom 1.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="ironSourceAtom 1.1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ironSourceAtom
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">ironSourceAtom API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tracker.html">ironSourceAtom Tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../event_manager.html">ironSourceAtom Event Manager Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../event.html">ironSourceAtom Event</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../request.html">ironSourceAtom Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../response.html">ironSourceAtom Response</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">ironSourceAtom</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>ironsource.atom.ironsource_atom</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ironsource.atom.ironsource_atom</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="kn">from</span> <span class="nn">ironsource.atom.request</span> <span class="kn">import</span> <span class="n">Request</span>
+
+
+<div class="viewcode-block" id="IronSourceAtom"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom">[docs]</a><span class="k">class</span> <span class="nc">IronSourceAtom</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       AtomApi</span>
+
+<span class="sd">       This is a lower level class that interacts with the service via HTTP REST API</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_TAG</span> <span class="o">=</span> <span class="s2">&quot;IronSourceAtom&quot;</span>
+
+    <span class="n">_SDK_VERSION</span> <span class="o">=</span> <span class="s2">&quot;1.1.0&quot;</span>
+    <span class="n">_ATOM_URL</span> <span class="o">=</span> <span class="s2">&quot;http://track.atom-data.io/&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_ATOM_URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_headers</span><span class="p">()</span>
+
+        <span class="c1"># init default logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+        <span class="n">stream_object</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="n">stream_object</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">logger_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">stream_object</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logger_formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">stream_object</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init header map data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;x-ironsource-atom-sdk-type&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x-ironsource-atom-sdk-version&quot;</span><span class="p">:</span> <span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_SDK_VERSION</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="IronSourceAtom.set_logger"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_logger">[docs]</a>    <span class="k">def</span> <span class="nf">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set custom logger</span>
+
+<span class="sd">        :param logger: custom logger instance</span>
+<span class="sd">        :type logger: logging.Logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.enable_debug"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug">[docs]</a>    <span class="k">def</span> <span class="nf">enable_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enabling debug information</span>
+
+<span class="sd">        :param is_debug: enable print debug inforamtion</span>
+<span class="sd">        :type is_debug: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.set_auth"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_auth">[docs]</a>    <span class="k">def</span> <span class="nf">set_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init authentication key</span>
+
+<span class="sd">        :param auth_key: secret ket for streams</span>
+<span class="sd">        :type auth_key: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="n">auth_key</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.set_endpoint"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init server url</span>
+
+<span class="sd">        :param endpoint: host name</span>
+<span class="sd">        :type endpoint: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">endpoint</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.get_endpoint"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get current server url</span>
+
+<span class="sd">        :rtype: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.get_auth"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_auth">[docs]</a>    <span class="k">def</span> <span class="nf">get_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get auth key</span>
+
+<span class="sd">        :rtype: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.put_event"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_event">[docs]</a>    <span class="k">def</span> <span class="nf">put_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A higher level method to send data</span>
+
+<span class="sd">        This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.</span>
+
+<span class="sd">        :param method: the HTTP(s) method to use when sending data - default is POST</span>
+<span class="sd">        :type method: str</span>
+<span class="sd">        :param stream: the stream name</span>
+<span class="sd">        :type stream: str</span>
+<span class="sd">        :param data: a string of data to send to the server</span>
+<span class="sd">        :type data: str</span>
+<span class="sd">        :param auth_key: a string of data to send to the server</span>
+<span class="sd">        :type auth_key: str</span>
+
+<span class="sd">        :return: requests response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span>
+
+        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sendData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IronSourceAtom.put_events"><a class="viewcode-back" href="../../../api.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_events">[docs]</a>    <span class="k">def</span> <span class="nf">put_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A higher level method to send bulks of data</span>
+
+<span class="sd">        This method received a list of dicts and transforms them into JSON objects and sends them</span>
+<span class="sd">        to the service using HTTP(s) POST.</span>
+
+<span class="sd">        :param stream: the stream name</span>
+<span class="sd">        :type stream: str</span>
+<span class="sd">        :param data: a string of data to send to the server</span>
+<span class="sd">        :type data: str</span>
+<span class="sd">        :param auth_key: a string of data to send to the server</span>
+<span class="sd">        :type auth_key: str</span>
+
+<span class="sd">        :return: requests response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;data has to be of data type list&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sendData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">+</span> <span class="s2">&quot;bulk&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span>
+                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_request_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create json data string from input data</span>
+
+<span class="sd">        :param stream: the stream name</span>
+<span class="sd">        :type stream: basestring</span>
+<span class="sd">        :param auth_key: secret key for stream</span>
+<span class="sd">        :type auth_key: basestring</span>
+<span class="sd">        :param data: data to send to the server</span>
+<span class="sd">        :type data: basestring</span>
+<span class="sd">        :param bulk: send data by bulk</span>
+<span class="sd">        :type bulk: bool</span>
+
+<span class="sd">        :return: json data</span>
+<span class="sd">        :rtype: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">stream</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="n">auth_key_bytes</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+            <span class="n">auth_key_bytes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span>
+
+            <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;auth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">auth_key_bytes</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">bulk</span><span class="p">:</span>
+            <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;bulk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sendData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param stream: the stream name</span>
+<span class="sd">        :type stream: basestring</span>
+<span class="sd">        :param data: data to send to the server</span>
+<span class="sd">        :type data: basestring</span>
+<span class="sd">        :param method: type of HTTP request</span>
+<span class="sd">        :type method: basestring</span>
+
+<span class="sd">        :return: response from server</span>
+<span class="sd">        :rtype: Response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">post</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_print_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_info</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print debug information</span>
+
+<span class="sd">        :param log_info: debug information</span>
+<span class="sd">        :type log_info: basestring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_TAG</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">log_info</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ironSource.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
