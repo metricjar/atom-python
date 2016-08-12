@@ -15,10 +15,10 @@ if sys.version_info < (2, 7):
     tests_require.append('unittest2')
 
 setup(
-    name="ironSourceAtom",
+    name="ironsource-atom",
     version=__version__,
     description="ironSource.atom Python SDK",
-    packages=["ironSourceAtom"],
+    packages=["ironsource-atom"],
     author="ironSource.atom",
     author_email="atom@ironsrc.com",
     url="https://github.com/ironSource/atom-python",
