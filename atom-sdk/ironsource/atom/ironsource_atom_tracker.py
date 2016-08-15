@@ -1,7 +1,7 @@
-from ironsource_atom import IronSourceAtom
-from queue_event_manager import QueueEventManager
-from event_task_pool import EventTaskPool
-from event import Event
+from ironsource.atom.ironsource_atom import IronSourceAtom
+from ironsource.atom.queue_event_manager import QueueEventManager
+from ironsource.atom.event_task_pool import EventTaskPool
+from ironsource.atom.event import Event
 
 import sys
 import time

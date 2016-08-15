@@ -3,7 +3,7 @@ import base64
 
 from requests.exceptions import RequestException
 
-from response import Response
+from ironsource.atom.response import Response
 
 
 class Request:

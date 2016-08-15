@@ -1,4 +1,4 @@
-from event_manager import EventManager
+from ironsource.atom.event_manager import EventManager
 from threading import Lock
 from collections import deque
 
