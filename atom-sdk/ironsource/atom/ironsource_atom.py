@@ -172,7 +172,7 @@ class IronSourceAtom:
 
         if len(auth_key) != 0:
 
-            auth_key_bytes = bytearray(auth_key)
+            auth_key_bytes = bytearray(auth_key, encoding="utf-8")
 
             request_data["auth"] = hmac.new(auth_key_bytes, msg=data, digestmod=hashlib.sha256).hexdigest()
 

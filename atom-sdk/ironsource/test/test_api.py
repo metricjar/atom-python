@@ -51,7 +51,7 @@ class TestApiGET(unittest.TestCase):
     def test_api_get_response(self):
         responses.add(responses.GET, self.url, json={"Status": "Ok"}, status=200)
         res = self.atom_client.put_event(stream=self.stream, data=json.dumps(self.data), method="get")
-        self.assertEqual(res.data, "{\"Status\": \"Ok\"}")
+        self.assertEqual(res.data, b"{\"Status\": \"Ok\"}")
 
     @responses.activate
     def test_put_event_post_error(self):
