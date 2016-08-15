@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     stream_get = "sdkdev_sdkdev.public.g8y3etest";
     auth_key = "I40iwPPOsG3dfWX30labriCg9HqMfL";
-    data_get = "{\"strings\": \"data GET\"}";
+    data_get = "{\"strings\": \"data GET1111111111111\"}";
 
     response_get = api_.put_event(stream=stream_get, data=data_get, method="get", auth_key=auth_key);
 
