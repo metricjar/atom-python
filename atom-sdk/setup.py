@@ -6,7 +6,7 @@ from pip.req import parse_requirements
 from pip.download import PipSession
 from ironsource import __version__
 
-install_reqs = parse_requirements('./atom-sdk/requirements.txt', session=PipSession())
+install_reqs = parse_requirements('requirements.txt', session=PipSession())
 reqs = [str(ir.req) for ir in install_reqs]
 
 tests_require = ['nose', 'mock', 'responses', 'flake8', 'tox']
