@@ -171,7 +171,8 @@ class IronSourceAtom:
         request_data = {"table": stream, "data": data}
 
         if len(auth_key) != 0:
-            request_data["auth"] = hmac.new(bytes(auth_key).encode("utf-8"), msg=data.encode("utf-8"),
+            request_data["auth"] = hmac.new(bytes(auth_key.encode("utf-8")),
+                                            msg=data.encode("utf-8"),
                                             digestmod=hashlib.sha256).hexdigest()
 
         if bulk:
