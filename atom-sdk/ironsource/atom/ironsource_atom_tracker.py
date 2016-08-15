@@ -14,6 +14,9 @@ from threading import Thread
 
 
 class IronSourceAtomTacker:
+    """
+       Iron Source Atom Tracker - track and flush functionality
+    """
     _TAG = "IronSourceAtomTacker"
 
     _BULK_SIZE = 500
@@ -28,9 +31,6 @@ class IronSourceAtomTacker:
     _RETRY_MAX_TIME = 10
 
     def __init__(self):
-        """
-        Iron Source Atom Tracker - track and flush functionality
-        """
         self._api = IronSourceAtom()
         self._is_debug = False
         self._is_run_worker = True

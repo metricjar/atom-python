@@ -10,15 +10,15 @@ class EventTaskPoolException(Exception):
 
 
 class EventTaskPool:
-    def __init__(self, thread_count, max_events):
-        """
+    """
         Event task pool constructor
 
         :param thread_count: count of working threads
         :type thread_count: int
         :param max_events: max count of events in queue
         :type max_events: int
-        """
+    """
+    def __init__(self, thread_count, max_events):
         self._events = deque(maxlen=max_events)
 
         self._is_running = True
@@ -57,7 +57,7 @@ class EventTaskPool:
 
         :param event_action: event lambda
         :type event_action: lamda
-        :raises EventTaskPoolException
+        :raises: EventTaskPoolException
         """
         if (len(self._events) + 1) > self._max_events:
             raise EventTaskPoolException("Exceeded max event count in Event Task Pool!")

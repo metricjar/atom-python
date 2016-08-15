@@ -2,12 +2,12 @@ import abc
 
 
 class EventManager:
+    """
+        Event manager interface for holding data
+    """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
-        """
-        Event manager interface for holding data
-        """
         pass
 
     @abc.abstractmethod
@@ -25,7 +25,7 @@ class EventManager:
         """
         Get event (must to be synchronized)
 
-        :return Event object from storage
-        :rtype Event
+        :return: Event object from storage
+        :rtype: Event
         """
         pass

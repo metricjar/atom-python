@@ -8,16 +8,19 @@ from ironsource.atom.request import Request
 
 
 class IronSourceAtom:
+    """
+       AtomApi
+
+       This is a lower level class that interacts with the service via HTTP REST API
+    """
+
     _TAG = "IronSourceAtom"
 
     _SDK_VERSION = "1.1.0"
     _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
-        """AtomApi
 
-        This is a lower level class that interacts with the service via HTTP REST API
-        """
         self._endpoint = IronSourceAtom._ATOM_URL
         self._auth_key = ""
 
@@ -84,7 +87,7 @@ class IronSourceAtom:
         """
         Get current server url
 
-        :rtype basestring
+        :rtype: basestring
         """
         return self._endpoint
 
@@ -92,7 +95,7 @@ class IronSourceAtom:
         """
         Get auth key
 
-        :rtype basestring
+        :rtype: basestring
         """
         return self._auth_key
 

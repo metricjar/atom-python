@@ -15,15 +15,20 @@ atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-m
 
 ## Installation
 ```bash
-$ pip install --upgrade ironSourceAtom
+$ pip install --upgrade ironsource-atom
 ```
 
 ### Using the API layer to send events
 
 Importing the library and initializing
 ```python
-from ironSourceAtom import api
-client = api.AtomApi(url="http://track.atom-data.io/", auth="<your_auth_key>")
+from ironsoure.atom import ironsource_atom
+
+api = ironsource_atom.IronSourceAtom()
+api.enableDebug(True)
+
+api.set_auth("<your_auth_key>")
+api.set_endpoint("http://track.atom-data.io/")
 ```
 Sending an event - should be a string.
 ```python

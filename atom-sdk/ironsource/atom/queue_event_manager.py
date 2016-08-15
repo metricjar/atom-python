@@ -4,10 +4,11 @@ from collections import deque
 
 
 class QueueEventManager(EventManager):
-    def __init__(self):
-        """
+    """
         Queue event manager - store all data in queue
-        """
+    """
+
+    def __init__(self):
         self._dictionary_lock = Lock()
 
         self._events = {}
@@ -29,8 +30,8 @@ class QueueEventManager(EventManager):
         """
         Get event object from queue
 
-        :return Event information object from queue
-        :rtype Event
+        :return: Event information object from queue
+        :rtype: Event
         """
         with self._dictionary_lock:
             if stream in self._events and (len(self._events[stream]) > 0):

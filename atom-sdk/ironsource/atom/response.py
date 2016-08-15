@@ -1,6 +1,5 @@
 class Response:
-    def __init__(self, error, data, status):
-        """
+    """
         Response information from server
 
         :param error: error information
@@ -9,7 +8,9 @@ class Response:
         :type data: basestring
         :param status: response status from server
         :type status: int
-        """
+    """
+    def __init__(self, error, data, status):
+
         self.error = error
         self.data = data
         self.status = status

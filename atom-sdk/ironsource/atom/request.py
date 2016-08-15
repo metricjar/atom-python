@@ -7,8 +7,7 @@ from response import Response
 
 
 class Request:
-    def __init__(self, url, data, headers):
-        """
+    """
         Construct for requester
 
         :param url: server url
@@ -17,7 +16,8 @@ class Request:
         :type data: basestring
         :param headers: list of header information
         :type headers: list(String)
-        """
+    """
+    def __init__(self, url, data, headers):
         self._url = url
         self._data = data
         self._headers = headers
@@ -31,7 +31,7 @@ class Request:
         Sends the request according to the REST API specification
 
         :return: Response object from server
-        :rtype Response
+        :rtype: Response
         """
 
         base64_str = base64.encodestring(('%s' % (self._data)).encode()).decode().replace('\n', '')
@@ -57,7 +57,7 @@ class Request:
         Sends the request according to the REST API specification.
 
         :return: Response object from server
-        :rtype Response
+        :rtype: Response
         """
         try:
             response = self._session.post(url=self._url, data=self._data, headers=self._headers)
