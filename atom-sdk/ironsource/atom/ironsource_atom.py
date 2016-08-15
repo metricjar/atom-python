@@ -174,7 +174,8 @@ class IronSourceAtom:
 
             auth_key_bytes = bytearray(auth_key, encoding="utf-8")
 
-            request_data["auth"] = hmac.new(auth_key_bytes, msg=data, digestmod=hashlib.sha256).hexdigest()
+            request_data["auth"] = hmac.new(auth_key_bytes, msg=data.encode("utf-8"),
+                                            digestmod=hashlib.sha256).hexdigest()
 
         if bulk:
             request_data["bulk"] = True
