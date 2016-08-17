@@ -40,6 +40,47 @@ data = "{\"strings\": \"data: test\"}"
 
 tracker.track(stream=stream, data=data, auth_key=auth_key)
 ```
+### Abstract class for store data `EventManager`
+Implementation must to be synchronized for multithreading use.
+```python
+class EventManager:
+    """
+        Event manager interface for holding data
+    """
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self):
+        pass
+
+    @abc.abstractmethod
+    def add_event(self, event_object):
+        """
+        Add event (must to be synchronized)
+
+        :param event_object: event data object
+        :type event_object: Event
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_event(self):
+        """
+        Get event (must to be synchronized)
+
+        :return: Event object from storage
+        :rtype: Event
+        """
+        pass
+
+```
+Using custom storage implementation:
+```python
+tracker = new IronSourceAtomTracker();
+
+custom_event_manager = new QueueEventManager();
+tracker.set_event_manager(custom_event_manager);
+```
+
 ### Low level API usage
 Importing the library and initializing
 ```python
