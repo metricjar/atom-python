@@ -12,8 +12,8 @@ if __name__ == "__main__":
     api_.enable_debug(True);
     api_.set_endpoint("http://track.atom-data.io/");
 
-    stream_get = "sdkdev_sdkdev.public.g8y3etest";
-    auth_key = "I40iwPPOsG3dfWX30labriCg9HqMfL";
+    stream_get = "ibtest";
+    auth_key = "";
     data_get = "{\"strings\": \"data GET111111111111122222222\"}";
 
     response_get = api_.put_event(stream=stream_get, data=data_get, method="get", auth_key=auth_key);
@@ -22,10 +22,10 @@ if __name__ == "__main__":
            "; status: " + str(response_get.status))
 
     api_tracker = IronSourceAtomTacker()
-    api_tracker.set_bulk_bytes_size(2)
+    #api_tracker.set_bulk_bytes_size(2)
     api_tracker.enable_debug(True)
 
-    api_tracker.set_flush_interval(2000)
+    api_tracker.set_flush_interval(10)
     api_tracker.set_endpoint("http://track.atom-data.io/")
 
     class ThreadClass:
@@ -37,10 +37,10 @@ if __name__ == "__main__":
             while True:
                 if self._call_index >= 30:
                     return
-                stream_track = "sdkdev_sdkdev.public.g8y3etest"
-                auth_key_track = "I40iwPPOsG3dfWX30labriCg9HqMfL"
+                stream_track = "ibtest"
+                auth_key_track = ""
                 with self._thread_lock:
-                    data_track = "{\"strings\": \"data: " + str(self._call_index) + " aaa t: " + str(args) + "\"}"
+                    data_track = "{\"strings\": \"data: " + str(self._call_index) + " aaaa t: " + str(args) + "\"}"
                     self._call_index += 1
                 api_tracker.track(stream=stream_track, data=data_track, auth_key=auth_key_track)
 
