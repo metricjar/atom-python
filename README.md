@@ -18,8 +18,29 @@ atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-m
 $ pip install --upgrade ironsource-atom
 ```
 
-### Using the API layer to send events
+## Using the IronSource API to send events 
+### Tracker usage
+Importing the library and initializing
+```python
+from ironsoure.atom import ironsource_atom_tracker
 
+tracker = ironsource_atom_tracker.IronSourceAtomTacker()
+
+tracker.set_bulk_bytes_size(2048)
+tracker.enable_debug(True)
+
+tracker.set_flush_interval(2000)
+tracker.set_endpoint("http://track.atom-data.io/")
+```
+Sending an event - should be a string.
+```python 
+stream = "<YOUR_STREAM_NAME>"
+auth_key = "<YOUR_AUTH_KEY>"
+data = "{\"strings\": \"data: test\"}"
+
+tracker.track(stream=stream, data=data, auth_key=auth_key)
+```
+### Low level API usage
 Importing the library and initializing
 ```python
 from ironsoure.atom import ironsource_atom
@@ -27,22 +48,22 @@ from ironsoure.atom import ironsource_atom
 api = ironsource_atom.IronSourceAtom()
 api.enableDebug(True)
 
-api.set_auth("<your_auth_key>")
+api.set_auth("<YOUR_AUTH_KEY>")
 api.set_endpoint("http://track.atom-data.io/")
 ```
 Sending an event - should be a string.
 ```python
-stream = "unicorn_startup.analytics"
-data = {"user_id": "iron_user", "event_type": "signin"}
-client.put_event(stream=stream, data=json.dumps(data), method="post")
+stream = "<YOUR_STREAM_NAME>"
+data = "{\"strings\": \"data: test\"}"
+api.put_event(stream=stream, data=data, method="post")
 ```
 
-Sending a bulk of events - should be a list of dicts.
+Sending a bulk of events - should be a list of string.
 ```python
-stream = "unicorn_startup.analytics"
-data = [{"user_id": "iron_beast", "event_type": "login"},
-        {"user_id": "iron_beast", "event_type": "logout"}]
-client.put_events(stream=streams, data=data)
+stream = "<YOUR_STREAM_NAME>"
+data = ["{\"strings\": \"data: test 1\"}",
+        "{\"strings\": \"data: test 2\"}"]
+api.put_events(stream=streams, data=data)
 ```
 ### License
 MIT
