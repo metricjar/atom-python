@@ -11,8 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   api
    tracker
+   api
    event_manager
    event
    event_task_pool

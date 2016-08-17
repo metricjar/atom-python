@@ -81,8 +81,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api.html">ironSourceAtom API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracker.html">ironSourceAtom Tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">ironSourceAtom API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../event_manager.html">ironSourceAtom Event Manager Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../event.html">ironSourceAtom Event</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
@@ -306,11 +306,9 @@
         <span class="n">request_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">stream</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-
-            <span class="n">auth_key_bytes</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-            <span class="n">auth_key_bytes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span>
-
-            <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;auth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">auth_key_bytes</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;auth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">auth_key</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
+                                            <span class="n">msg</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
+                                            <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">bulk</span><span class="p">:</span>
             <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;bulk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
