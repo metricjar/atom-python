@@ -30,7 +30,7 @@ class IronSourceAtomTacker:
     _RETRY_MIN_TIME = 1
     _RETRY_MAX_TIME = 10
 
-    def __init__(self):
+    def __init__(self, task_worker_count=_TASK_WORKER_COUNT, task_pool_size=_TASK_POOL_SIZE):
         self._api = IronSourceAtom()
         self._is_debug = False
         self._is_run_worker = True
@@ -53,11 +53,8 @@ class IronSourceAtomTacker:
 
         self._event_manager = QueueEventManager()
 
-        self._task_worker_count = IronSourceAtomTacker._TASK_WORKER_COUNT
-        self._task_pool_size = IronSourceAtomTacker._TASK_POOL_SIZE
-
-        self._event_pool = EventTaskPool(thread_count=self._task_worker_count,
-                                         max_events=self._task_pool_size)
+        self._event_pool = EventTaskPool(thread_count=task_worker_count,
+                                         max_events=task_pool_size)
 
         worker_thread = Thread(target=self._event_worker)
         worker_thread.start()
@@ -88,24 +85,6 @@ class IronSourceAtomTacker:
         """
         self._logger = logger
         self._api.set_logger(logger)
-
-    def set_task_worker_count(self, task_worker_count):
-        """
-        Set thread's count for event task pool
-
-        :param task_worker_count: count of thread's for event task pool
-        :type task_worker_count: int
-        """
-        self._task_worker_count = task_worker_count
-
-    def set_task_pool_size(self, task_pool_size):
-        """
-        Set count of queue elements for event task pool
-
-        :param task_pool_size: pool event count
-        :type task_pool_size: int
-        """
-        self._task_pool_size = task_pool_size
 
     def set_event_manager(self, event_manager):
         """
