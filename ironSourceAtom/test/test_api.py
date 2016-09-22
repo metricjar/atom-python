@@ -132,9 +132,14 @@ class TestPutEvent(unittest.TestCase):
     @responses.activate
     def test_put_event_post(self):
         responses.add(responses.POST, self.url, json={"Status": "Ok"}, status=200)
-        self.atom_client.put_event(stream=self.stream, data=json.dumps(self.data), method="POST")
+        self.atom_client.put_event(stream=self.stream, data=self.data, method="POST")
 
         self.assertEqual(responses.calls[0].request.method, "POST")
+
+    @responses.activate
+    def test_should_receive_dict_or_string(self):
+        responses.add(responses.POST, self.url, json={"Status": "Ok"}, status=200)
+        self.assertRaises(Exception, self.atom_client.put_event, stream=self.stream, data=[], method="POST")
 
 
 class TestPutEvents(unittest.TestCase):
@@ -147,11 +152,11 @@ class TestPutEvents(unittest.TestCase):
     @responses.activate
     def test_perform_call(self):
         responses.add(responses.POST, self.url, json=self.data, status=200)
-        self.atom_client.put_events(stream=self.stream, data=self.data)
+        self.atom_client.put_events(stream=self.stream, data=json.dumps(self.data))
         self.assertEqual(len(responses.calls), 1, len(responses.calls))
 
     @responses.activate
-    def test_should_receive_data_list(self):
+    def test_should_receive_data_list_or_string(self):
         responses.add(responses.POST, self.url, json=self.data, status=200)
         self.assertRaises(Exception, self.atom_client.put_events, stream=self.stream, data={"event": "name"})
 

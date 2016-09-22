@@ -20,24 +20,24 @@ $ pip install --upgrade ironSourceAtom
 
 ### Using the API layer to send events
 
-Importing the library and initializing
+Importing the library and initializing, auth is optional
 ```python
 from ironSourceAtom import api
 client = api.AtomApi(url="http://track.atom-data.io/", auth="<your_auth_key>")
 ```
-Sending an event - should be a string.
+Sending an event - should be a dict or string of the dict.
 ```python
 stream = "unicorn_startup.analytics"
 data = {"user_id": "iron_user", "event_type": "signin"}
-client.put_event(stream=stream, data=json.dumps(data), method="post")
+client.put_event(stream=stream, data=data, method="post")
 ```
 
-Sending a bulk of events - should be a list of dicts.
+Sending a bulk of events - should be a list of dicts or string of the list.
 ```python
 stream = "unicorn_startup.analytics"
 data = [{"user_id": "iron_beast", "event_type": "login"},
         {"user_id": "iron_beast", "event_type": "logout"}]
-client.put_events(stream=streams, data=data)
+client.put_events(stream=stream, data=data)
 ```
 ### License
 MIT

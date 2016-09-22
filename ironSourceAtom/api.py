@@ -83,11 +83,17 @@ class AtomApi(object):
         :type method: str
         :param stream: the stream name
         :type stream: str
-        :param data: a string of data to send to the server
-        :type data: str
+        :param data: dict or a string of data to send to the server
+        :type data: dict/str
 
         :return: requests response object
         """
+
+        if isinstance(data, dict):
+            data = json.dumps(data)
+        elif not isinstance(data, str):
+            raise Exception("data has to be of data type dict or string")
+
         if method.lower() == "get":
             return self._request_get(stream=stream, data=data)
         else:
@@ -101,15 +107,15 @@ class AtomApi(object):
 
         :param stream: the stream name
         :type stream: str
-        :param data: a string of data to send to the server
-        :type data: str
+        :param data: list of dicts or a string of data to send to the server
+        :type data: list/str
 
         :return: requests response object
         """
 
-        if not isinstance(data, list):
-            raise Exception("data has to be of data type list")
-
-        data = json.dumps(data)
+        if isinstance(data, list):
+            data = json.dumps(data)
+        elif not isinstance(data, str):
+            raise Exception("data has to be of data type list or string")
 
         return self._request_post(stream=stream, data=data, bulk=True)
