@@ -9,13 +9,6 @@ Welcome to ironSourceAtom's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   tracker
    api
-   event_manager
-   event
-   event_task_pool
-   request
-   response
-  
