@@ -1,11 +1,17 @@
 import requests
 import json
 import base64
+import hmac
+import hashlib
 
 from ironSourceAtom import __version__
 
 SDK_VERSION = __version__
 ATOM_URL = "http://track.atom-data.io/"
+
+
+class HmacException(Exception):
+    pass
 
 
 class AtomApi(object):
@@ -67,12 +73,16 @@ class AtomApi(object):
         payload = {"table": stream, "data": data}
 
         if self.auth:
-            payload['auth'] = self.auth
+            try:
+                h = hmac.new(bytearray(self.auth, 'utf-8'), payload["data"].encode('utf-8'), hashlib.sha256)
+            except TypeError:
+                h = hmac.new(bytes(self.auth, 'utf-8'), bytes(payload["data"], 'utf-8'), hashlib.sha256)
+            payload['auth'] = h.hexdigest()
 
         if bulk:
             payload['bulk'] = True
 
-        return self.session.post(url=self.url, data=json.dumps(payload), headers=self.headers)
+        return self.session.post(url=self.url, data=json.dumps(payload).encode('utf-8'), headers=self.headers)
 
     def put_event(self, stream, data, method="POST"):
         """A higher level method to send data
@@ -95,9 +105,12 @@ class AtomApi(object):
             raise Exception("data has to be of data type dict or string")
 
         if method.lower() == "get":
-            return self._request_get(stream=stream, data=data)
+            resp = self._request_get(stream=stream, data=data)
         else:
-            return self._request_post(stream=stream, data=data)
+            resp = self._request_post(stream=stream, data=data)
+        if resp.status_code == 401:
+            raise HmacException
+        return resp
 
     def put_events(self, stream, data):
         """A higher level method to send bulks of data
@@ -117,5 +130,7 @@ class AtomApi(object):
             data = json.dumps(data)
         elif not isinstance(data, str):
             raise Exception("data has to be of data type list or string")
-
-        return self._request_post(stream=stream, data=data, bulk=True)
+        resp = self._request_post(stream=stream, data=data, bulk=True)
+        if resp.status_code == 401:
+            raise HmacException
+        return resp

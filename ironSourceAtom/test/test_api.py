@@ -2,6 +2,7 @@ import responses
 import json
 import base64
 import unittest
+import requests
 
 try:
     # python 3
@@ -111,7 +112,7 @@ class TestApiPost(unittest.TestCase):
         self.atom_client = api.AtomApi(auth="my_auth_key")
         self.atom_client._request_post(stream=self.stream, data=json.dumps(self.data))
 
-        body = json.loads(responses.calls[0].request.body)
+        body = json.loads(responses.calls[0].request.body.decode('utf8'))
         self.assertIn("auth", body)
 
 
@@ -161,7 +162,8 @@ class TestPutEvents(unittest.TestCase):
         self.assertRaises(Exception, self.atom_client.put_events, stream=self.stream, data={"event": "name"})
 
     def test_should_json_dumps_data(self):
-        self.atom_client._request_post = MagicMock(return_value=None)
+        self.atom_client._request_post = MagicMock(return_value=requests.models.Response())
+        self.atom_client._request_post.status_code = 200
         self.atom_client.put_events(stream=self.stream, data=self.data)
 
         args, kwargs = self.atom_client._request_post.call_args_list[0]
