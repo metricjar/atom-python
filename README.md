@@ -47,7 +47,7 @@ tracker.track(stream=stream, data=json.dumps(data), auth_key=auth_key) # auth_ke
 # To force flush all events, use:
 tracker.flush()
 ```
-### Abstract class for store data `EventStorage`
+### Abstract class for storing data at tracker backlog `EventStorage`
 Implementation must to be synchronized for multithreading use.
 ```python
 import abc
@@ -119,7 +119,7 @@ You can use our [example][example-url] for sending data to Atom
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: LICENSE
-[example-url]: atom-sdk/ironsource_example/
+[example-url]: ironsource_example/
 [travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python
 [package-image]: https://badge.fury.io/py/ironsource-atom.svg

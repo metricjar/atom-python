@@ -15,7 +15,7 @@
 import sys
 import os
 
-path = os.path.normpath(os.path.join(__file__, "../../../atom-sdk/", ''))
+path = os.path.normpath(os.path.join(__file__, "../../../", ''))
 print "path: " + path 
 sys.path.append(path)
 

@@ -1,5 +1,5 @@
-ironSourceAtom API
-==================
+ironSourceAtom Low Level API
+============================
 
 .. automodule:: ironsource.atom.ironsource_atom
 	:members:

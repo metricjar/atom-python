@@ -11,11 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   tracker
-   api
-   event_manager
-   event
-   event_task_pool
+   ironsource_atom_tracker
+   ironsource_atom
+   event_storage
+   queue_event_storage
+   batch_event_pool
    request
    response
-  
+   event

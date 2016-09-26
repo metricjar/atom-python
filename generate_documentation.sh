@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-pip install -r ./atom-sdk/requirements-docs.txt
+pip install -r requirements-docs.txt
 cd ./docs
 make html
 
