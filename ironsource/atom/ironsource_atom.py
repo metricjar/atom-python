@@ -133,7 +133,7 @@ class IronSourceAtom:
         :param stream: Atom Stream name
         :type stream: str
         :param data: a string of data to send to the server
-        :type data: str
+        :type data: list(str)
         :param auth_key: a string of data to send to the server
         :type auth_key: str
 

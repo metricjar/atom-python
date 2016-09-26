@@ -8,6 +8,5 @@ python:
 install:
   - pip install tox coveralls
 script:
-  - cd ./atom-sdk
   - tox -e $(echo py$TRAVIS_PYTHON_VERSION| tr -d .)
   #- coveralls

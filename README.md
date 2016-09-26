@@ -26,6 +26,7 @@ $ pip install --upgrade ironsource-atom
 Importing the library and initializing
 
 ```python
+import json
 from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
 tracker = IronSourceAtomTracker()
@@ -41,7 +42,7 @@ auth_key = "YOUR_HMAC_AUTH_KEY"
 
 # Example of an event
 data = {"id": 123, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE"}
-tracker.track(stream=stream, data=data, auth_key=auth_key) # auth_key is optional
+tracker.track(stream=stream, data=json.dumps(data), auth_key=auth_key) # auth_key is optional
 
 # To force flush all events, use:
 tracker.flush()
@@ -93,7 +94,7 @@ Importing the library and initializing
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
 api = IronSourceAtom()
-api.enableDebug(True)
+api.enable_debug(True)
 api.set_auth("YOUR_AUTH_KEY")
 api.set_endpoint("http://track.atom-data.io/")
 # Sending an event - should be a string.
@@ -105,8 +106,7 @@ api.put_event(stream=stream, data=json.dumps(data), method="post")
 # Sending a bulk of events - should be a list of strings.
 
 stream = "YOUR_STREAM_NAME"
-data = ["{\"strings\": \"data: test 1\"}",
-        "{\"strings\": \"data: test 2\"}"]
+data = [{"strings": "data: test 1"}, {"strings": "data: test 2"}]
 api.put_events(stream=stream, data=data)
 ```
 
@@ -122,8 +122,8 @@ You can use our [example][example-url] for sending data to Atom
 [example-url]: atom-sdk/ironsource_example/
 [travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python
-[package-image]: https://badge.fury.io/py/ironSourceAtom.svg
-[package-url]: https://badge.fury.io/py/ironSourceAtom
+[package-image]: https://badge.fury.io/py/ironsource-atom.svg
+[package-url]: https://badge.fury.io/py/ironsource-atom
 [python-support]:  https://img.shields.io/badge/python-2.7%2C%203.3%2C%203.4%2C%203.5-blue.svg
 [python-url]: https://www.python.org/
 [coverage-image]: https://coveralls.io/repos/github/ironSource/atom-python/badge.svg?branch=master

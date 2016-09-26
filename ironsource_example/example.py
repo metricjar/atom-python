@@ -31,6 +31,14 @@ if __name__ == "__main__":
     print ("POST Response data: " + str(response_post.data) + "; error: " + str(response_post.error) +
            "; status: " + str(response_post.status))
 
+    print ("\n==== TESTING BATCH POST REQUEST TO ATOM ====")
+    data_post = [{"strings": "data: test 1"}, {"strings": "data: test 2"}]
+    response_post = api_.put_events(stream=stream, data=data_post, auth_key=auth_key)
+
+    print ("POST Response data: " + str(response_post.data) + "; error: " + str(response_post.error) +
+           "; status: " + str(response_post.status))
+
+
     print ("\n==== TESTING ATOM TRACKER ====")
 
     api_tracker = IronSourceAtomTracker()
