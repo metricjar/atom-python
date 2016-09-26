@@ -1,7 +1,7 @@
 import json
 import random
 from ironsource.atom.ironsource_atom import IronSourceAtom
-from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTacker
+from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
 import time
 
@@ -14,8 +14,8 @@ if __name__ == "__main__":
     api_.enable_debug(True)
     api_.set_endpoint("http://track.atom-data.io/")
 
-    stream = "sdkdev_sdkdev.public.zeev"
-    auth_key = "I40iwPPOsG3dfWX30labriCg9HqMfL"
+    stream = "your_test_stream"
+    auth_key = ""
 
     print ("==== TESTING GET REQUEST TO ATOM ====")
     data_get = {"event_name": "PYTHON_SDK_GET_EXAMPLE", "string_value": str(random.random())}
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     print ("\n==== TESTING ATOM TRACKER ====")
 
-    api_tracker = IronSourceAtomTacker()
+    api_tracker = IronSourceAtomTracker()
     # api_tracker.set_bulk_bytes_size(2)
     api_tracker.enable_debug(True)
 

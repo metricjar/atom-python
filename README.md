@@ -10,42 +10,50 @@ atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-m
 
 - [Signup](https://atom.ironsrc.com/#/signup)
 - [Documentation](https://ironsource.github.io/atom-python/)
-- [Installation](#Installation)
-- [Sending an event](#Using-the-API-layer-to-send-events)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Example](#example)
 
 ## Installation
+Installing with pip:
 ```bash
 $ pip install --upgrade ironsource-atom
 ```
 
-## Using the IronSource API to send events 
+## Usage
+ 
 ### Tracker usage
 Importing the library and initializing
+
 ```python
-from ironsoure.atom import ironsource_atom_tracker
+from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
-tracker = ironsource_atom_tracker.IronSourceAtomTacker()
+tracker = IronSourceAtomTracker()
+tracker.set_bulk_bytes_size(2048) # Optional, Size of each bulk in bytes (default: 64KB)
+tracker.set_bulk_size(12) # Optional, Number of events per bulk (batch) (default: 500) 
+tracker.set_flush_interval(2000) # Optional, Tracker flush interval in milliseconds (default: 10 seconds)
+tracker.enable_debug(True) # Optional, print debug information
+tracker.set_endpoint("http://track.atom-data.io/") # Optional, Atom endpoint
 
-tracker.set_bulk_bytes_size(2048)
-tracker.enable_debug(True)
+# Sending an event
+stream = "YOUR_STREAM_NAME"
+auth_key = "YOUR_HMAC_AUTH_KEY"
 
-tracker.set_flush_interval(2000)
-tracker.set_endpoint("http://track.atom-data.io/")
+# Example of an event
+data = {"id": 123, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE"}
+tracker.track(stream=stream, data=data, auth_key=auth_key) # auth_key is optional
+
+# To force flush all events, use:
+tracker.flush()
 ```
-Sending an event - should be a string.
-```python 
-stream = "<YOUR_STREAM_NAME>"
-auth_key = "<YOUR_AUTH_KEY>"
-data = "{\"strings\": \"data: test\"}"
-
-tracker.track(stream=stream, data=data, auth_key=auth_key)
-```
-### Abstract class for store data `EventManager`
+### Abstract class for store data `EventStorage`
 Implementation must to be synchronized for multithreading use.
 ```python
-class EventManager:
+import abc
+
+class EventStorage:
     """
-        Event manager interface for holding data
+        Abstract Base Class for providing a generic way of storing events in a backlog before they are sent to Atom.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -72,45 +80,46 @@ class EventManager:
         """
         pass
 
-```
-Using custom storage implementation:
-```python
+# Using custom storage implementation:
 tracker = new IronSourceAtomTracker();
 
-custom_event_manager = new QueueEventManager();
+custom_event_manager = new QueueEventStorage();
 tracker.set_event_manager(custom_event_manager);
 ```
 
 ### Low level API usage
 Importing the library and initializing
 ```python
-from ironsoure.atom import ironsource_atom
+from ironsource.atom.ironsource_atom import IronSourceAtom
 
-api = ironsource_atom.IronSourceAtom()
+api = IronSourceAtom()
 api.enableDebug(True)
-
-api.set_auth("<YOUR_AUTH_KEY>")
+api.set_auth("YOUR_AUTH_KEY")
 api.set_endpoint("http://track.atom-data.io/")
-```
-Sending an event - should be a string.
-```python
-stream = "<YOUR_STREAM_NAME>"
-data = "{\"strings\": \"data: test\"}"
-api.put_event(stream=stream, data=data, method="post")
-```
+# Sending an event - should be a string.
 
-Sending a bulk of events - should be a list of string.
-```python
 stream = "<YOUR_STREAM_NAME>"
+data = {"event_name": "PYTHON_SDK_POST_EXAMPLE"}
+api.put_event(stream=stream, data=json.dumps(data), method="post")
+
+# Sending a bulk of events - should be a list of strings.
+
+stream = "YOUR_STREAM_NAME"
 data = ["{\"strings\": \"data: test 1\"}",
         "{\"strings\": \"data: test 2\"}"]
-api.put_events(stream=streams, data=data)
+api.put_events(stream=stream, data=data)
 ```
-### License
-MIT
+
+## Example
+
+You can use our [example][example-url] for sending data to Atom
+
+## License
+[MIT][license-url]
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: https://github.com/ironSource/atom-python/blob/master/LICENSE
+[license-url]: LICENSE
+[example-url]: atom-sdk/ironsource_example/
 [travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python
 [package-image]: https://badge.fury.io/py/ironSourceAtom.svg

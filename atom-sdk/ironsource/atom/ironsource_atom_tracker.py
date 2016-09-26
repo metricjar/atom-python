@@ -13,19 +13,21 @@ from threading import Lock
 from threading import Thread
 
 
-class IronSourceAtomTacker:
+class IronSourceAtomTracker:
     """
        ironSource Atom high level API class (Tracker), supports: track() and flush()
     """
-    _TAG = "IronSourceAtomTacker"
+    _TAG = "IronSourceAtomTracker"
 
     _BULK_SIZE = 500
     _BULK_BYTES_SIZE = 64 * 1024
 
-    _FLUSH_INTERVAL = 1000
+    _FLUSH_INTERVAL = 10000
 
+    # Number of workers(threads) for BatchEventPool
     _TASK_WORKER_COUNT = 24
-    _TASK_POOL_SIZE = 10000
+    # Number of events to hold in BatchEventPool
+    _TASK_POOL_SIZE = 5000
 
     _RETRY_MIN_TIME = 1
     _RETRY_MAX_TIME = 10
@@ -43,14 +45,15 @@ class IronSourceAtomTacker:
 
         self._stream_data = {}
 
-        self._retry_min_time = IronSourceAtomTacker._RETRY_MIN_TIME
-        self._retry_max_time = IronSourceAtomTacker._RETRY_MAX_TIME
+        self._retry_min_time = IronSourceAtomTracker._RETRY_MIN_TIME
+        self._retry_max_time = IronSourceAtomTracker._RETRY_MAX_TIME
 
-        self._bulk_size = IronSourceAtomTacker._BULK_SIZE
-        self._bulk_bytes_size = IronSourceAtomTacker._BULK_BYTES_SIZE
+        self._bulk_size = IronSourceAtomTracker._BULK_SIZE
+        self._bulk_bytes_size = IronSourceAtomTracker._BULK_BYTES_SIZE
 
-        self._flush_interval = IronSourceAtomTacker._FLUSH_INTERVAL
+        self._flush_interval = IronSourceAtomTracker._FLUSH_INTERVAL
 
+        # Holds single events after for track method
         self._event_backlog = QueueEventStorage()
 
         self._batch_event_pool = BatchEventPool(thread_count=task_worker_count,
@@ -189,7 +192,6 @@ class IronSourceAtomTacker:
             inner_buffer = list(events_buffer[stream])
             del events_buffer[stream][:]
             events_size[stream] = 0
-
             self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, inner_buffer))
 
         while self._is_run_worker:
@@ -244,7 +246,7 @@ class IronSourceAtomTacker:
         while True:
             response = self._api.put_events(stream, data=data, auth_key=auth_key)
             if 500 > response.status > 1:
-                self.print_log("Sended: " + str(data) + "; status: " + str(response.status))
+                self.print_log("Sent: " + str(data) + "; status: " + str(response.status))
                 break
 
             duration = self._get_duration(attempt)
@@ -274,4 +276,4 @@ class IronSourceAtomTacker:
         :type log_data: basestrings
         """
         if self._is_debug:
-            self._logger.info(IronSourceAtomTacker._TAG + ": " + log_data)
+            self._logger.info(IronSourceAtomTracker._TAG + ": " + log_data)
