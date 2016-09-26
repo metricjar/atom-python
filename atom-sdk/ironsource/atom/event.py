@@ -1,14 +1,13 @@
-
-
 class Event:
     """
-        Event object
+        Event object - Holds a single atom event data
 
-        :param stream: name of the stream
+        :param stream: atom stream name
         :type stream: basestring
-        :param data: data for sending
+        :param data: payload date to send
         :type data: basestring
     """
+
     def __init__(self, stream, data):
         self.stream = stream
         self.data = data

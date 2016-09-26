@@ -11,7 +11,7 @@ class IronSourceAtom:
     """
        AtomApi
 
-       This is a lower level class that interacts with the service via HTTP REST API
+       ironSource Atom low level API. supports put_event() and put_events() methods.
     """
 
     _TAG = "IronSourceAtom"
@@ -60,57 +60,57 @@ class IronSourceAtom:
         """
         Enabling debug information
 
-        :param is_debug: enable print debug inforamtion
+        :param is_debug: enable printing of debug information
         :type is_debug: bool
         """
         self._is_debug = is_debug
 
     def set_auth(self, auth_key):
         """
-        Init authentication key
+        Set HMAC authentication key
 
-        :param auth_key: secret ket for streams
-        :type auth_key: basestring
+        :param auth_key: HMAC auth key for your stream
+        :type auth_key: str
         """
         self._auth_key = auth_key
 
     def set_endpoint(self, endpoint):
         """
-        Init server url
+        Set Atom Endpoint url
 
-        :param endpoint: host name
-        :type endpoint: basestring
+        :param endpoint: Atom API endpoint
+        :type endpoint: str
         """
         self._endpoint = endpoint
 
     def get_endpoint(self):
         """
-        Get current server url
+        Get current Atom API endpoint
 
-        :rtype: basestring
+        :rtype: str
         """
         return self._endpoint
 
     def get_auth(self):
         """
-        Get auth key
+        Get HMAC authentication key
 
-        :rtype: basestring
+        :rtype: str
         """
         return self._auth_key
 
     def put_event(self, stream, data, method="POST", auth_key=""):
-        """A higher level method to send data
+        """Send a single event to Atom API
 
         This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.
 
         :param method: the HTTP(s) method to use when sending data - default is POST
         :type method: str
-        :param stream: the stream name
+        :param stream: Atom Stream name
         :type stream: str
-        :param data: a string of data to send to the server
+        :param data: a string of data (payload) to send to the server
         :type data: str
-        :param auth_key: a string of data to send to the server
+        :param auth_key: hmac auth key
         :type auth_key: str
 
         :return: requests response object
@@ -119,18 +119,18 @@ class IronSourceAtom:
         if len(auth_key) == 0:
             auth_key = self._auth_key
 
-        request_data = self._get_request_data(stream, auth_key, data)
+        request_data = self.get_request_data(stream, auth_key, data)
 
-        return self._sendData(url=self._endpoint, data=request_data, method=method,
+        return self.send_data(url=self._endpoint, data=request_data, method=method,
                               headers=self._headers)
 
     def put_events(self, stream, data, auth_key=""):
-        """A higher level method to send bulks of data
+        """Send multiple events (batch) to Atom API
 
-        This method received a list of dicts and transforms them into JSON objects and sends them
-        to the service using HTTP(s) POST.
+        This method receives a list of dictionaries, transforms them into JSON objects and sends them
+        to Atom using HTTP(s) POST.
 
-        :param stream: the stream name
+        :param stream: Atom Stream name
         :type stream: str
         :param data: a string of data to send to the server
         :type data: str
@@ -147,26 +147,27 @@ class IronSourceAtom:
 
         data = json.dumps(data)
 
-        request_data = self._get_request_data(stream, auth_key, data, bulk=True)
+        request_data = self.get_request_data(stream, auth_key, data, bulk=True)
 
-        return self._sendData(url=self._endpoint + "bulk", data=request_data, method="post",
+        return self.send_data(url=self._endpoint + "bulk", data=request_data, method="post",
                               headers=self._headers)
 
-    def _get_request_data(self, stream, auth_key, data, bulk=False):
+    @staticmethod
+    def get_request_data(stream, auth_key, data, bulk=False):
         """
         Create json data string from input data
 
         :param stream: the stream name
-        :type stream: basestring
+        :type stream: str
         :param auth_key: secret key for stream
-        :type auth_key: basestring
+        :type auth_key: str
         :param data: data to send to the server
-        :type data: basestring
+        :type data: str
         :param bulk: send data by bulk
         :type bulk: bool
 
         :return: json data
-        :rtype: basestring
+        :rtype: str
         """
         request_data = {"table": stream, "data": data}
 
@@ -180,14 +181,17 @@ class IronSourceAtom:
 
         return json.dumps(request_data)
 
-    def _sendData(self, url, data, method, headers):
+    @staticmethod
+    def send_data(url, data, method, headers):
         """
-        :param stream: the stream name
-        :type stream: basestring
+        :param headers: HTTP request headers
+        :type headers: dict
+        :param url: Atom API endpoint
+        :type url: str
         :param data: data to send to the server
-        :type data: basestring
+        :type data: str
         :param method: type of HTTP request
-        :type method: basestring
+        :type method: str
 
         :return: response from server
         :rtype: Response
@@ -199,12 +203,12 @@ class IronSourceAtom:
         else:
             return request.post()
 
-    def _print_log(self, log_info):  # pragma: no cover
+    def print_log(self, log_info):  # pragma: no cover
         """
         Print debug information
 
         :param log_info: debug information
-        :type log_info: basestring
+        :type log_info: str
         """
         if self._is_debug:
             self._logger.info(IronSourceAtom._TAG + ": " + log_info)

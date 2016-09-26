@@ -1,9 +1,9 @@
 import abc
 
 
-class EventManager:
+class EventStorage:
     """
-        Event manager interface for holding data
+        Abstract Base Class for providing a generic way of storing events in a backlog before they are sent to Atom.
     """
     __metaclass__ = abc.ABCMeta
 

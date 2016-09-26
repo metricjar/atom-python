@@ -8,12 +8,12 @@ from ironsource.atom.response import Response
 
 class Request:
     """
-        Construct for requester
+        Wrapper for HTTP requests to Atom API
 
         :param url: server url
-        :type url: basestring
+        :type url: str
         :param data: data ot send to the server
-        :type data: basestring
+        :type data: str
         :param headers: list of header information
         :type headers: list(String)
     """

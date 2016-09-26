@@ -3,9 +3,9 @@ class Response:
         Response information from server
 
         :param error: error information
-        :type error: basestring
+        :type error: str
         :param data: response information data
-        :type data: basestring
+        :type data: str
         :param status: response status from server
         :type status: int
     """

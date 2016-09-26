@@ -1,6 +1,6 @@
 from ironsource.atom.ironsource_atom import IronSourceAtom
-from ironsource.atom.queue_event_manager import QueueEventManager
-from ironsource.atom.event_task_pool import EventTaskPool
+from ironsource.atom.queue_event_storage import QueueEventStorage
+from ironsource.atom.batch_event_pool import BatchEventPool
 from ironsource.atom.event import Event
 
 import sys
@@ -15,7 +15,7 @@ from threading import Thread
 
 class IronSourceAtomTacker:
     """
-       Iron Source Atom Tracker - track and flush functionality
+       ironSource Atom high level API class (Tracker), supports: track() and flush()
     """
     _TAG = "IronSourceAtomTacker"
 
@@ -51,10 +51,10 @@ class IronSourceAtomTacker:
 
         self._flush_interval = IronSourceAtomTacker._FLUSH_INTERVAL
 
-        self._event_manager = QueueEventManager()
+        self._event_backlog = QueueEventStorage()
 
-        self._event_pool = EventTaskPool(thread_count=task_worker_count,
-                                         max_events=task_pool_size)
+        self._batch_event_pool = BatchEventPool(thread_count=task_worker_count,
+                                                max_events=task_pool_size)
 
         worker_thread = Thread(target=self._event_worker)
         worker_thread.start()
@@ -74,7 +74,7 @@ class IronSourceAtomTacker:
         Stop worker thread and event_pool thread's
         """
         self._is_run_worker = False
-        self._event_pool.stop()
+        self._batch_event_pool.stop()
 
     def set_logger(self, logger):
         """
@@ -93,7 +93,7 @@ class IronSourceAtomTacker:
         :param event_manager: custom event manager for storage data
         :type event_manager: EventManager
         """
-        self._event_manager = event_manager
+        self._event_backlog = event_manager
 
     def enable_debug(self, is_debug):
         """
@@ -167,7 +167,7 @@ class IronSourceAtomTacker:
             if stream not in self._stream_data:
                 self._stream_data[stream] = auth_key
 
-            self._event_manager.add_event(Event(stream, data))
+            self._event_backlog.add_event(Event(stream, data))
 
     def flush(self):
         """
@@ -190,7 +190,7 @@ class IronSourceAtomTacker:
             del events_buffer[stream][:]
             events_size[stream] = 0
 
-            self._event_pool.add_event(lambda: self._flush_data(stream, auth_key, inner_buffer))
+            self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, inner_buffer))
 
         while self._is_run_worker:
             for stream_name, stream_value in self._stream_data.items():
@@ -210,7 +210,7 @@ class IronSourceAtomTacker:
                         flush_data(stream_name, auth_key=self._stream_data[stream_name])
 
                 # get event data
-                event_object = self._event_manager.get_event(stream_name)
+                event_object = self._event_backlog.get_event(stream_name)
                 if event_object is None:
                     continue
 
@@ -237,23 +237,23 @@ class IronSourceAtomTacker:
 
     def _flush_data(self, stream, auth_key, data):
         """
-        Send data to server through Iron Source Low-level API
+        Send data to server through IronSource Atom Low-level API
         """
         attempt = 1
 
         while True:
             response = self._api.put_events(stream, data=data, auth_key=auth_key)
             if 500 > response.status > 1:
-                self._print_log("Sended: " + str(data) + "; status: " + str(response.status))
+                self.print_log("Sended: " + str(data) + "; status: " + str(response.status))
                 break
 
             duration = self._get_duration(attempt)
             time.floatsleep(duration)
-            self._print_log("Url: " + self._api.get_endpoint() + " Retry request: " + data)
+            self.print_log("Url: " + self._api.get_endpoint() + " Retry request: " + data)
 
     def _get_duration(self, attempt):
         """
-        Jitter implementation
+        Jitter implementation for exponential backoff
 
         :param attempt: count of attempt
         :type attempt: int
@@ -266,7 +266,7 @@ class IronSourceAtomTacker:
 
         return duration
 
-    def _print_log(self, log_data):
+    def print_log(self, log_data):
         """
         Print debug information
 

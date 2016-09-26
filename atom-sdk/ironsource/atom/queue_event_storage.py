@@ -1,11 +1,11 @@
-from ironsource.atom.event_manager import EventManager
+from ironsource.atom.event_storage import EventStorage
 from threading import Lock
 from collections import deque
 
 
-class QueueEventManager(EventManager):
+class QueueEventStorage(EventStorage):
     """
-        Queue event manager - store all data in queue
+        Queue event storage - in memory queue that implements ABC EventStorage
     """
 
     def __init__(self):
@@ -28,7 +28,7 @@ class QueueEventManager(EventManager):
 
     def get_event(self, stream):
         """
-        Get event object from queue
+        Get & remove event object from queue
 
         :return: Event information object from queue
         :rtype: Event
