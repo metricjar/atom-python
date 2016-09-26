@@ -81,13 +81,14 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tracker.html">ironSourceAtom Tracker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">ironSourceAtom API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="event_manager.html">ironSourceAtom Event Manager Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="event.html">ironSourceAtom Event</a></li>
-<li class="toctree-l1"><a class="reference internal" href="event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ironsource_atom_tracker.html">ironSourceAtom High Level - Tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ironsource_atom.html">ironSourceAtom Low Level API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_storage.html">ironSourceAtom Event Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="queue_event_storage.html">ironSourceAtom Queue event storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_event_pool.html">ironSourceAtom Batch Event Pool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request.html">ironSourceAtom Request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="response.html">ironSourceAtom Response</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">ironSourceAtom Event</a></li>
 </ul>
 
             
@@ -134,33 +135,76 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#E"><strong>E</strong></a>
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  
 </div>
-<h2 id="E">E</h2>
+<h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug">enable_debug() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="batch_event_pool.html#ironsource.atom.batch_event_pool.BatchEventPool.add_event">add_event() (ironsource.atom.batch_event_pool.BatchEventPool method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="event_storage.html#ironsource.atom.event_storage.EventStorage.add_event">(ironsource.atom.event_storage.EventStorage method)</a>
+  </dt>
+
+        
+  <dt><a href="queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.add_event">(ironsource.atom.queue_event_storage.QueueEventStorage method)</a>
   </dt>
 
       </dl></dd>
   </dl></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="batch_event_pool.html#ironsource.atom.batch_event_pool.BatchEventPool">BatchEventPool (class in ironsource.atom.batch_event_pool)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="batch_event_pool.html#ironsource.atom.batch_event_pool.BatchEventPoolException">BatchEventPoolException</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug">enable_debug() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  </dt>
+
+      </dl></dd>
+      
   <dt><a href="event.html#ironsource.atom.event.Event">Event (class in ironsource.atom.event)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="event_storage.html#ironsource.atom.event_storage.EventStorage">EventStorage (class in ironsource.atom.event_storage)</a>
   </dt>
 
   </dl></td>
@@ -170,7 +214,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">flush() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">flush() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
   </dl></td>
@@ -184,17 +228,27 @@
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_auth">get_auth() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_auth">get_auth() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  </dt>
+
+      
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint">get_endpoint() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint">get_endpoint() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="event_storage.html#ironsource.atom.event_storage.EventStorage.get_event">get_event() (ironsource.atom.event_storage.EventStorage method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.get_event">(ironsource.atom.queue_event_storage.QueueEventStorage method)</a>
+  </dt>
+
+      </dl></dd>
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_request_data">get_request_data() (ironsource.atom.ironsource_atom.IronSourceAtom static method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_request_data">get_request_data() (ironsource.atom.ironsource_atom.IronSourceAtom static method)</a>
   </dt>
 
   </dl></td>
@@ -204,33 +258,45 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="batch_event_pool.html#module-ironsource.atom.batch_event_pool">ironsource.atom.batch_event_pool (module)</a>
+  </dt>
+
+      
   <dt><a href="event.html#module-ironsource.atom.event">ironsource.atom.event (module)</a>
   </dt>
 
       
-  <dt><a href="api.html#module-ironsource.atom.ironsource_atom">ironsource.atom.ironsource_atom (module)</a>
+  <dt><a href="event_storage.html#module-ironsource.atom.event_storage">ironsource.atom.event_storage (module)</a>
   </dt>
 
       
-  <dt><a href="tracker.html#module-ironsource.atom.ironsource_atom_tracker">ironsource.atom.ironsource_atom_tracker (module)</a>
+  <dt><a href="ironsource_atom.html#module-ironsource.atom.ironsource_atom">ironsource.atom.ironsource_atom (module)</a>
+  </dt>
+
+      
+  <dt><a href="ironsource_atom_tracker.html#module-ironsource.atom.ironsource_atom_tracker">ironsource.atom.ironsource_atom_tracker (module)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="queue_event_storage.html#module-ironsource.atom.queue_event_storage">ironsource.atom.queue_event_storage (module)</a>
   </dt>
 
       
   <dt><a href="request.html#module-ironsource.atom.request">ironsource.atom.request (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="response.html#module-ironsource.atom.response">ironsource.atom.response (module)</a>
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom">IronSourceAtom (class in ironsource.atom.ironsource_atom)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom">IronSourceAtom (class in ironsource.atom.ironsource_atom)</a>
   </dt>
 
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">IronSourceAtomTracker (class in ironsource.atom.ironsource_atom_tracker)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">IronSourceAtomTracker (class in ironsource.atom.ironsource_atom_tracker)</a>
   </dt>
 
   </dl></td>
@@ -244,23 +310,33 @@
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.print_log">print_log() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.print_log">print_log() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_event">put_event() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_event">put_event() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_events">put_events() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_events">put_events() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage">QueueEventStorage (class in ironsource.atom.queue_event_storage)</a>
   </dt>
 
   </dl></td>
@@ -286,61 +362,67 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.send_data">send_data() (ironsource.atom.ironsource_atom.IronSourceAtom static method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.send_data">send_data() (ironsource.atom.ironsource_atom.IronSourceAtom static method)</a>
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_auth">set_auth() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_auth">set_auth() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size">set_bulk_bytes_size() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size">set_bulk_bytes_size() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size">set_bulk_size() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size">set_bulk_size() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint">set_endpoint() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint">set_endpoint() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager">set_event_manager() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager">set_event_manager() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval">set_flush_interval() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval">set_flush_interval() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       
-  <dt><a href="api.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_logger">set_logger() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
+  <dt><a href="ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_logger">set_logger() (ironsource.atom.ironsource_atom.IronSourceAtom method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.stop">stop() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="batch_event_pool.html#ironsource.atom.batch_event_pool.BatchEventPool.stop">stop() (ironsource.atom.batch_event_pool.BatchEventPool method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.stop">(ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -348,7 +430,13 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.track">track() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
+  <dt><a href="batch_event_pool.html#ironsource.atom.batch_event_pool.BatchEventPool.task_worker">task_worker() (ironsource.atom.batch_event_pool.BatchEventPool method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.track">track() (ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker method)</a>
   </dt>
 
   </dl></td>

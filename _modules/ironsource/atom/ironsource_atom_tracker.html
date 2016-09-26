@@ -81,13 +81,14 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../tracker.html">ironSourceAtom Tracker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api.html">ironSourceAtom API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../event_manager.html">ironSourceAtom Event Manager Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../event.html">ironSourceAtom Event</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ironsource_atom_tracker.html">ironSourceAtom High Level - Tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ironsource_atom.html">ironSourceAtom Low Level API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../event_storage.html">ironSourceAtom Event Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../queue_event_storage.html">ironSourceAtom Queue event storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../batch_event_pool.html">ironSourceAtom Batch Event Pool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../request.html">ironSourceAtom Request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../response.html">ironSourceAtom Response</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../event.html">ironSourceAtom Event</a></li>
 </ul>
 
             
@@ -148,7 +149,7 @@
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
 
 
-<div class="viewcode-block" id="IronSourceAtomTracker"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">[docs]</a><span class="k">class</span> <span class="nc">IronSourceAtomTracker</span><span class="p">:</span>
+<div class="viewcode-block" id="IronSourceAtomTracker"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">[docs]</a><span class="k">class</span> <span class="nc">IronSourceAtomTracker</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       ironSource Atom high level API class (Tracker), supports: track() and flush()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -207,14 +208,14 @@
         <span class="n">stream_object</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logger_formatter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">stream_object</span><span class="p">)</span>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.stop"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.stop"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stop worker thread and event_pool thread&#39;s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_event_pool</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_logger"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger">[docs]</a>    <span class="k">def</span> <span class="nf">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_logger"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger">[docs]</a>    <span class="k">def</span> <span class="nf">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set custom logger</span>
 
@@ -224,7 +225,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">set_logger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_event_manager"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager">[docs]</a>    <span class="k">def</span> <span class="nf">set_event_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_manager</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_event_manager"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager">[docs]</a>    <span class="k">def</span> <span class="nf">set_event_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_manager</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set custom event manager object</span>
 
@@ -233,7 +234,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span> <span class="o">=</span> <span class="n">event_manager</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.enable_debug"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">[docs]</a>    <span class="k">def</span> <span class="nf">enable_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.enable_debug"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">[docs]</a>    <span class="k">def</span> <span class="nf">enable_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enable print information</span>
 
@@ -242,7 +243,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_endpoint"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_endpoint"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set server host address</span>
 
@@ -251,7 +252,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">set_endpoint</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_auth"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth">[docs]</a>    <span class="k">def</span> <span class="nf">set_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_auth"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth">[docs]</a>    <span class="k">def</span> <span class="nf">set_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set auth key for stream</span>
 
@@ -260,7 +261,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">set_auth</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_bulk_size"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_bulk_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk_size</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_bulk_size"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_bulk_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bulk count</span>
 
@@ -269,7 +270,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bulk_size</span> <span class="o">=</span> <span class="n">bulk_size</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_bulk_bytes_size"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_bulk_bytes_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk_bytes_size</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_bulk_bytes_size"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_bulk_bytes_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk_bytes_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bulk bytes size</span>
 
@@ -278,7 +279,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bulk_bytes_size</span> <span class="o">=</span> <span class="n">bulk_bytes_size</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.set_flush_interval"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval">[docs]</a>    <span class="k">def</span> <span class="nf">set_flush_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flush_interval</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.set_flush_interval"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval">[docs]</a>    <span class="k">def</span> <span class="nf">set_flush_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flush_interval</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set flush interval milliseconds</span>
 
@@ -287,7 +288,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flush_interval</span> <span class="o">=</span> <span class="n">flush_interval</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.track"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.track"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Track event</span>
 
@@ -307,7 +308,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.flush"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.flush"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flush data from all streams</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -403,7 +404,7 @@
 
         <span class="k">return</span> <span class="n">duration</span>
 
-<div class="viewcode-block" id="IronSourceAtomTracker.print_log"><a class="viewcode-back" href="../../../tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log">[docs]</a>    <span class="k">def</span> <span class="nf">print_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_data</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtomTracker.print_log"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log">[docs]</a>    <span class="k">def</span> <span class="nf">print_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print debug information</span>
 

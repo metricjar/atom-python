@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.event &mdash; ironSourceAtom 1.1.2 documentation</title>
+  <title>ironsource.atom.event_storage &mdash; ironSourceAtom 1.1.2 documentation</title>
   
 
   
@@ -121,7 +121,7 @@
       
           <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-    <li>ironsource.atom.event</li>
+    <li>ironsource.atom.event_storage</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -133,20 +133,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for ironsource.atom.event</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../event.html#ironsource.atom.event.Event">[docs]</a><span></span><span class="k">class</span> <span class="nc">Event</span><span class="p">:</span>
+  <h1>Source code for ironsource.atom.event_storage</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">abc</span>
+
+
+<div class="viewcode-block" id="EventStorage"><a class="viewcode-back" href="../../../event_storage.html#ironsource.atom.event_storage.EventStorage">[docs]</a><span class="k">class</span> <span class="nc">EventStorage</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Event object - Holds a single atom event data</span>
-
-<span class="sd">        :param stream: atom stream name</span>
-<span class="sd">        :type stream: basestring</span>
-<span class="sd">        :param data: payload date to send</span>
-<span class="sd">        :type data: basestring</span>
+<span class="sd">        Abstract Base Class for providing a generic way of storing events in a backlog before they are sent to Atom.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span></div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="EventStorage.add_event"><a class="viewcode-back" href="../../../event_storage.html#ironsource.atom.event_storage.EventStorage.add_event">[docs]</a>    <span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add event (must to be synchronized)</span>
+
+<span class="sd">        :param event_object: event data object</span>
+<span class="sd">        :type event_object: Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="EventStorage.get_event"><a class="viewcode-back" href="../../../event_storage.html#ironsource.atom.event_storage.EventStorage.get_event">[docs]</a>    <span class="k">def</span> <span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get event (must to be synchronized)</span>
+
+<span class="sd">        :return: Event object from storage</span>
+<span class="sd">        :rtype: Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
 </pre></div>
 
            </div>

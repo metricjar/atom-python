@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom Request &mdash; ironSourceAtom 1.1.2 documentation</title>
+  <title>ironSourceAtom Event Storage &mdash; ironSourceAtom 1.1.2 documentation</title>
   
 
   
@@ -31,8 +31,8 @@
 
   
     <link rel="top" title="ironSourceAtom 1.1.2 documentation" href="index.html"/>
-        <link rel="next" title="ironSourceAtom Response" href="response.html"/>
-        <link rel="prev" title="ironSourceAtom Batch Event Pool" href="batch_event_pool.html"/> 
+        <link rel="next" title="ironSourceAtom Queue event storage" href="queue_event_storage.html"/>
+        <link rel="prev" title="ironSourceAtom Low Level API" href="ironsource_atom.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,10 +84,10 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ironsource_atom_tracker.html">ironSourceAtom High Level - Tracker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ironsource_atom.html">ironSourceAtom Low Level API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="event_storage.html">ironSourceAtom Event Storage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ironSourceAtom Event Storage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="queue_event_storage.html">ironSourceAtom Queue event storage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_event_pool.html">ironSourceAtom Batch Event Pool</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ironSourceAtom Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request.html">ironSourceAtom Request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="response.html">ironSourceAtom Response</a></li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">ironSourceAtom Event</a></li>
 </ul>
@@ -120,11 +120,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>ironSourceAtom Request</li>
+    <li>ironSourceAtom Event Storage</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/request.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/event_storage.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -134,56 +134,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-ironsource.atom.request">
-<span id="ironsourceatom-request"></span><h1>ironSourceAtom Request<a class="headerlink" href="#module-ironsource.atom.request" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ironsource.atom.event_storage">
+<span id="ironsourceatom-event-storage"></span><h1>ironSourceAtom Event Storage<a class="headerlink" href="#module-ironsource.atom.event_storage" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="ironsource.atom.request.Request">
-<em class="property">class </em><code class="descclassname">ironsource.atom.request.</code><code class="descname">Request</code><span class="sig-paren">(</span><em>url</em>, <em>data</em>, <em>headers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/request.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.request.Request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper for HTTP requests to Atom API</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>url</strong> (<em>str</em>) &#8211; server url</li>
-<li><strong>data</strong> (<em>str</em>) &#8211; data ot send to the server</li>
-<li><strong>headers</strong> (<em>list(String)</em>) &#8211; list of header information</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="ironsource.atom.event_storage.EventStorage">
+<em class="property">class </em><code class="descclassname">ironsource.atom.event_storage.</code><code class="descname">EventStorage</code><a class="reference internal" href="_modules/ironsource/atom/event_storage.html#EventStorage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.event_storage.EventStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Base Class for providing a generic way of storing events in a backlog before they are sent to Atom.</p>
 <dl class="method">
-<dt id="ironsource.atom.request.Request.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/request.html#Request.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.request.Request.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request with GET method</p>
-<p>This method encapsulates the data object with base64 encoding and sends it to the service.
-Sends the request according to the REST API specification</p>
+<dt id="ironsource.atom.event_storage.EventStorage.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event_object</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/event_storage.html#EventStorage.add_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.event_storage.EventStorage.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add event (must to be synchronized)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Response object from server</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="response.html#ironsource.atom.response.Response" title="ironsource.atom.response.Response">Response</a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_object</strong> (<a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event"><em>Event</em></a>) &#8211; event data object</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="ironsource.atom.request.Request.post">
-<code class="descname">post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/request.html#Request.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.request.Request.post" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request with POST method</p>
-<p>This method encapsulates the data and sends it to the service.
-Sends the request according to the REST API specification.</p>
+<dt id="ironsource.atom.event_storage.EventStorage.get_event">
+<code class="descname">get_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/event_storage.html#EventStorage.get_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.event_storage.EventStorage.get_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get event (must to be synchronized)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Response object from server</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Event object from storage</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="response.html#ironsource.atom.response.Response" title="ironsource.atom.response.Response">Response</a></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event">Event</a></td>
 </tr>
 </tbody>
 </table>
@@ -200,10 +181,10 @@ Sends the request according to the REST API specification.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="response.html" class="btn btn-neutral float-right" title="ironSourceAtom Response" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="queue_event_storage.html" class="btn btn-neutral float-right" title="ironSourceAtom Queue event storage" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="batch_event_pool.html" class="btn btn-neutral" title="ironSourceAtom Batch Event Pool" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ironsource_atom.html" class="btn btn-neutral" title="ironSourceAtom Low Level API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
