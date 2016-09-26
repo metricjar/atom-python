@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom api &mdash; ironSourceAtom 1.0.3 documentation</title>
+  <title>ironSourceAtom API &mdash; ironSourceAtom 1.1.2 documentation</title>
   
 
   
@@ -30,8 +30,9 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.0.3 documentation" href="index.html"/>
-        <link rel="prev" title="Welcome to ironSourceAtom’s documentation!" href="index.html"/> 
+    <link rel="top" title="ironSourceAtom 1.1.2 documentation" href="index.html"/>
+        <link rel="next" title="ironSourceAtom Event Manager Interface" href="event_manager.html"/>
+        <link rel="prev" title="ironSourceAtom Tracker" href="tracker.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                1.0.3
+                1.1.2
               </div>
             
           
@@ -81,7 +82,13 @@
             
             
                 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ironSourceAtom api</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracker.html">ironSourceAtom Tracker</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ironSourceAtom API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_manager.html">ironSourceAtom Event Manager Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">ironSourceAtom Event</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request.html">ironSourceAtom Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="response.html">ironSourceAtom Response</a></li>
 </ul>
 
             
@@ -112,7 +119,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>ironSourceAtom api</li>
+    <li>ironSourceAtom API</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -126,41 +133,75 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-api">
-<span id="ironsourceatom-api"></span><h1>ironSourceAtom api<a class="headerlink" href="#module-api" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ironsource.atom.ironsource_atom">
+<span id="ironsourceatom-api"></span><h1>ironSourceAtom API<a class="headerlink" href="#module-ironsource.atom.ironsource_atom" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="api.AtomApi">
-<em class="property">class </em><code class="descclassname">api.</code><code class="descname">AtomApi</code><span class="sig-paren">(</span><em>url='http://track.atom-data.io/'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api.html#AtomApi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.AtomApi" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a lower level class that interacts with the service via HTTP REST API</p>
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom">
+<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom.</code><code class="descname">IronSourceAtom</code><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>AtomApi</p>
+<p>ironSource Atom low level API. supports put_event() and put_events() methods.</p>
+<dl class="method">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug">
+<code class="descname">enable_debug</code><span class="sig-paren">(</span><em>is_debug</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.enable_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enabling debug information</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>url</strong> (<em>str</em>) &#8211; atom URL</li>
-<li><strong>auth</strong> (<em>str</em>) &#8211; Authentication key</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>is_debug</strong> (<em>bool</em>) &#8211; enable printing of debug information</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
 <dl class="method">
-<dt id="api.AtomApi._request_get">
-<code class="descname">_request_get</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api.html#AtomApi._request_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.AtomApi._request_get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request with GET method</p>
-<p>This method encasulates the data object with base64 encoding and sends it to the service.
-Sends the request according to the REST API specification</p>
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.get_auth">
+<code class="descname">get_auth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.get_auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.get_auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get HMAC authentication key</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint">
+<code class="descname">get_endpoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.get_endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current Atom API endpoint</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.get_request_data">
+<em class="property">static </em><code class="descname">get_request_data</code><span class="sig-paren">(</span><em>stream</em>, <em>auth_key</em>, <em>data</em>, <em>bulk=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.get_request_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.get_request_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create json data string from input data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>stream</strong> (<em>str</em>) &#8211; the stream name</li>
-<li><strong>data</strong> (<em>str</em>) &#8211; a string of data to send to the service</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; secret key for stream</li>
+<li><strong>data</strong> (<em>str</em>) &#8211; data to send to the server</li>
+<li><strong>bulk</strong> (<em>bool</em>) &#8211; send data by bulk</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">requests response object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">json data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
 </td>
 </tr>
 </tbody>
@@ -168,33 +209,23 @@ Sends the request according to the REST API specification</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="api.AtomApi._request_post">
-<code class="descname">_request_post</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em>, <em>bulk=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api.html#AtomApi._request_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.AtomApi._request_post" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request with POST method</p>
-<p>This method encapsulates the data and sends it to the service.
-Sends the request according to the REST API specification.</p>
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.print_log">
+<code class="descname">print_log</code><span class="sig-paren">(</span><em>log_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.print_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.print_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print debug information</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>stream</strong> (<em>str</em>) &#8211; the stream name</li>
-<li><strong>data</strong> (<em>str</em>) &#8211; a string of data to send to the service</li>
-<li><strong>bulk</strong> (<em>bool</em>) &#8211; specify if the data is bulked</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">requests response object</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_info</strong> (<em>str</em>) &#8211; debug information</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="api.AtomApi.put_event">
-<code class="descname">put_event</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em>, <em>method='POST'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api.html#AtomApi.put_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.AtomApi.put_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>A higher level method to send data</p>
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.put_event">
+<code class="descname">put_event</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em>, <em>method='POST'</em>, <em>auth_key=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.put_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.put_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a single event to Atom API</p>
 <p>This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,8 +233,9 @@ Sends the request according to the REST API specification.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; the HTTP(s) method to use when sending data - default is POST</li>
-<li><strong>stream</strong> (<em>str</em>) &#8211; the stream name</li>
-<li><strong>data</strong> (<em>dict/str</em>) &#8211; dict or a string of data to send to the server</li>
+<li><strong>stream</strong> (<em>str</em>) &#8211; Atom Stream name</li>
+<li><strong>data</strong> (<em>str</em>) &#8211; a string of data (payload) to send to the server</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; hmac auth key</li>
 </ul>
 </td>
 </tr>
@@ -215,23 +247,91 @@ Sends the request according to the REST API specification.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="api.AtomApi.put_events">
-<code class="descname">put_events</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api.html#AtomApi.put_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.AtomApi.put_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>A higher level method to send bulks of data</p>
-<p>This method received a list of dicts and transforms them into JSON objects and sends them
-to the service using HTTP(s) POST.</p>
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.put_events">
+<code class="descname">put_events</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em>, <em>auth_key=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.put_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.put_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send multiple events (batch) to Atom API</p>
+<p>This method receives a list of dictionaries, transforms them into JSON objects and sends them
+to Atom using HTTP(s) POST.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>stream</strong> (<em>str</em>) &#8211; the stream name</li>
-<li><strong>data</strong> (<em>list/str</em>) &#8211; list of dicts or a string of data to send to the server</li>
+<li><strong>stream</strong> (<em>str</em>) &#8211; Atom Stream name</li>
+<li><strong>data</strong> (<em>list(str)</em>) &#8211; a string of data to send to the server</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; a string of data to send to the server</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">requests response object</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.send_data">
+<em class="property">static </em><code class="descname">send_data</code><span class="sig-paren">(</span><em>url</em>, <em>data</em>, <em>method</em>, <em>headers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.send_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.send_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>headers</strong> (<em>dict</em>) &#8211; HTTP request headers</li>
+<li><strong>url</strong> (<em>str</em>) &#8211; Atom API endpoint</li>
+<li><strong>data</strong> (<em>str</em>) &#8211; data to send to the server</li>
+<li><strong>method</strong> (<em>str</em>) &#8211; type of HTTP request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">response from server</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="response.html#ironsource.atom.response.Response" title="ironsource.atom.response.Response">Response</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.set_auth">
+<code class="descname">set_auth</code><span class="sig-paren">(</span><em>auth_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.set_auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.set_auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set HMAC authentication key</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_key</strong> (<em>str</em>) &#8211; HMAC auth key for your stream</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint">
+<code class="descname">set_endpoint</code><span class="sig-paren">(</span><em>endpoint</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.set_endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set Atom Endpoint url</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>endpoint</strong> (<em>str</em>) &#8211; Atom API endpoint</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ironsource.atom.ironsource_atom.IronSourceAtom.set_logger">
+<code class="descname">set_logger</code><span class="sig-paren">(</span><em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom.html#IronSourceAtom.set_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom.IronSourceAtom.set_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set custom logger</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> (<em>logging.Logger</em>) &#8211; custom logger instance</td>
 </tr>
 </tbody>
 </table>
@@ -248,8 +348,10 @@ to the service using HTTP(s) POST.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="event_manager.html" class="btn btn-neutral float-right" title="ironSourceAtom Event Manager Interface" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to ironSourceAtom’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="tracker.html" class="btn btn-neutral" title="ironSourceAtom Tracker" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -280,7 +382,7 @@ to the service using HTTP(s) POST.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0.3',
+            VERSION:'1.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

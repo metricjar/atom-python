@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; ironSourceAtom 1.1.2 documentation</title>
+  <title>ironSourceAtom Event &mdash; ironSourceAtom 1.1.2 documentation</title>
   
 
   
@@ -30,7 +30,9 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.1.2 documentation" href="index.html"/> 
+    <link rel="top" title="ironSourceAtom 1.1.2 documentation" href="index.html"/>
+        <link rel="next" title="ironSourceAtom Event Task Pool" href="event_task_pool.html"/>
+        <link rel="prev" title="ironSourceAtom Event Manager Interface" href="event_manager.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -65,7 +67,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -79,11 +81,11 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tracker.html">ironSourceAtom Tracker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">ironSourceAtom API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="event_manager.html">ironSourceAtom Event Manager Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="event.html">ironSourceAtom Event</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ironSourceAtom Event</a></li>
 <li class="toctree-l1"><a class="reference internal" href="event_task_pool.html">ironSourceAtom Event Task Pool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request.html">ironSourceAtom Request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="response.html">ironSourceAtom Response</a></li>
@@ -109,7 +111,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -117,8 +119,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li></li>
+    <li>ironSourceAtom Event</li>
       <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/event.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -127,23 +133,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="ironsourceatom-event">
+<h1>ironSourceAtom Event<a class="headerlink" href="#ironsourceatom-event" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-ironsource.atom.event"></span><dl class="class">
+<dt id="ironsource.atom.event.Event">
+<em class="property">class </em><code class="descclassname">ironsource.atom.event.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/event.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.event.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event object - Holds a single atom event data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stream</strong> (<em>basestring</em>) &#8211; atom stream name</li>
+<li><strong>data</strong> (<em>basestring</em>) &#8211; payload date to send</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
-  
-  <div id="search-results">
-  
-  </div>
+</div>
+
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="event_task_pool.html" class="btn btn-neutral float-right" title="ironSourceAtom Event Task Pool" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="event_manager.html" class="btn btn-neutral" title="ironSourceAtom Event Manager Interface" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -181,7 +205,6 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="_static/searchtools.js"></script>
 
   
 
@@ -197,14 +220,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>
