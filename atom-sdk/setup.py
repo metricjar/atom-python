@@ -4,7 +4,7 @@ import sys
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
 from pip.download import PipSession
-from ironSourceAtom import __version__
+from ironsource import __version__
 
 install_reqs = parse_requirements('requirements.txt', session=PipSession())
 reqs = [str(ir.req) for ir in install_reqs]
@@ -15,10 +15,10 @@ if sys.version_info < (2, 7):
     tests_require.append('unittest2')
 
 setup(
-    name="ironSourceAtom",
+    name="ironsource-atom",
     version=__version__,
     description="ironSource.atom Python SDK",
-    packages=["ironSourceAtom"],
+    packages=["ironsource"],
     author="ironSource.atom",
     author_email="atom@ironsrc.com",
     url="https://github.com/ironSource/atom-python",
