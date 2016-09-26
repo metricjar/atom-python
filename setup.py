@@ -18,7 +18,7 @@ setup(
     name="ironsource-atom",
     version=__version__,
     description="ironSource.atom Python SDK",
-    packages=["ironsource"],
+    packages=["ironsource", "ironsource.atom"],
     author="ironSource.atom",
     author_email="atom@ironsrc.com",
     url="https://github.com/ironSource/atom-python",
