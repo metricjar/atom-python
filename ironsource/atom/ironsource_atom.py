@@ -16,7 +16,7 @@ class IronSourceAtom:
 
     _TAG = "IronSourceAtom"
 
-    _SDK_VERSION = "1.1.3"
+    _SDK_VERSION = "1.1.5"
     _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
@@ -108,8 +108,8 @@ class IronSourceAtom:
         :type method: str
         :param stream: Atom Stream name
         :type stream: str
-        :param data: a string of data (payload) to send to the server
-        :type data: str
+        :param data: data (payload) that should be sent to the server
+        :type data: object
         :param auth_key: hmac auth key
         :type auth_key: str
 
@@ -140,7 +140,7 @@ class IronSourceAtom:
         :return: requests response object
         """
         if not isinstance(data, list):
-            raise Exception("data has to be of data type list")
+            raise Exception("Data has to be of data type list")
 
         if len(auth_key) == 0:
             auth_key = self._auth_key
@@ -162,13 +162,19 @@ class IronSourceAtom:
         :param auth_key: secret key for stream
         :type auth_key: str
         :param data: data to send to the server
-        :type data: str
+        :type data: object
         :param bulk: send data by bulk
         :type bulk: bool
 
         :return: json data
         :rtype: str
         """
+        if not isinstance(data, basestring):
+            try:
+                data = json.dumps(data)
+            except TypeError:
+                raise Exception("Cannot Encode JSON")
+
         request_data = {"table": stream, "data": data}
 
         if len(auth_key) != 0:

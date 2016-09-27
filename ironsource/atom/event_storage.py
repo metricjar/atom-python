@@ -21,7 +21,7 @@ class EventStorage:
         pass
 
     @abc.abstractmethod
-    def get_event(self):
+    def get_event(self, stream):
         """
         Get event (must to be synchronized)
 

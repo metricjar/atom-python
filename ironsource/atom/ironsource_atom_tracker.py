@@ -1,3 +1,6 @@
+import json
+import signal
+
 from ironsource.atom.ironsource_atom import IronSourceAtom
 from ironsource.atom.queue_event_storage import QueueEventStorage
 from ironsource.atom.batch_event_pool import BatchEventPool
@@ -24,10 +27,10 @@ class IronSourceAtomTracker:
 
     _FLUSH_INTERVAL = 10000
 
-    # Number of workers(threads) for BatchEventPool
-    _TASK_WORKER_COUNT = 10
-    # Number of events to hold in BatchEventPool
-    _TASK_POOL_SIZE = 5000
+    # Default Number of workers(threads) for BatchEventPool
+    _TASK_WORKER_COUNT = 1
+    # Default Number of events to hold in BatchEventPool
+    _TASK_POOL_SIZE = 1500
 
     _RETRY_MIN_TIME = 1
     _RETRY_MAX_TIME = 10
@@ -72,6 +75,10 @@ class IronSourceAtomTracker:
         stream_object.setFormatter(logger_formatter)
         self._logger.addHandler(stream_object)
 
+        # Intercept exit signals
+        signal.signal(signal.SIGTERM, self.exit_handler)
+        signal.signal(signal.SIGINT, self.exit_handler)
+
     def stop(self):
         """
         Stop worker thread and event_pool thread's
@@ -112,7 +119,7 @@ class IronSourceAtomTracker:
         Set server host address
 
         :param endpoint: server url
-        :type endpoint: basestring
+        :type endpoint: str
         """
         self._api.set_endpoint(endpoint)
 
@@ -121,7 +128,7 @@ class IronSourceAtomTracker:
         Set auth key for stream
 
         :param auth_key: secret auth key
-        :type auth_key: basestring
+        :type auth_key: str
         """
         self._api.set_auth(auth_key)
 
@@ -157,14 +164,17 @@ class IronSourceAtomTracker:
         Track event
 
         :param stream: name of stream
-        :type stream: basestring
+        :type stream: str
         :param data: data for sending
-        :type data: basestring
+        :type data: object
         :param auth_key: secret auth key for stream
-        :type auth_key: basestring
+        :type auth_key: str
         """
         if len(auth_key) == 0:
             auth_key = self._api.get_auth()
+
+        if not isinstance(data, basestring):
+            data = json.dumps(data)
 
         with self._data_lock:
             if stream not in self._stream_data:
@@ -243,15 +253,15 @@ class IronSourceAtomTracker:
         """
         attempt = 1
 
-        while True:
+        while self._is_run_worker:
             response = self._api.put_events(stream, data=data, auth_key=auth_key)
             if 500 > response.status > 1:
                 self.print_log("Sent: " + str(data) + "; status: " + str(response.status))
                 break
 
             duration = self._get_duration(attempt)
-            time.floatsleep(duration)
-            self.print_log("Url: " + self._api.get_endpoint() + " Retry request: " + data)
+            time.sleep(duration)
+            self.print_log("Url: " + self._api.get_endpoint() + " Retry request: " + str(data))
 
     def _get_duration(self, attempt):
         """
@@ -273,7 +283,19 @@ class IronSourceAtomTracker:
         Print debug information
 
         :param log_data: debug information
-        :type log_data: basestrings
+        :type log_data: str
         """
         if self._is_debug:
             self._logger.info(IronSourceAtomTracker._TAG + ": " + log_data)
+
+    def exit_handler(self, sig, frame):
+        """
+        Tracker exit handler
+        :param frame: current stack frame
+        :type frame: frame
+        :type sig: OS SIGNAL number
+        :param sig: integer
+        """
+        self._is_flush_data = False
+        self._logger.info('Intercepted signal %s' % sig)
+        self.stop()

@@ -23,10 +23,19 @@ $ pip install --upgrade ironsource-atom
 ## Usage
  
 ### Tracker usage
-Importing the library and initializing
-
+**NOTE:**
+The tracker is a based on a thread pool which is controlled by BatchEventPool.  
+By default the BatchEventPool is configured to use one thread, you can change it when constructing the tracker.  
 ```python
-import json
+# Default Number of workers(threads) for BatchEventPool
+_TASK_WORKER_COUNT = 1
+# Default Number of events to hold in BatchEventPool
+_TASK_POOL_SIZE = 1500
+tracker = IronSourceAtomTracker(task_worker_count=_TASK_WORKER_COUNT, task_pool_size=_TASK_POOL_SIZE)
+```
+
+Importing the library and initializing  
+```python
 from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
 tracker = IronSourceAtomTracker()
@@ -42,7 +51,7 @@ auth_key = "YOUR_HMAC_AUTH_KEY"
 
 # Example of an event
 data = {"id": 123, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE"}
-tracker.track(stream=stream, data=json.dumps(data), auth_key=auth_key) # auth_key is optional
+tracker.track(stream=stream, data=data, auth_key=auth_key) # auth_key is optional
 
 # To force flush all events, use:
 tracker.flush()
@@ -101,7 +110,7 @@ api.set_endpoint("http://track.atom-data.io/")
 
 stream = "<YOUR_STREAM_NAME>"
 data = {"event_name": "PYTHON_SDK_POST_EXAMPLE"}
-api.put_event(stream=stream, data=json.dumps(data), method="post")
+api.put_event(stream=stream, data=data, method="post")
 
 # Sending a bulk of events - should be a list of strings.
 

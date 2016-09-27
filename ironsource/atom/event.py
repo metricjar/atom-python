@@ -5,7 +5,7 @@ class Event:
         :param stream: atom stream name
         :type stream: basestring
         :param data: payload date to send
-        :type data: basestring
+        :type data: object
     """
 
     def __init__(self, stream, data):

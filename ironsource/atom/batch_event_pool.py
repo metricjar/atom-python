@@ -57,7 +57,7 @@ class BatchEventPool:
         Add event for task pool
 
         :param event_action: event lambda
-        :type event_action: lamda
+        :type event_action: lambda
         :raises: EventTaskPoolException
         """
         if (len(self._events) + 1) > self._max_events:
