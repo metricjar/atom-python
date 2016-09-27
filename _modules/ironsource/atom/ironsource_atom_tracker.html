@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.1.3 documentation</title>
+  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.1.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.1.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.1.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.1.3
+                1.1.6
               </div>
             
           
@@ -134,7 +134,10 @@
            <div itemprop="articleBody">
             
   <h1>Source code for ironsource.atom.ironsource_atom_tracker</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">ironsource.atom.ironsource_atom</span> <span class="kn">import</span> <span class="n">IronSourceAtom</span>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+
+<span class="kn">from</span> <span class="nn">ironsource.atom.ironsource_atom</span> <span class="kn">import</span> <span class="n">IronSourceAtom</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.queue_event_storage</span> <span class="kn">import</span> <span class="n">QueueEventStorage</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.batch_event_pool</span> <span class="kn">import</span> <span class="n">BatchEventPool</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.event</span> <span class="kn">import</span> <span class="n">Event</span>
@@ -160,10 +163,10 @@
 
     <span class="n">_FLUSH_INTERVAL</span> <span class="o">=</span> <span class="mi">10000</span>
 
-    <span class="c1"># Number of workers(threads) for BatchEventPool</span>
-    <span class="n">_TASK_WORKER_COUNT</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="c1"># Number of events to hold in BatchEventPool</span>
-    <span class="n">_TASK_POOL_SIZE</span> <span class="o">=</span> <span class="mi">5000</span>
+    <span class="c1"># Default Number of workers(threads) for BatchEventPool</span>
+    <span class="n">_TASK_WORKER_COUNT</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># Default Number of events to hold in BatchEventPool</span>
+    <span class="n">_TASK_POOL_SIZE</span> <span class="o">=</span> <span class="mi">1500</span>
 
     <span class="n">_RETRY_MIN_TIME</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">_RETRY_MAX_TIME</span> <span class="o">=</span> <span class="mi">10</span>
@@ -208,6 +211,10 @@
         <span class="n">stream_object</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logger_formatter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">stream_object</span><span class="p">)</span>
 
+        <span class="c1"># Intercept exit signals</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">)</span>
+
 <div class="viewcode-block" id="IronSourceAtomTracker.stop"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stop worker thread and event_pool thread&#39;s</span>
@@ -248,7 +255,7 @@
 <span class="sd">        Set server host address</span>
 
 <span class="sd">        :param endpoint: server url</span>
-<span class="sd">        :type endpoint: basestring</span>
+<span class="sd">        :type endpoint: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">set_endpoint</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span></div>
 
@@ -257,7 +264,7 @@
 <span class="sd">        Set auth key for stream</span>
 
 <span class="sd">        :param auth_key: secret auth key</span>
-<span class="sd">        :type auth_key: basestring</span>
+<span class="sd">        :type auth_key: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">set_auth</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span></div>
 
@@ -293,14 +300,17 @@
 <span class="sd">        Track event</span>
 
 <span class="sd">        :param stream: name of stream</span>
-<span class="sd">        :type stream: basestring</span>
+<span class="sd">        :type stream: str</span>
 <span class="sd">        :param data: data for sending</span>
-<span class="sd">        :type data: basestring</span>
+<span class="sd">        :type data: object</span>
 <span class="sd">        :param auth_key: secret auth key for stream</span>
-<span class="sd">        :type auth_key: basestring</span>
+<span class="sd">        :type auth_key: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">get_auth</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_data</span><span class="p">:</span>
@@ -379,15 +389,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">attempt</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">put_events</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">)</span>
             <span class="k">if</span> <span class="mi">500</span> <span class="o">&gt;</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">print_log</span><span class="p">(</span><span class="s2">&quot;Sent: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;; status: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
                 <span class="k">break</span>
 
             <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_duration</span><span class="p">(</span><span class="n">attempt</span><span class="p">)</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">floatsleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">print_log</span><span class="p">(</span><span class="s2">&quot;Url: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; Retry request: &quot;</span> <span class="o">+</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_log</span><span class="p">(</span><span class="s2">&quot;Url: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; Retry request: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -409,10 +419,22 @@
 <span class="sd">        Print debug information</span>
 
 <span class="sd">        :param log_data: debug information</span>
-<span class="sd">        :type log_data: basestrings</span>
+<span class="sd">        :type log_data: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">IronSourceAtomTracker</span><span class="o">.</span><span class="n">_TAG</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">log_data</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">IronSourceAtomTracker</span><span class="o">.</span><span class="n">_TAG</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">log_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IronSourceAtomTracker.exit_handler"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.exit_handler">[docs]</a>    <span class="k">def</span> <span class="nf">exit_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tracker exit handler</span>
+<span class="sd">        :param frame: current stack frame</span>
+<span class="sd">        :type frame: frame</span>
+<span class="sd">        :type sig: OS SIGNAL number</span>
+<span class="sd">        :param sig: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_flush_data</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Intercepted signal </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sig</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
@@ -446,7 +468,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.1.3',
+            VERSION:'1.1.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

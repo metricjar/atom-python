@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.1.3 documentation</title>
+  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.1.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.1.3 documentation" href="index.html"/>
+    <link rel="top" title="ironSourceAtom 1.1.6 documentation" href="index.html"/>
         <link rel="next" title="ironSourceAtom Low Level API" href="ironsource_atom.html"/>
         <link rel="prev" title="Welcome to ironSourceAtom’s documentation!" href="index.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.1.3
+                1.1.6
               </div>
             
           
@@ -138,7 +138,7 @@
 <span id="ironsourceatom-high-level-tracker"></span><h1>ironSourceAtom High Level - Tracker<a class="headerlink" href="#module-ironsource.atom.ironsource_atom_tracker" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">
-<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>task_worker_count=10</em>, <em>task_pool_size=5000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>task_worker_count=1</em>, <em>task_pool_size=1500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>ironSource Atom high level API class (Tracker), supports: track() and flush()</p>
 <dl class="method">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">
@@ -155,6 +155,16 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.exit_handler">
+<code class="descname">exit_handler</code><span class="sig-paren">(</span><em>sig</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.exit_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.exit_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracker exit handler
+:param frame: current stack frame
+:type frame: frame
+:type sig: OS SIGNAL number
+:param sig: integer</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">
 <code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flush data from all streams</p>
@@ -168,7 +178,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_data</strong> (<em>basestrings</em>) &#8211; debug information</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_data</strong> (<em>str</em>) &#8211; debug information</td>
 </tr>
 </tbody>
 </table>
@@ -182,7 +192,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_key</strong> (<em>basestring</em>) &#8211; secret auth key</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_key</strong> (<em>str</em>) &#8211; secret auth key</td>
 </tr>
 </tbody>
 </table>
@@ -224,7 +234,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>endpoint</strong> (<em>basestring</em>) &#8211; server url</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>endpoint</strong> (<em>str</em>) &#8211; server url</td>
 </tr>
 </tbody>
 </table>
@@ -287,9 +297,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> (<em>basestring</em>) &#8211; name of stream</li>
-<li><strong>data</strong> (<em>basestring</em>) &#8211; data for sending</li>
-<li><strong>auth_key</strong> (<em>basestring</em>) &#8211; secret auth key for stream</li>
+<li><strong>stream</strong> (<em>str</em>) &#8211; name of stream</li>
+<li><strong>data</strong> (<em>object</em>) &#8211; data for sending</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; secret auth key for stream</li>
 </ul>
 </td>
 </tr>
@@ -342,7 +352,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.1.3',
+            VERSION:'1.1.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
