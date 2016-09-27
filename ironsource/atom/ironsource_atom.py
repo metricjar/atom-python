@@ -16,7 +16,7 @@ class IronSourceAtom:
 
     _TAG = "IronSourceAtom"
 
-    _SDK_VERSION = "1.1.2"
+    _SDK_VERSION = "1.1.3"
     _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
@@ -29,7 +29,7 @@ class IronSourceAtom:
         self._init_headers()
 
         # init default logger
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger("ATOM-LOW-LEVEL")
         self._logger.setLevel(logging.DEBUG)
 
         stream_object = logging.StreamHandler(sys.stdout)

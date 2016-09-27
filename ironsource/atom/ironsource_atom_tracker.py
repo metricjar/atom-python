@@ -25,7 +25,7 @@ class IronSourceAtomTracker:
     _FLUSH_INTERVAL = 10000
 
     # Number of workers(threads) for BatchEventPool
-    _TASK_WORKER_COUNT = 24
+    _TASK_WORKER_COUNT = 10
     # Number of events to hold in BatchEventPool
     _TASK_POOL_SIZE = 5000
 
@@ -63,7 +63,7 @@ class IronSourceAtomTracker:
         worker_thread.start()
 
         # init default logger
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger("ATOM-TRACKER")
         self._logger.setLevel(logging.DEBUG)
 
         stream_object = logging.StreamHandler(sys.stdout)
