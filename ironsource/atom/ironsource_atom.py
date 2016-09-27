@@ -16,7 +16,7 @@ class IronSourceAtom:
 
     _TAG = "IronSourceAtom"
 
-    _SDK_VERSION = "1.1.5"
+    _SDK_VERSION = "1.1.6"
     _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
@@ -169,7 +169,7 @@ class IronSourceAtom:
         :return: json data
         :rtype: str
         """
-        if not isinstance(data, basestring):
+        if not isinstance(data, str):
             try:
                 data = json.dumps(data)
             except TypeError:

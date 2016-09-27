@@ -173,7 +173,7 @@ class IronSourceAtomTracker:
         if len(auth_key) == 0:
             auth_key = self._api.get_auth()
 
-        if not isinstance(data, basestring):
+        if not isinstance(data, str):
             data = json.dumps(data)
 
         with self._data_lock:
