@@ -38,7 +38,7 @@ if __name__ == "__main__":
            "; status: " + str(response_post.status))
 
     print ("\n==== POST REQUEST TO ATOM WITH DICT ====")
-    data_post = {"id": 4, "event_name": "PYTHON_SDK_POST_EXAMPLE_STRING_DICT", "string_value": str(random.random())}
+    data_post = {"id": 4, "event_name": "PYTHON_SDK_POST_EXAMPLE_DICT", "string_value": str(random.random())}
     response_post = api_.put_event(stream=stream, data=data_post, auth_key=auth_key)
     print ("POST Response data: " + str(response_post.data) + "; error: " + str(response_post.error) +
            "; status: " + str(response_post.status))

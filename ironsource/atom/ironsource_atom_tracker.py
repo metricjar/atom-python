@@ -28,14 +28,18 @@ class IronSourceAtomTracker:
     _FLUSH_INTERVAL = 10000
 
     # Default Number of workers(threads) for BatchEventPool
-    _TASK_WORKER_COUNT = 1
+    _BATCH_WORKER_COUNT = 1
     # Default Number of events to hold in BatchEventPool
-    _TASK_POOL_SIZE = 1500
+    _BATCH_POOL_SIZE = 3000
+    # Default backlog queue size (per stream)
+    _BACKLOG_SIZE = 12000
 
     _RETRY_MIN_TIME = 1
     _RETRY_MAX_TIME = 10
 
-    def __init__(self, task_worker_count=_TASK_WORKER_COUNT, task_pool_size=_TASK_POOL_SIZE):
+    def __init__(self, batch_worker_count=_BATCH_WORKER_COUNT, batch_pool_size=_BATCH_POOL_SIZE,
+                 backlog_size=_BACKLOG_SIZE):
+
         self._api = IronSourceAtom()
         self._is_debug = False
         self._is_run_worker = True
@@ -56,11 +60,11 @@ class IronSourceAtomTracker:
 
         self._flush_interval = IronSourceAtomTracker._FLUSH_INTERVAL
 
-        # Holds single events after for track method
-        self._event_backlog = QueueEventStorage()
+        # Holds the events after .track method
+        self._event_backlog = QueueEventStorage(queue_size=backlog_size)
 
-        self._batch_event_pool = BatchEventPool(thread_count=task_worker_count,
-                                                max_events=task_pool_size)
+        self._batch_event_pool = BatchEventPool(thread_count=batch_worker_count,
+                                                max_events=batch_pool_size)
 
         worker_thread = Thread(target=self._event_worker)
         worker_thread.start()

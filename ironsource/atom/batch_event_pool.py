@@ -46,7 +46,7 @@ class BatchEventPool:
         while self._is_running:
             if len(self._events) > 0:
                 try:
-                    action = self._events.pop()
+                    action = self._events.popleft()
                 except IndexError:
                     continue
 

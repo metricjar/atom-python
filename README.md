@@ -24,14 +24,18 @@ $ pip install --upgrade ironsource-atom
  
 ### Tracker usage
 **NOTE:**
-The tracker is a based on a thread pool which is controlled by BatchEventPool.  
-By default the BatchEventPool is configured to use one thread, you can change it when constructing the tracker.  
+The tracker is a based on a thread pool which is controlled by BatchEventPool and  a backlog (QueueEventStorage)
+By default the BatchEventPool is configured to use one thread, you can change it when constructing the tracker.
+This are the defaults for both Classes:
 ```python
 # Default Number of workers(threads) for BatchEventPool
-_TASK_WORKER_COUNT = 1
+_BATCH_WORKER_COUNT = 1
 # Default Number of events to hold in BatchEventPool
-_TASK_POOL_SIZE = 1500
-tracker = IronSourceAtomTracker(task_worker_count=_TASK_WORKER_COUNT, task_pool_size=_TASK_POOL_SIZE)
+_BATCH_POOL_SIZE = 3000
+# Default backlog queue size (per stream)
+_BACKLOG_SIZE = 12000
+tracker = IronSourceAtomTracker(batch_worker_count=_BATCH_WORKER_COUNT, batch_pool_size=_BATCH_POOL_SIZE,
+                                backlog_size=_BACKLOG_SIZE)
 ```
 
 Importing the library and initializing  
@@ -55,6 +59,9 @@ tracker.track(stream=stream, data=data, auth_key=auth_key) # auth_key is optiona
 
 # To force flush all events, use:
 tracker.flush()
+
+# To stop the tracker, use:
+tracker.stop()
 ```
 ### Abstract class for storing data at tracker backlog `EventStorage`
 Implementation must to be synchronized for multithreading use.

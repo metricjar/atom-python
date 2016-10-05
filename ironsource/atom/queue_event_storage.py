@@ -8,9 +8,10 @@ class QueueEventStorage(EventStorage):
         Queue event storage - in memory queue that implements ABC EventStorage
     """
 
-    def __init__(self):
+    def __init__(self, queue_size):
+        super(QueueEventStorage, self).__init__()
         self._dictionary_lock = Lock()
-
+        self._queue_size = queue_size
         self._events = {}
 
     def add_event(self, event_object):
@@ -22,7 +23,7 @@ class QueueEventStorage(EventStorage):
         """
         with self._dictionary_lock:
             if event_object.stream not in self._events:
-                self._events[event_object.stream] = deque()
+                self._events[event_object.stream] = deque(maxlen=self._queue_size)
 
             self._events[event_object.stream].append(event_object)
 
@@ -35,6 +36,6 @@ class QueueEventStorage(EventStorage):
         """
         with self._dictionary_lock:
             if stream in self._events and (len(self._events[stream]) > 0):
-                return self._events[stream].pop()
+                return self._events[stream].popleft()
 
         return None

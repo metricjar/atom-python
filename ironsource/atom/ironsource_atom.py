@@ -16,7 +16,7 @@ class IronSourceAtom:
 
     _TAG = "IronSourceAtom"
 
-    _SDK_VERSION = "1.1.6"
+    _SDK_VERSION = "1.1.7"
     _ATOM_URL = "http://track.atom-data.io/"
 
     def __init__(self):
