@@ -54,11 +54,12 @@ if __name__ == "__main__":
     # tracker example
     print ("\n==== TESTING ATOM TRACKER ====")
     api_tracker = IronSourceAtomTracker()
-    # api_tracker.set_bulk_bytes_size(2)
+    api_tracker.set_bulk_bytes_size(1337)
+    api_tracker.set_bulk_size(10)
+    api_tracker.set_flush_interval(10000)
     api_tracker.enable_debug(True)
-
-    api_tracker.set_flush_interval(10)
     api_tracker.set_endpoint("http://track.atom-data.io/")
+    api_tracker.set_endpoint("http://127.0.0.1:3000/")
 
 
     class ThreadClass:
@@ -67,8 +68,12 @@ if __name__ == "__main__":
             self._thread_lock = Lock()
 
         def thread_worker(self, args):
+            print("Thread " + str(args) + " Started")
+
             while True:
                 if self._call_index >= 30:
+                    print("Thread " + str(args) + " Finished")
+                    time.sleep(1)
                     return
                 with self._thread_lock:
                     data_track = {"id": self._call_index, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE",
@@ -77,15 +82,19 @@ if __name__ == "__main__":
                 api_tracker.track(stream=stream, data=data_track, auth_key=auth_key)
 
 
-    t = ThreadClass()
+    threads_array = []
+    thread_instance = ThreadClass()
     for index in range(0, 10):
         thread_index = index
+        thread = Thread(target=thread_instance.thread_worker, args=[thread_index])
+        threads_array.append(thread)
 
-        thread = Thread(target=t.thread_worker, args=[thread_index])
+    for thread in threads_array:
         thread.start()
 
-    time.sleep(10)
+    for thread in threads_array:
+        thread.join()
 
-    # Tracker can be terminated using SIGTERM and SIGINT
-    api_tracker.stop()
+    # time.sleep(100)
     print ("Finished all example methods.")
+    api_tracker.stop()

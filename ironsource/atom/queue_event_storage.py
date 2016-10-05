@@ -24,7 +24,6 @@ class QueueEventStorage(EventStorage):
         with self._dictionary_lock:
             if event_object.stream not in self._events:
                 self._events[event_object.stream] = deque(maxlen=self._queue_size)
-
             self._events[event_object.stream].append(event_object)
 
     def get_event(self, stream):
@@ -39,3 +38,16 @@ class QueueEventStorage(EventStorage):
                 return self._events[stream].popleft()
 
         return None
+
+    def remove_event(self, stream):
+        """
+        remove event object from queue
+        :param stream:  atom stream name
+        """
+        with self._dictionary_lock:
+            if stream in self._events and (len(self._events[stream]) > 0):
+                return self._events[stream].popleft()
+
+
+
+

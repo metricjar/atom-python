@@ -33,7 +33,7 @@ class IronSourceAtomTracker:
     _BATCH_POOL_SIZE = 3000
     # Default backlog queue size (per stream)
     _BACKLOG_SIZE = 12000
-
+    # Retry on 500 / Connection error conf
     _RETRY_MIN_TIME = 1
     _RETRY_MAX_TIME = 10
 
@@ -50,7 +50,8 @@ class IronSourceAtomTracker:
 
         self._data_lock = Lock()
 
-        self._stream_data = {}
+        # Streams to keys map
+        self._stream_keys = {}
 
         self._retry_min_time = IronSourceAtomTracker._RETRY_MIN_TIME
         self._retry_max_time = IronSourceAtomTracker._RETRY_MAX_TIME
@@ -63,11 +64,12 @@ class IronSourceAtomTracker:
         # Holds the events after .track method
         self._event_backlog = QueueEventStorage(queue_size=backlog_size)
 
+        # Holds batch of events for each stream and sends them using {thread_count} workers
         self._batch_event_pool = BatchEventPool(thread_count=batch_worker_count,
                                                 max_events=batch_pool_size)
 
-        worker_thread = Thread(target=self._event_worker)
-        worker_thread.start()
+        handler_thread = Thread(target=self._tracker_handler)
+        handler_thread.start()
 
         # init default logger
         self._logger = logging.getLogger("ATOM-TRACKER")
@@ -80,13 +82,15 @@ class IronSourceAtomTracker:
         self._logger.addHandler(stream_object)
 
         # Intercept exit signals
-        signal.signal(signal.SIGTERM, self.exit_handler)
-        signal.signal(signal.SIGINT, self.exit_handler)
+        signal.signal(signal.SIGTERM, self.graceful_kill)
+        signal.signal(signal.SIGINT, self.graceful_kill)
 
     def stop(self):
         """
         Stop worker thread and event_pool thread's
         """
+        # flush everything todo: add flush_all method
+        self.print_log("Flushing all data and killing the tracker")
         self._is_run_worker = False
         self._batch_event_pool.stop()
 
@@ -181,8 +185,8 @@ class IronSourceAtomTracker:
             data = json.dumps(data)
 
         with self._data_lock:
-            if stream not in self._stream_data:
-                self._stream_data[stream] = auth_key
+            if stream not in self._stream_keys:
+                self._stream_keys[stream] = auth_key
 
             self._event_backlog.add_event(Event(stream, data))
 
@@ -192,14 +196,13 @@ class IronSourceAtomTracker:
         """
         self._is_flush_data = True
 
-    def _event_worker(self):
+    def _tracker_handler(self):
         """
-        Event worker for collect and send data
+        Main tracker function, handles flushing
         """
-        timer_start_time = {}
-        timer_delta_time = {}
-
+        # Temp buffer between backlog and batch pool
         events_buffer = {}
+        # Dict to hold events size for every stream
         events_size = {}
 
         def flush_data(stream, auth_key):
@@ -209,23 +212,14 @@ class IronSourceAtomTracker:
             self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, inner_buffer))
 
         while self._is_run_worker:
-            for stream_name, stream_value in self._stream_data.items():
-                if stream_name not in timer_start_time:
-                    timer_start_time[stream_name] = self._current_milliseconds()
+            for stream_name, stream_value in self._stream_keys.items():
 
-                if stream_name not in timer_delta_time:
-                    timer_delta_time[stream_name] = 0
+                # if stream_name in events_buffer and len(events_buffer[stream_name]) > 0:
+                # flush_data(stream_name, auth_key=self._stream_keys[stream_name])
 
-                timer_delta_time[stream_name] += self._current_milliseconds() - timer_start_time[stream_name]
-                timer_start_time[stream_name] = self._current_milliseconds()
+                # todo: fix time interval
 
-                if timer_delta_time[stream_name] >= self._flush_interval:
-                    timer_delta_time[stream_name] = 0
-
-                    if stream_name in events_buffer and len(events_buffer[stream_name]) > 0:
-                        flush_data(stream_name, auth_key=self._stream_data[stream_name])
-
-                # get event data
+                # Get one event from the backlog
                 event_object = self._event_backlog.get_event(stream_name)
                 if event_object is None:
                     continue
@@ -240,13 +234,13 @@ class IronSourceAtomTracker:
                 events_buffer[stream_name].append(event_object.data)
 
                 if events_size[stream_name] >= self._bulk_bytes_size:
-                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+                    flush_data(stream_name, auth_key=self._stream_keys[stream_name])
 
                 if len(events_buffer[stream_name]) > self._bulk_size:
-                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+                    flush_data(stream_name, auth_key=self._stream_keys[stream_name])
 
                 if self._is_flush_data:
-                    flush_data(stream_name, auth_key=self._stream_data[stream_name])
+                    flush_data(stream_name, auth_key=self._stream_keys[stream_name])
 
             if self._is_flush_data:
                 self._is_flush_data = False
@@ -266,6 +260,9 @@ class IronSourceAtomTracker:
             duration = self._get_duration(attempt)
             time.sleep(duration)
             self.print_log("Url: " + self._api.get_endpoint() + " Retry request: " + str(data))
+
+    def flush_all(self):
+        for stream in self._stream_keys.keys():
 
     def _get_duration(self, attempt):
         """
@@ -292,7 +289,7 @@ class IronSourceAtomTracker:
         if self._is_debug:
             self._logger.info(IronSourceAtomTracker._TAG + ": " + log_data)
 
-    def exit_handler(self, sig, frame):
+    def graceful_kill(self, sig, frame):
         """
         Tracker exit handler
         :param frame: current stack frame
@@ -300,6 +297,5 @@ class IronSourceAtomTracker:
         :type sig: OS SIGNAL number
         :param sig: integer
         """
-        self._is_flush_data = False
         self._logger.info('Intercepted signal %s' % sig)
         self.stop()

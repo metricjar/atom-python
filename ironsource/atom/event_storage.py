@@ -29,3 +29,10 @@ class EventStorage:
         :rtype: Event
         """
         pass
+
+    def remove_event(self, stream):
+        """
+        Remove event from storage
+        :param stream:
+        :return:
+        """
