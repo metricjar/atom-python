@@ -1,8 +1,5 @@
-import requests
 import base64
-
-from requests.exceptions import RequestException
-
+import requests.exceptions
 from ironsource.atom.response import Response
 
 
@@ -17,12 +14,11 @@ class Request:
         :param headers: list of header information
         :type headers: list(String)
     """
-    def __init__(self, url, data, headers):
+
+    def __init__(self, url, data, session):
         self._url = url
         self._data = data
-        self._headers = headers
-
-        self._session = requests.Session()
+        self._session = session
 
     def get(self):
         """Request with GET method
@@ -34,17 +30,15 @@ class Request:
         :rtype: Response
         """
 
-        base64_str = base64.encodestring(('%s' % (self._data)).encode()).decode().replace('\n', '')
+        base64_str = base64.encodestring(('%s' % self._data).encode()).decode().replace('\n', '')
         params = {'data': base64_str}
 
         try:
-            response = self._session.get(self._url, params=params, headers=self._headers)
-        except RequestException as ex:  # pragma: no cover
-            if ex.response:
-                return Response(response.content, None, response.status_code)
-            else:
-                return Response("Failed to establish a new connection", None, -1)
-
+            response = self._session.get(self._url, params=params)
+        except requests.exceptions.ConnectionError:  # pragma: no cover
+            return Response("No connection to server", None, 500)
+        except requests.exceptions.RequestException as ex:  # pragma: no cover
+            return Response(ex, None, 400)
         if 200 <= response.status_code < 400:
             return Response(None, response.content, response.status_code)
         else:
@@ -60,12 +54,11 @@ class Request:
         :rtype: Response
         """
         try:
-            response = self._session.post(url=self._url, data=self._data, headers=self._headers)
-        except RequestException as ex:  # pragma: no cover
-            if ex.response:
-                return Response(response.content, None, response.status_code)
-            else:
-                return Response("Failed to establish a new connection", None, -1)
+            response = self._session.post(url=self._url, data=self._data)
+        except requests.exceptions.ConnectionError:  # pragma: no cover
+            return Response("No connection to server", None, 500)
+        except requests.exceptions.RequestException as ex:  # pragma: no cover
+            return Response(ex, None, 400)
 
         if 200 <= response.status_code < 400:
             return Response(None, response.content, response.status_code)

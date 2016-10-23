@@ -34,5 +34,11 @@ class EventStorage:
         """
         Remove event from storage
         :param stream:
-        :return:
+        :return: None
+        """
+
+    def is_empty(self):
+        """
+        Check if the storage is empty
+        :return: True is empty, else False
         """

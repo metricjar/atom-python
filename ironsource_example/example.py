@@ -9,13 +9,12 @@ from threading import Thread
 from threading import Lock
 
 if __name__ == "__main__":
-    api_ = IronSourceAtom()
-
-    api_.enable_debug(True)
-    api_.set_endpoint("http://track.atom-data.io/")
-
     stream = "sdkdev_sdkdev.public.zeev"
     auth_key = "I40iwPPOsG3dfWX30labriCg9HqMfL"
+
+    api_ = IronSourceAtom(is_debug=True)
+    api_.enable_debug(True)
+    api_.set_endpoint("https://track.atom-data.io/")
 
     # put_event() GET example
     print ("==== GET REQUEST TO ATOM WITH JSON DUMPS ====")
@@ -53,33 +52,41 @@ if __name__ == "__main__":
 
     # tracker example
     print ("\n==== TESTING ATOM TRACKER ====")
-    api_tracker = IronSourceAtomTracker()
-    api_tracker.set_bulk_bytes_size(1337)
-    api_tracker.set_bulk_size(10)
-    api_tracker.set_flush_interval(10000)
+
+    # Tracker callback function example
+    def callback_func(timestmap, status, msg, data):
+        print("[EXAMPLE CALLBACK FUNCTION] timestamp: {}, status: {} message: {}".format(timestmap, status, msg))
+
+    api_tracker = IronSourceAtomTracker(flush_interval=2000, callback=callback_func)
+    api_tracker.set_batch_bytes_size(64000)
+    api_tracker.set_batch_size(100)
+    # The flush interval is set twice in order to see the change while it's running
+    api_tracker.set_flush_interval(3000)
     api_tracker.enable_debug(True)
-    api_tracker.set_endpoint("http://track.atom-data.io/")
+    # api_tracker.set_endpoint("http://track.atom-data.io/")
     api_tracker.set_endpoint("http://127.0.0.1:3000/")
 
 
     class ThreadClass:
         def __init__(self):
-            self._call_index = 1
+            self._call_index = 0
             self._thread_lock = Lock()
 
         def thread_worker(self, args):
-            print("Thread " + str(args) + " Started")
 
             while True:
-                if self._call_index >= 30:
-                    print("Thread " + str(args) + " Finished")
-                    time.sleep(1)
-                    return
                 with self._thread_lock:
+                    self._call_index += 1
                     data_track = {"id": self._call_index, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE",
                                   "string_value": str(random.random())}
-                    self._call_index += 1
-                api_tracker.track(stream=stream, data=data_track, auth_key=auth_key)
+                    # exit after 30~
+                    if self._call_index > 30:
+                        if self._call_index == 31:
+                            time.sleep(3)
+                            print("[EXAMPLE] Tracking with delay")
+                            api_tracker.track(stream=stream, data=data_track, auth_key=auth_key)
+                        return
+                    api_tracker.track(stream=stream, data=data_track, auth_key=auth_key)
 
 
     threads_array = []
@@ -95,6 +102,5 @@ if __name__ == "__main__":
     for thread in threads_array:
         thread.join()
 
-    # time.sleep(100)
+    time.sleep(120)
     print ("Finished all example methods.")
-    api_tracker.stop()

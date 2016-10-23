@@ -48,6 +48,13 @@ class QueueEventStorage(EventStorage):
             if stream in self._events and (len(self._events[stream]) > 0):
                 return self._events[stream].popleft()
 
+    def is_empty(self):
+        with self._dictionary_lock:
+            for stream in self._events:
+                if len(self._events[stream]) > 0:
+                    return False
+            return True
+
 
 
 

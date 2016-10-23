@@ -30,7 +30,6 @@ class BatchEventPool:
         for index in range(0, thread_count):
             thread = Thread(target=self.task_worker)
             self._workers.append(thread)
-
             thread.start()
 
     def stop(self):
@@ -64,3 +63,6 @@ class BatchEventPool:
             raise BatchEventPoolException("Exceeded max event count in Event Task Pool!")
 
         self._events.append(event_action)
+
+    def is_empty(self):
+        return not self._events
