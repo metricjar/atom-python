@@ -54,7 +54,3 @@ class QueueEventStorage(EventStorage):
                 if len(self._events[stream]) > 0:
                     return False
             return True
-
-
-
-
