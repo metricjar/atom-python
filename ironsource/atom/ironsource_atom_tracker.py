@@ -21,10 +21,10 @@ class IronSourceAtomTracker:
     """
     TAG = "IronSourceAtomTracker"
 
-    # todo: add flush_interval to readme
     def __init__(self,
                  batch_worker_count=config.BATCH_WORKER_COUNT,
                  batch_pool_size=config.BATCH_POOL_SIZE,
+                 event_backlog=None,
                  backlog_size=config.BACKLOG_SIZE,
                  flush_interval=config.FLUSH_INTERVAL,
                  retry_max_time=config.RETRY_MAX_TIME,
@@ -34,54 +34,60 @@ class IronSourceAtomTracker:
                  is_debug=False,
                  callback=None):
         """
-        :param batch_worker_count:
-        :param batch_pool_size:
-        :param backlog_size:
-        :param flush_interval:
-        :param callback:
+        Tracker init function
+        :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
+        :param batch_pool_size: Optional, Number of events to hold in BatchEventPool
+        :param event_backlog: Optional, Custom EventStorage implementation
+        :param backlog_size: Optional, Backlog queue size (EventStorage ABC implementation)
+        :param flush_interval: Optional, Tracker flush interval in milliseconds
+        :param retry_max_time: Optional, Retry max time in seconds
+        :param retry_max_count: Optional, Maximum number of retries in seconds
+        :param batch_size: Optional, Amount of events in every batch (bulk)
+        :param batch_bytes_size: Optional, Size of each batch (bulk) in bytes
+        :param is_debug: Optional, Enable printing of debug information
+        :param callback: Optional, callback to be called on error
         """
 
         self._atom = IronSourceAtom()
         self._is_debug = is_debug
 
-        # Optional callback to be called on error, convention: time, status, msg
+        # Optional callback to be called on error, convention: time, status, error_msg, data
         self._callback = callback if callable(callback) else lambda timestamp, status, error_msg, data: None
 
         self._logger = logger.get_logger(debug=self._is_debug)
 
         self._is_run_worker = True
-        self._is_flush_data = False
-        # Flush all methods
-        self._is_flush_all = False
+        self._flush_all = False
+        self._alive = True
 
-        # calculate current milliseconds
-        self._current_milliseconds = lambda: int(round(time.time() * 1000))
-
+        # Lock of accessing the stream_keys dict
         self._data_lock = Lock()
 
         # Streams to keys map
         self._stream_keys = {}
 
-        # Retry with exponential backoff
+        # Retry with exponential backoff conf
         self._retry_max_time = retry_max_time
         self._retry_max_count = retry_max_count
 
+        # Batch size and flush interval config
         self._batch_size = batch_size
         self._batch_bytes_size = batch_bytes_size
         self._flush_interval = flush_interval
 
         # Holds the events after .track method
-        self._event_backlog = QueueEventStorage(queue_size=backlog_size)
+        self._event_backlog = event_backlog if event_backlog else QueueEventStorage(queue_size=backlog_size)
 
         # Holds batch of events for each stream and sends them using {thread_count} workers
         self._batch_event_pool = BatchEventPool(thread_count=batch_worker_count,
                                                 max_events=batch_pool_size)
 
-        # Start the handler thread - daemon since we want to exit if it didn't stop yet
+        # Start the handler thread - daemon since we want to exit even if it didn't stop yet
         handler_thread = Thread(target=self._tracker_handler)
         handler_thread.daemon = True
         handler_thread.start()
 
+        # Start the thread that handles periodic flushing
         timer_thread = Thread(target=self._flush_peroidcly)
         timer_thread.daemon = True
         timer_thread.start()
@@ -94,8 +100,9 @@ class IronSourceAtomTracker:
         """
         Stop worker thread and event_pool thread's
         """
-        self._logger.info("Flushing all data and killing the tracker...")
-        self._is_flush_all = True
+        self._logger.info("Flushing all data and killing the tracker in 5 seconds...")
+        self._flush_all = True
+        self._alive = False
         i = 0
         while True:
             # Check if everything is empty or 5 seconds has passed
@@ -106,15 +113,6 @@ class IronSourceAtomTracker:
                 break
             i += 1
             time.sleep(1)
-
-    def set_event_manager(self, event_manager):
-        """
-        Set custom event manager object
-
-        :param event_manager: custom event manager for storage data
-        :type event_manager: EventManager
-        """
-        self._event_backlog = event_manager
 
     def enable_debug(self, is_debug):  # pragma: no cover
         """
@@ -155,7 +153,7 @@ class IronSourceAtomTracker:
 
     def set_bulk_size(self, batch_size):
         """
-        Set batch count (this function is here for compatibility reasons)
+        Set batch amount(size) (this function is here for compatibility reasons)
         :param batch_size: count of batch (bulk) events
         :type batch_size: int
         """
@@ -163,7 +161,7 @@ class IronSourceAtomTracker:
 
     def set_batch_size(self, batch_size):
         """
-        Set batch count
+        Set batch amount(size)
         :param batch_size: count of batch(bulk) events
         :type batch_size: int
         """
@@ -200,11 +198,11 @@ class IronSourceAtomTracker:
         """
         Track event
 
-        :param stream: name of stream
+        :param stream: atom stream name
         :type stream: str
-        :param data: data for sending
+        :param data: data to send (payload)
         :type data: object
-        :param auth_key: secret auth key for stream
+        :param auth_key: secret HMAC auth key for stream
         :type auth_key: str
         """
         if len(auth_key) == 0:
@@ -216,14 +214,13 @@ class IronSourceAtomTracker:
         with self._data_lock:
             if stream not in self._stream_keys:
                 self._stream_keys[stream] = auth_key
-
             self._event_backlog.add_event(Event(stream, data))
 
     def flush(self):
         """
         Flush data from all streams
         """
-        self._is_flush_data = True
+        self._flush_all = True
 
     def _flush_peroidcly(self):
         """
@@ -243,7 +240,7 @@ class IronSourceAtomTracker:
                 self._logger.debug("Flushing In {} Seconds".format(next_call - time.time()))
             i += 1
             time.sleep(next_call - time.time())
-            self._is_flush_all = True
+            self.flush()
 
     def _tracker_handler(self):
         """
@@ -255,7 +252,7 @@ class IronSourceAtomTracker:
         events_size = {}
 
         def flush_data(stream, auth_key):
-            # This 'if' is needed for the flush_all method
+            # This 'if' is needed for the flush_all case
             if stream in events_buffer and len(events_buffer[stream]) > 0:
                 temp_buffer = list(events_buffer[stream])
                 del events_buffer[stream][:]
@@ -263,10 +260,11 @@ class IronSourceAtomTracker:
                 self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, temp_buffer))
 
         while self._is_run_worker:
-            if self._is_flush_all:
+            if self._flush_all:
                 for stream_name, stream_key in self._stream_keys.items():
                     flush_data(stream_name, stream_key)
-                self._is_flush_all = False
+                if self._alive:
+                    self._flush_all = False
             else:
                 for stream_name, stream_key in self._stream_keys.items():
                     # Get one event from the backlog
@@ -288,12 +286,6 @@ class IronSourceAtomTracker:
 
                     if len(events_buffer[stream_name]) >= self._batch_size:
                         flush_data(stream_name, auth_key=stream_key)
-
-                    if self._is_flush_data:
-                        flush_data(stream_name, auth_key=stream_key)
-
-                if self._is_flush_data:
-                    self._is_flush_data = False
         self._logger.info("Tracker handler stopped")
 
     def _flush_data(self, stream, auth_key, data):
@@ -313,7 +305,7 @@ class IronSourceAtomTracker:
 
             # Response on first try
             if attempt == 0:
-                self._logger.debug('Got Status: {}; For Data: {:.100}...'.format(str(response.status), str(data)))
+                self._logger.debug('Got Status: {}; Data: {}'.format(str(response.status), str(data)))
 
             # Status 200 - OK or 400 - Client Error
             if 200 <= response.status < 500:
@@ -326,8 +318,7 @@ class IronSourceAtomTracker:
                     self._error_log(attempt, time.time(), response.status, response.error, data)
                 return
 
-            # Server Error >= 500
-            #  Retry mechanism
+            # Server Error >= 500 - Retry with exponential backoff
             duration = self._get_duration(attempt)
             self._logger.debug("Retry duration: {}".format(duration))
             attempt += 1

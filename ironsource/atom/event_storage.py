@@ -30,15 +30,19 @@ class EventStorage:
         """
         pass
 
+    @abc.abstractmethod
     def remove_event(self, stream):
         """
         Remove event from storage
         :param stream:
         :return: None
         """
+        pass
 
+    @abc.abstractmethod
     def is_empty(self):
         """
         Check if the storage is empty
         :return: True is empty, else False
         """
+        pass

@@ -14,9 +14,14 @@ class IronSourceAtom:
 
     TAG = "IronSourceAtom"
 
-    def __init__(self, is_debug=False):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_URL):
+        """
+        Atom class init function
+        :param is_debug: Enable/Disable debug
+        :param endpoint: Atom API Endpoint
+        """
 
-        self._endpoint = config.ATOM_URL
+        self._endpoint = endpoint
         self._auth_key = ""
         self._is_debug = is_debug
 
@@ -86,13 +91,13 @@ class IronSourceAtom:
 
         This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.
 
-        :param method: the HTTP(s) method to use when sending data - default is POST
+        :param method: The HTTP(s) method to use when sending data - default is POST
         :type method: str
         :param stream: Atom Stream name
         :type stream: str
-        :param data: data (payload) that should be sent to the server
+        :param data: Data (payload) that should be sent to the server
         :type data: object
-        :param auth_key: hmac auth key
+        :param auth_key: Hmac auth key
         :type auth_key: str
 
         :return: requests response object

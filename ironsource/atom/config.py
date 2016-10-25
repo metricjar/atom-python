@@ -24,7 +24,7 @@ BACKLOG_SIZE = 12000
 
 # Retry max time in seconds
 RETRY_MAX_TIME = 1800
-# Maximum number of retrires
+# Maximum number of retries
 RETRY_MAX_COUNT = 12
 # Base multiplier for exponential backoff calculation
 RETRY_EXPO_BACKOFF_BASE = 3

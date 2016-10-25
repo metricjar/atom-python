@@ -65,4 +65,8 @@ class BatchEventPool:
         self._events.append(event_action)
 
     def is_empty(self):
+        """
+        Check if the event pool is empty
+        :return: True if empty, else False
+        """
         return not self._events
