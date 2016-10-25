@@ -242,6 +242,9 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 - Upadting readme
 - Fixing auth mechanism
 
+### v1.0.2
+-Added support to send a bulk of events via the put_events method
+
 ### v1.0.1
 - Added Docs
 
