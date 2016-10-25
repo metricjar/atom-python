@@ -12,6 +12,7 @@ atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-m
 - [Documentation](https://ironsource.github.io/atom-python/)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Change Log](#change-log)
 - [Example](#example)
 
 ## Installation
@@ -26,27 +27,67 @@ $ pip install --upgrade ironsource-atom
 **NOTE:**
 The tracker is a based on a thread pool which is controlled by BatchEventPool and  a backlog (QueueEventStorage)
 By default the BatchEventPool is configured to use one thread, you can change it when constructing the tracker.
-This are the defaults for both Classes:
+This are the defaults for both Classes (inside config.py):
 ```python
-# Default Number of workers(threads) for BatchEventPool
-_BATCH_WORKER_COUNT = 1
-# Default Number of events to hold in BatchEventPool
-_BATCH_POOL_SIZE = 3000
-# Default backlog queue size (per stream)
-_BACKLOG_SIZE = 12000
-tracker = IronSourceAtomTracker(batch_worker_count=_BATCH_WORKER_COUNT, batch_pool_size=_BATCH_POOL_SIZE,
-                                backlog_size=_BACKLOG_SIZE)
-```
+# Tracker Config
+BATCH_SIZE = 500
+BATCH_BYTES_SIZE = 64 * 1024
+# Default flush interval in millisecodns
+FLUSH_INTERVAL = 10000
 
+# Batch Event Pool Config
+# Default Number of workers(threads) for BatchEventPool
+BATCH_WORKER_COUNT = 1
+# Default Number of events to hold in BatchEventPool
+BATCH_POOL_SIZE = 3000
+
+# EventStorage Config (backlog)
+# Default backlog queue size (per stream)
+BACKLOG_SIZE = 12000
+
+# Retry on 500 / Connection error conf
+# Retry max time in seconds
+RETRY_MAX_TIME = 1800
+# Maximum number of retries
+RETRY_MAX_COUNT = 12
+# Base multiplier for exponential backoff calculation
+RETRY_EXPO_BACKOFF_BASE = 3
+
+# Init a new tracker:
+tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
+                                batch_pool_size=config.BATCH_POOL_SIZE,
+                                backlog_size=config.BACKLOG_SIZE,
+                                flush_interval=config.FLUSH_INTERVAL,
+                                retry_max_time=config.RETRY_MAX_TIME,
+                                retry_max_count=config.RETRY_MAX_COUNT,
+                                batch_size=config.BATCH_SIZE,
+                                batch_bytes_size=config.BATCH_BYTES_SIZE,
+                                is_debug=False,
+                                callback=None)             
+"""
+:param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
+:param batch_pool_size: Optional, Number of events to hold in BatchEventPool
+:param event_backlog: Optional, Custom EventStorage implementation
+:param backlog_size: Optional, Backlog queue size (EventStorage ABC implementation)
+:param flush_interval: Optional, Tracker flush interval in milliseconds
+:param retry_max_time: Optional, Retry max time in seconds
+:param retry_max_count: Optional, Maximum number of retries in seconds
+:param batch_size: Optional, Amount of events in every batch (bulk)
+:param batch_bytes_size: Optional, Size of each batch (bulk) in bytes
+:param is_debug: Optional, Enable printing of debug information
+:param callback: Optional, callback to be called on error (Client 400/ Server 500)
+"""
+```
 Importing the library and initializing  
 ```python
 from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
+# Note the parameters as described above
 tracker = IronSourceAtomTracker()
-tracker.set_bulk_bytes_size(2048) # Optional, Size of each bulk in bytes (default: 64KB)
-tracker.set_bulk_size(12) # Optional, Number of events per bulk (batch) (default: 500) 
+tracker.set_batch_bytes_size(2048) # Optional, Size of each bulk in bytes (default: 64KB)
+tracker.set_batch_size(12) # Optional, Number of events per bulk (batch) (default: 500) 
 tracker.set_flush_interval(2000) # Optional, Tracker flush interval in milliseconds (default: 10 seconds)
-tracker.enable_debug(True) # Optional, print debug information
+tracker.enable_debug(True) # Optional, Print debug information
 tracker.set_endpoint("http://track.atom-data.io/") # Optional, Atom endpoint
 
 # Sending an event
@@ -88,7 +129,7 @@ class EventStorage:
         pass
 
     @abc.abstractmethod
-    def get_event(self):
+    def get_event(self, stream):
         """
         Get event (must to be synchronized)
 
@@ -97,11 +138,28 @@ class EventStorage:
         """
         pass
 
-# Using custom storage implementation:
-tracker = new IronSourceAtomTracker();
+    @abc.abstractmethod
+    def remove_event(self, stream):
+        """
+        Remove event from storage
+        :param stream:
+        :return: None
+        """
+        pass
 
-custom_event_manager = new QueueEventStorage();
-tracker.set_event_manager(custom_event_manager);
+    @abc.abstractmethod
+    def is_empty(self):
+        """
+        Check if the storage is empty
+        :return: True is empty, else False
+        """
+        pass
+
+
+# Using custom storage implementation:
+
+custom_event_storage_backlog = new QueueEventStorage()
+tracker = new IronSourceAtomTracker(event_backlog=custom_event_storage_backlog)
 ```
 
 ### Low level API usage
@@ -109,22 +167,86 @@ Importing the library and initializing
 ```python
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
-api = IronSourceAtom()
+api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL)
+"""
+Atom class init function
+:param is_debug: Optional, Enable/Disable debug
+:param endpoint: Optional, Atom API Endpoint
+"""
+# Note - on all methods: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
+# Else it won't use any.
+
 api.enable_debug(True)
 api.set_auth("YOUR_AUTH_KEY")
 api.set_endpoint("http://track.atom-data.io/")
 # Sending an event - should be a string.
 
-stream = "<YOUR_STREAM_NAME>"
+stream = "YOUR_STREAM_NAME"
+auth2 = "YOUR_AUTH_KEY"
 data = {"event_name": "PYTHON_SDK_POST_EXAMPLE"}
-api.put_event(stream=stream, data=data, method="post")
+api.put_event(stream=stream, data=data, method="post", auth_key=auth2)
+api.put_event(stream=stream, data=data)
 
 # Sending a bulk of events - should be a list of strings.
 
 stream = "YOUR_STREAM_NAME"
 data = [{"strings": "data: test 1"}, {"strings": "data: test 2"}]
-api.put_events(stream=stream, data=data)
+api.put_events(stream=stream, data=data, auth_key=auth2)
 ```
+
+## Change Log
+
+### v1.5.0
+- Tracker changes:
+    - Added periodical flush function and changed the interval mechanism
+	- Changed the flush all streams (flush_all) mechanism
+	- Added max retry (enqueue again after reached)
+	- Improved graceful shutdown and signal catching
+	- Added more options to the constructor and removed logger from tracker
+    - Added more verbose logging
+	- Added callback function to tracker (optional callback on error)
+	- Added Exponential backoff with full jitter
+	- Renamed The following:
+	    - enable_debug -> set_debug (also on Atom class)
+		- set_bulk_size - > set_batch_size
+	    - set_bulk_byte_size -> set_batch_byte_size
+- BatchEventPool - Added is_empty() func
+- Changed logger (added logger.py)
+- Added config.py for constants
+- EventStorage and QueueEventStorage - Added is_empty() func
+- Requests class - Improved HTTP class, changed error handling and removed useless code
+- Atom Class - Improved error handling and input checking
+
+### v1.1.7
+- Added deque limit on QueueEventStorage(backlog)
+- Updated example
+- Changed defaults on BatchEventPool and QueueEventStorage
+- Changed all pop() from deque to popleft()
+
+### v1.1.6
+- Fixed a bug in python3 compatibility
+
+### v1.1.5
+- Updated Docs
+- Updated README
+- Added support for sending data without json.dumps
+- Added Graceful shutdown
+- Fixed a bug in retry mechanism
+- Updated example
+
+### v1.1.2
+- High Level API - Tracker
+- Tracker Class with thread support
+- EventStorage ABC
+- Changing python package to match python convention
+- Upadting readme
+- Fixing auth mechanism
+
+### v1.0.1
+- Added Docs
+
+### v1.0.0
+- Basic feature - putEvent
 
 ## Example
 
