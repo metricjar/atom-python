@@ -23,11 +23,11 @@ $ pip install --upgrade ironsource-atom
 
 ## Usage
  
-### Tracker usage
+### High Level API - "Tracker"
 **NOTE:**
-The tracker is a based on a thread pool which is controlled by BatchEventPool and  a backlog (QueueEventStorage)
-By default the BatchEventPool is configured to use one thread, you can change it when constructing the tracker.
-This are the defaults for both Classes (inside config.py):
+The tracker is a based on a thread pool which is controlled by BatchEventPool and a backlog (QueueEventStorage)
+By default the BatchEventPool is configured to use one thread (worker), you can change it when constructing the tracker.  
+These are the default parameters for both Classes (inside config.py):
 ```python
 # Tracker Config
 BATCH_SIZE = 500
@@ -104,7 +104,9 @@ tracker.flush()
 # To stop the tracker, use:
 tracker.stop()
 ```
+
 ### Abstract class for storing data at tracker backlog `EventStorage`
+If you'd like to customize the tracker backlog, implement the following abstract class.
 Implementation must to be synchronized for multithreading use.
 ```python
 import abc
@@ -158,12 +160,16 @@ class EventStorage:
 
 # Using custom storage implementation:
 
-custom_event_storage_backlog = new QueueEventStorage()
+custom_event_storage_backlog = new MyCustomEventStorage()
 tracker = new IronSourceAtomTracker(event_backlog=custom_event_storage_backlog)
 ```
 
 ### Low level API usage
-Importing the library and initializing
+
+The Low Level API has 2 methods:  
+- putEvent - Sends a single event to Atom  
+- putEvents - Sends a bulk (batch) of events to Atom
+
 ```python
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
@@ -243,7 +249,7 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 - Fixing auth mechanism
 
 ### v1.0.2
--Added support to send a bulk of events via the put_events method
+- Added support to send a bulk of events via the put_events method
 
 ### v1.0.1
 - Added Docs
