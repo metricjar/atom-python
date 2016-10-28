@@ -1,7 +1,7 @@
 # Atom Python SDK config file
 
 SDK_VERSION = "1.5.0"
-ATOM_URL = "http://track.atom-data.io/"
+ATOM_ENDPOINT = "http://track.atom-data.io/"
 
 # Tracker Config
 BATCH_SIZE = 500

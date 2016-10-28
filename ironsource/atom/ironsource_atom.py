@@ -14,15 +14,16 @@ class IronSourceAtom:
 
     TAG = "IronSourceAtom"
 
-    def __init__(self, is_debug=False, endpoint=config.ATOM_URL):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key=""):
         """
         Atom class init function
-        :param is_debug: Enable/Disable debug
-        :param endpoint: Atom API Endpoint
+        :param is_debug: Optional, Enable/Disable debug
+        :param endpoint: Optional, Atom API Endpoint
+        :param auth_key: Optional, Atom auth key
         """
 
         self._endpoint = endpoint
-        self._auth_key = ""
+        self._auth_key = auth_key
         self._is_debug = is_debug
 
         self._headers = {
@@ -33,15 +34,6 @@ class IronSourceAtom:
         # init logger
         self._logger = logger.get_logger(debug=self._is_debug)
 
-    def enable_debug(self, is_debug):  # pragma: no cover
-        """
-        Enable / Disable debug - this is here for compatibility reasons
-
-        :param is_debug: enable printing of debug info
-        :type is_debug: bool
-        """
-        self.set_debug(is_debug)
-
     def set_debug(self, is_debug):  # pragma: no cover
         """
         Enable / Disable debug
@@ -50,33 +42,7 @@ class IronSourceAtom:
         :type is_debug: bool
         """
         self._is_debug = is_debug if isinstance(is_debug, bool) else False
-        self._logger = logger.get_logger(debug=is_debug)
-
-    def set_auth(self, auth_key):
-        """
-        Set HMAC authentication key
-
-        :param auth_key: HMAC auth key for your stream
-        :type auth_key: str
-        """
-        self._auth_key = auth_key
-
-    def set_endpoint(self, endpoint):
-        """
-        Set Atom Endpoint url
-
-        :param endpoint: Atom API endpoint
-        :type endpoint: str
-        """
-        self._endpoint = endpoint
-
-    def get_endpoint(self):
-        """
-        Get current Atom API endpoint
-
-        :rtype: str
-        """
-        return self._endpoint
+        self._logger = logger.get_logger(debug=self._is_debug)
 
     def get_auth(self):
         """
