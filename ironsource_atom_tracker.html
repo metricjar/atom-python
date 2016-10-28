@@ -148,20 +148,30 @@
 <dl class="method">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=3000</em>, <em>event_backlog=None</em>, <em>backlog_size=12000</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=500</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tracker init function
-:param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
-:param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
-:param event_backlog:      Optional, Custom EventStorage implementation
-:param backlog_size:       Optional, Backlog queue size (EventStorage ABC implementation)
-:param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)
-:param retry_max_time:     Optional, Retry max time in seconds
-:param retry_max_count:    Optional, Maximum number of retries in seconds
-:param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
-:param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
-:param is_debug:           Optional, Enable printing of debug information
-:param endpoint:           Optional, Atom endpoint
-:param auth_key:           Optional, Default auth key to use (when none is provided in .track)
-:param callback:           Optional, callback to be called on error (Client 400/ Server 500)</p>
+<dd><p>Tracker init function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>batch_worker_count</strong> &#8211; Optional, Number of workers(threads) for BatchEventPool</li>
+<li><strong>batch_pool_size</strong> &#8211; Optional, Number of events to hold in BatchEventPool</li>
+<li><strong>event_backlog</strong> &#8211; Optional, Custom EventStorage implementation</li>
+<li><strong>backlog_size</strong> &#8211; Optional, Backlog queue size (EventStorage ABC implementation)</li>
+<li><strong>flush_interval</strong> &#8211; Optional, Tracker flush interval in milliseconds (default 10000)</li>
+<li><strong>retry_max_time</strong> &#8211; Optional, Retry max time in seconds</li>
+<li><strong>retry_max_count</strong> &#8211; Optional, Maximum number of retries in seconds</li>
+<li><strong>batch_size</strong> &#8211; Optional, Amount of events in every batch (bulk) (default: 500)</li>
+<li><strong>batch_bytes_size</strong> &#8211; Optional, Size of each batch (bulk) in bytes (default: 64KB)</li>
+<li><strong>is_debug</strong> &#8211; Optional, Enable printing of debug information</li>
+<li><strong>endpoint</strong> &#8211; Optional, Atom endpoint</li>
+<li><strong>auth_key</strong> &#8211; Optional, Default auth key to use (when none is provided in .track)</li>
+<li><strong>callback</strong> &#8211; Optional, callback to be called on error (Client 400/ Server 500)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
