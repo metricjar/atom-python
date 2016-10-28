@@ -37,19 +37,33 @@ class IronSourceAtomTracker:
                  callback=None):
         """
         Tracker init function
+
         :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
+        :type  batch_worker_count: int
         :param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
+        :type  batch_pool_size:    int
         :param event_backlog:      Optional, Custom EventStorage implementation
+        :type  event_backlog:      object
         :param backlog_size:       Optional, Backlog queue size (EventStorage ABC implementation)
+        :type  backlog_size:       int
         :param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)
+        :type  flush_interval:     int
         :param retry_max_time:     Optional, Retry max time in seconds
+        :type  retry_max_time:     int
         :param retry_max_count:    Optional, Maximum number of retries in seconds
+        :type  retry_max_count:    int
         :param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
+        :type  batch_size:         int
         :param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
+        :type  batch_bytes_size:   int
         :param is_debug:           Optional, Enable printing of debug information
+        :type  is_debug:           bool
         :param endpoint:           Optional, Atom endpoint
+        :type  endpoint:           str
         :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
+        :type  auth_key:           str
         :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
+        :type  callback:           function
         """
 
         # Init Atom basic SDK
@@ -93,14 +107,14 @@ class IronSourceAtomTracker:
         self._batch_size = batch_size
 
         # Batch bytes size
-        if not isinstance(batch_bytes_size, (int, float)) or batch_bytes_size < 1:
+        if not isinstance(batch_bytes_size, int) or batch_bytes_size < 1:
             self._logger.warning("Batch Bytes Size must be 1 or greater! Setting default: {}"
                                  .format(config.BATCH_BYTES_SIZE))
             batch_bytes_size = config.BATCH_BYTES_SIZE
         self._batch_bytes_size = batch_bytes_size
 
         # Flush Interval
-        if flush_interval < 1000:
+        if not isinstance(flush_interval, int) or flush_interval < 1000:
             self._logger.warning("Flush Interval must be 1000 or greater! Setting default: {}"
                                  .format(config.FLUSH_INTERVAL))
             flush_interval = config.FLUSH_INTERVAL
@@ -124,8 +138,8 @@ class IronSourceAtomTracker:
         timer_thread.start()
 
         # Intercept exit signals
-        signal.signal(signal.SIGTERM, self.graceful_kill)
-        signal.signal(signal.SIGINT, self.graceful_kill)
+        signal.signal(signal.SIGTERM, self._graceful_kill)
+        signal.signal(signal.SIGINT, self._graceful_kill)
 
     def stop(self):
         """
@@ -149,7 +163,7 @@ class IronSourceAtomTracker:
         """
         Enable / Disable debug
 
-        :param is_debug: enable printing of debug info
+        :param is_debug: Enable printing of debug information
         :type is_debug: bool
         """
         self._is_debug = is_debug if isinstance(is_debug, bool) else False
@@ -160,18 +174,22 @@ class IronSourceAtomTracker:
         """
         Track event
 
-        :param stream: atom stream name
+        :param stream: Atom stream name
         :type stream: str
-        :param data: data to send (payload)
+        :param data: Data to send (payload) (dict or string)
         :type data: object
-        :param auth_key: secret HMAC auth key for stream
+        :param auth_key: HMAC auth key for stream
         :type auth_key: str
         """
         if len(auth_key) == 0:
             auth_key = self._atom.get_auth()
 
         if not isinstance(data, str):
-            data = json.dumps(data)
+            try:
+                data = json.dumps(data)
+            except TypeError as e:
+                self._error_log(0, time.time(), 400, str(e), data)
+                return
 
         with self._data_lock:
             if stream not in self._stream_keys:
@@ -187,6 +205,7 @@ class IronSourceAtomTracker:
     def _flush_peroidcly(self):
         """
         Flush everything every {flush_interval}
+
         Note: the time.time() is used cause python is not accurate enough and adds a delay
         when using time.sleep(x) (where x is a constant)
         """
@@ -239,7 +258,6 @@ class IronSourceAtomTracker:
 
                     if stream_name not in events_buffer:
                         events_buffer[stream_name] = []
-
                     events_size[stream_name] += len(event_object.data.encode("utf8"))
                     events_buffer[stream_name].append(event_object.data)
 
@@ -253,6 +271,7 @@ class IronSourceAtomTracker:
     def _flush_data(self, stream, auth_key, data):
         """
         Send data to server using IronSource Atom Low-level API
+
         NOTE: this function is passed a lambda to the BatchEventPool so it might continue running if it was
         triggered already even after a graceful killing for at least (retry_max_count) times
         """
@@ -262,7 +281,7 @@ class IronSourceAtomTracker:
             try:
                 response = self._atom.put_events(stream, data=data, auth_key=auth_key)
             except Exception as e:
-                self._error_log(attempt, time.time(), 400, e, data)
+                self._error_log(attempt, time.time(), 400, str(e), data)
                 return
 
             # Response on first try
@@ -301,13 +320,13 @@ class IronSourceAtomTracker:
         exponential_backoff = min(self._retry_max_time, pow(2, attempt) * config.RETRY_EXPO_BACKOFF_BASE)
         return random.uniform(0, exponential_backoff)
 
-    def graceful_kill(self, sig, frame):
+    def _graceful_kill(self, sig, frame):
         """
         Tracker exit handler
         :param frame: current stack frame
         :type frame: frame
-        :type sig: OS SIGNAL number
         :param sig: integer
+        :type sig: OS signal number
         """
         self._logger.info('Intercepted signal %s' % sig)
         if not self._is_run_worker:
@@ -317,10 +336,16 @@ class IronSourceAtomTracker:
     def _error_log(self, attempt, unix_time=None, status=None, error_msg=None, sent_data=None):
         """
         Log an error and send it to a callback function (if defined by user)
-        :param unix_time: unix(epoch) timestamp
+        :param attempt: Sending attempt to atom
+        :type  attempt: int
+        :param unix_time: Unix(epoch) timestamp
+        :type  unix_time: float
         :param status: HTTP status
+        :type  status: int
         :param error_msg: Error msg from server
+        :type  error_msg: str
         :param sent_data: Data that was sent to server
+        :type  sent_data: object
         """
         try:
             self._callback(unix_time, status, error_msg, sent_data)
