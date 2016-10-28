@@ -85,19 +85,21 @@ class IronSourceAtomTracker:
             retry_max_count = config.RETRY_MAX_COUNT
         self._retry_max_count = retry_max_count
 
-        # Batch size and flush interval config
+        # Batch size
         if not isinstance(batch_size, int) or batch_size < 1:
             self._logger.warning("Batch Size must be 1 or greater! Setting default: {}"
                                  .format(config.BATCH_SIZE))
             batch_size = config.BATCH_SIZE
         self._batch_size = batch_size
 
+        # Batch bytes size
         if not isinstance(batch_bytes_size, (int, float)) or batch_bytes_size < 1:
             self._logger.warning("Batch Bytes Size must be 1 or greater! Setting default: {}"
                                  .format(config.BATCH_BYTES_SIZE))
             batch_bytes_size = config.BATCH_BYTES_SIZE
         self._batch_bytes_size = batch_bytes_size
 
+        # Flush Interval
         if flush_interval < 1000:
             self._logger.warning("Flush Interval must be 1000 or greater! Setting default: {}"
                                  .format(config.FLUSH_INTERVAL))
