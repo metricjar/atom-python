@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.ironsource_atom &mdash; ironSourceAtom 1.1.6 documentation</title>
+  <title>ironsource.atom.ironsource_atom &mdash; ironSourceAtom 1.5.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.1.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.1.6
+                1.5.0
               </div>
             
           
@@ -136,96 +136,49 @@
   <h1>Source code for ironsource.atom.ironsource_atom</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">hmac</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
-
+<span class="kn">import</span> <span class="nn">ironsource.atom.atom_logger</span> <span class="kn">as</span> <span class="nn">logger</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.request</span> <span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">import</span> <span class="nn">ironsource.atom.config</span> <span class="kn">as</span> <span class="nn">config</span>
 
 
 <div class="viewcode-block" id="IronSourceAtom"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom">[docs]</a><span class="k">class</span> <span class="nc">IronSourceAtom</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       AtomApi</span>
-
-<span class="sd">       ironSource Atom low level API. supports put_event() and put_events() methods.</span>
+<span class="sd">        ironSource Atom low level API. supports put_event() and put_events() methods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_TAG</span> <span class="o">=</span> <span class="s2">&quot;IronSourceAtom&quot;</span>
+    <span class="n">TAG</span> <span class="o">=</span> <span class="s2">&quot;IronSourceAtom&quot;</span>
 
-    <span class="n">_SDK_VERSION</span> <span class="o">=</span> <span class="s2">&quot;1.1.6&quot;</span>
-    <span class="n">_ATOM_URL</span> <span class="o">=</span> <span class="s2">&quot;http://track.atom-data.io/&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_ATOM_URL</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="bp">False</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init_headers</span><span class="p">()</span>
-
-        <span class="c1"># init default logger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;ATOM-LOW-LEVEL&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-
-        <span class="n">stream_object</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-        <span class="n">stream_object</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-        <span class="n">logger_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">stream_object</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logger_formatter</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">stream_object</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_init_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ATOM_ENDPOINT</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Init header map data</span>
+<span class="sd">        Atom class init function</span>
+<span class="sd">        :param is_debug: Optional, Enable/Disable debug</span>
+<span class="sd">        :param endpoint: Optional, Atom API Endpoint</span>
+<span class="sd">        :param auth_key: Optional, Atom auth key</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="n">auth_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;x-ironsource-atom-sdk-type&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x-ironsource-atom-sdk-version&quot;</span><span class="p">:</span> <span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_SDK_VERSION</span>
+            <span class="s2">&quot;x-ironsource-atom-sdk-version&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">SDK_VERSION</span>
         <span class="p">}</span>
 
-<div class="viewcode-block" id="IronSourceAtom.set_logger"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_logger">[docs]</a>    <span class="k">def</span> <span class="nf">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="c1"># init logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IronSourceAtom.set_debug"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_debug">[docs]</a>    <span class="k">def</span> <span class="nf">set_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set custom logger</span>
+<span class="sd">        Enable / Disable debug</span>
 
-<span class="sd">        :param logger: custom logger instance</span>
-<span class="sd">        :type logger: logging.Logger</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span></div>
-
-<div class="viewcode-block" id="IronSourceAtom.enable_debug"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.enable_debug">[docs]</a>    <span class="k">def</span> <span class="nf">enable_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Enabling debug information</span>
-
-<span class="sd">        :param is_debug: enable printing of debug information</span>
+<span class="sd">        :param is_debug: enable printing of debug info</span>
 <span class="sd">        :type is_debug: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span></div>
-
-<div class="viewcode-block" id="IronSourceAtom.set_auth"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_auth">[docs]</a>    <span class="k">def</span> <span class="nf">set_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set HMAC authentication key</span>
-
-<span class="sd">        :param auth_key: HMAC auth key for your stream</span>
-<span class="sd">        :type auth_key: str</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="n">auth_key</span></div>
-
-<div class="viewcode-block" id="IronSourceAtom.set_endpoint"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.set_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set Atom Endpoint url</span>
-
-<span class="sd">        :param endpoint: Atom API endpoint</span>
-<span class="sd">        :type endpoint: str</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">endpoint</span></div>
-
-<div class="viewcode-block" id="IronSourceAtom.get_endpoint"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get current Atom API endpoint</span>
-
-<span class="sd">        :rtype: str</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">is_debug</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IronSourceAtom.get_auth"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_auth">[docs]</a>    <span class="k">def</span> <span class="nf">get_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -240,22 +193,23 @@
 
 <span class="sd">        This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.</span>
 
-<span class="sd">        :param method: the HTTP(s) method to use when sending data - default is POST</span>
+<span class="sd">        :param method: The HTTP(s) method to use when sending data - default is POST</span>
 <span class="sd">        :type method: str</span>
 <span class="sd">        :param stream: Atom Stream name</span>
 <span class="sd">        :type stream: str</span>
-<span class="sd">        :param data: data (payload) that should be sent to the server</span>
+<span class="sd">        :param data: Data (payload) that should be sent to the server</span>
 <span class="sd">        :type data: object</span>
-<span class="sd">        :param auth_key: hmac auth key</span>
+<span class="sd">        :param auth_key: Hmac auth key</span>
 <span class="sd">        :type auth_key: str</span>
 
 <span class="sd">        :return: requests response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Stream and/or Data are missing&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span>
 
-        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_data</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
                               <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
@@ -275,21 +229,21 @@
 
 <span class="sd">        :return: requests response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Data has to be of data type list&quot;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Data has to be of a non-empty list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Stream is required&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_data</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">+</span> <span class="s2">&quot;bulk&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span>
                               <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="IronSourceAtom.get_request_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.get_request_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtom.create_request_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.create_request_data">[docs]</a>    <span class="k">def</span> <span class="nf">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create json data string from input data</span>
 
@@ -299,8 +253,8 @@
 <span class="sd">        :type auth_key: str</span>
 <span class="sd">        :param data: data to send to the server</span>
 <span class="sd">        :type data: object</span>
-<span class="sd">        :param bulk: send data by bulk</span>
-<span class="sd">        :type bulk: bool</span>
+<span class="sd">        :param batch: send data by batch(bulk)</span>
+<span class="sd">        :type batch: bool</span>
 
 <span class="sd">        :return: json data</span>
 <span class="sd">        :rtype: str</span>
@@ -318,7 +272,7 @@
                                             <span class="n">msg</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
                                             <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">bulk</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">batch</span><span class="p">:</span>
             <span class="n">request_data</span><span class="p">[</span><span class="s2">&quot;bulk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
 
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request_data</span><span class="p">)</span></div>
@@ -338,22 +292,13 @@
 <span class="sd">        :return: response from server</span>
 <span class="sd">        :rtype: Response</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">post</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="IronSourceAtom.print_log"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.print_log">[docs]</a>    <span class="k">def</span> <span class="nf">print_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_info</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Print debug information</span>
-
-<span class="sd">        :param log_info: debug information</span>
-<span class="sd">        :type log_info: str</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">IronSourceAtom</span><span class="o">.</span><span class="n">_TAG</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">log_info</span><span class="p">)</span></div></div>
+        <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">post</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
@@ -387,7 +332,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.1.6',
+            VERSION:'1.5.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

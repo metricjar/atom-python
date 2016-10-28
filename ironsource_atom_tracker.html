@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.1.6 documentation</title>
+  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.5.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.1.6 documentation" href="index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.0 documentation" href="index.html"/>
         <link rel="next" title="ironSourceAtom Low Level API" href="ironsource_atom.html"/>
         <link rel="prev" title="Welcome to ironSourceAtom’s documentation!" href="index.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.1.6
+                1.5.0
               </div>
             
           
@@ -138,31 +138,12 @@
 <span id="ironsourceatom-high-level-tracker"></span><h1>ironSourceAtom High Level - Tracker<a class="headerlink" href="#module-ironsource.atom.ironsource_atom_tracker" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">
-<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>task_worker_count=1</em>, <em>task_pool_size=1500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=3000</em>, <em>event_backlog=None</em>, <em>backlog_size=12000</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=500</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>ironSource Atom high level API class (Tracker), supports: track() and flush()</p>
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug">
-<code class="descname">enable_debug</code><span class="sig-paren">(</span><em>is_debug</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.enable_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.enable_debug" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enable print information</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>is_debug</strong> (<em>bool</em>) &#8211; enable print debug info</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.exit_handler">
-<code class="descname">exit_handler</code><span class="sig-paren">(</span><em>sig</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.exit_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.exit_handler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tracker exit handler
-:param frame: current stack frame
-:type frame: frame
-:type sig: OS SIGNAL number
-:param sig: integer</p>
-</dd></dl>
+<dl class="attribute">
+<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.TAG">
+<code class="descname">TAG</code><em class="property"> = 'IronSourceAtomTracker'</em><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.TAG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">
@@ -171,112 +152,24 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log">
-<code class="descname">print_log</code><span class="sig-paren">(</span><em>log_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.print_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.print_log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print debug information</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_data</strong> (<em>str</em>) &#8211; debug information</td>
-</tr>
-</tbody>
-</table>
+<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.graceful_kill">
+<code class="descname">graceful_kill</code><span class="sig-paren">(</span><em>sig</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.graceful_kill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.graceful_kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracker exit handler
+:param frame: current stack frame
+:type frame: frame
+:type sig: OS SIGNAL number
+:param sig: integer</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth">
-<code class="descname">set_auth</code><span class="sig-paren">(</span><em>auth_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_auth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set auth key for stream</p>
+<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_debug">
+<code class="descname">set_debug</code><span class="sig-paren">(</span><em>is_debug</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable / Disable debug</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_key</strong> (<em>str</em>) &#8211; secret auth key</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size">
-<code class="descname">set_bulk_bytes_size</code><span class="sig-paren">(</span><em>bulk_bytes_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_bulk_bytes_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_bytes_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set bulk bytes size</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bulk_bytes_size</strong> (<em>int</em>) &#8211; bulk size in bytes</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size">
-<code class="descname">set_bulk_size</code><span class="sig-paren">(</span><em>bulk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_bulk_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_bulk_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set bulk count</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bulk_size</strong> (<em>int</em>) &#8211; count of bulk events</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint">
-<code class="descname">set_endpoint</code><span class="sig-paren">(</span><em>endpoint</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_endpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set server host address</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>endpoint</strong> (<em>str</em>) &#8211; server url</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager">
-<code class="descname">set_event_manager</code><span class="sig-paren">(</span><em>event_manager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_event_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_event_manager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set custom event manager object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_manager</strong> (<em>EventManager</em>) &#8211; custom event manager for storage data</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval">
-<code class="descname">set_flush_interval</code><span class="sig-paren">(</span><em>flush_interval</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_flush_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_flush_interval" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set flush interval milliseconds</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flush_interval</strong> (<em>int</em>) &#8211; interval for flush data</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger">
-<code class="descname">set_logger</code><span class="sig-paren">(</span><em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.set_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.set_logger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set custom logger</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logger</strong> (<em>logging.Logger</em>) &#8211; custom logger object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>is_debug</strong> (<em>bool</em>) &#8211; enable printing of debug info</td>
 </tr>
 </tbody>
 </table>
@@ -297,9 +190,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> (<em>str</em>) &#8211; name of stream</li>
-<li><strong>data</strong> (<em>object</em>) &#8211; data for sending</li>
-<li><strong>auth_key</strong> (<em>str</em>) &#8211; secret auth key for stream</li>
+<li><strong>stream</strong> (<em>str</em>) &#8211; atom stream name</li>
+<li><strong>data</strong> (<em>object</em>) &#8211; data to send (payload)</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; secret HMAC auth key for stream</li>
 </ul>
 </td>
 </tr>
@@ -352,7 +245,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.1.6',
+            VERSION:'1.5.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
