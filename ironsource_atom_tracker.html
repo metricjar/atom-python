@@ -158,29 +158,20 @@
 <li><strong>batch_pool_size</strong> (<em>int</em>) &#8211; Optional, Number of events to hold in BatchEventPool</li>
 <li><strong>event_backlog</strong> (<em>object</em>) &#8211; Optional, Custom EventStorage implementation</li>
 <li><strong>backlog_size</strong> (<em>int</em>) &#8211; Optional, Backlog queue size (EventStorage ABC implementation)</li>
-<li><strong>flush_interval</strong> &#8211; Optional, Tracker flush interval in milliseconds (default 10000)</li>
+<li><strong>flush_interval</strong> (<em>int</em>) &#8211; Optional, Tracker flush interval in milliseconds (default 10000)</li>
+<li><strong>retry_max_time</strong> (<em>int</em>) &#8211; Optional, Retry max time in seconds</li>
+<li><strong>retry_max_count</strong> (<em>int</em>) &#8211; Optional, Maximum number of retries in seconds</li>
+<li><strong>batch_size</strong> (<em>int</em>) &#8211; Optional, Amount of events in every batch (bulk) (default: 500)</li>
+<li><strong>batch_bytes_size</strong> (<em>int</em>) &#8211; Optional, Size of each batch (bulk) in bytes (default: 64KB)</li>
+<li><strong>is_debug</strong> (<em>bool</em>) &#8211; Optional, Enable printing of debug information</li>
+<li><strong>endpoint</strong> (<em>str</em>) &#8211; Optional, Atom endpoint</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; Optional, Default auth key to use (when none is provided in .track)</li>
+<li><strong>callback</strong> (<em>function</em>) &#8211; Optional, callback to be called on error (Client 400/ Server 500)</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>:type  flush_interval      int
-:param retry_max_time:     Optional, Retry max time in seconds
-:type  retry_max_time:     int
-:param retry_max_count:    Optional, Maximum number of retries in seconds
-:type  retry_max_count:    int
-:param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
-:type  batch_size:         int
-:param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
-:type  batch_bytes_size:   int
-:param is_debug:           Optional, Enable printing of debug information
-:type  is_debug:           bool
-:param endpoint:           Optional, Atom endpoint
-:type  endpoint:           str
-:param auth_key:           Optional, Default auth key to use (when none is provided in .track)
-:type  auth_key:           str
-:param callback:           Optional, callback to be called on error (Client 400/ Server 500)
-:type  callback:           function</p>
 </dd></dl>
 
 <dl class="attribute">
