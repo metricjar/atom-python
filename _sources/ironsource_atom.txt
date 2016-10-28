@@ -5,6 +5,3 @@ ironSourceAtom Low Level API
 	:members:
 	:undoc-members:
     :special-members:
-
-
-
