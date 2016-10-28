@@ -69,7 +69,7 @@ class IronSourceAtom:
         :return: requests response object
         """
         if not data or not stream:
-            raise Exception("Stream and/or Data are required")
+            raise Exception("Stream and/or Data are missing")
         if len(auth_key) == 0:
             auth_key = self._auth_key
 
