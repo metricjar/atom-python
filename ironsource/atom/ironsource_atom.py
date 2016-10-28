@@ -1,95 +1,48 @@
 import json
 import hmac
-import sys
-import logging
+import requests
 import hashlib
-
+import ironsource.atom.atom_logger as logger
 from ironsource.atom.request import Request
+import ironsource.atom.config as config
 
 
 class IronSourceAtom:
     """
-       AtomApi
-
-       ironSource Atom low level API. supports put_event() and put_events() methods.
+        ironSource Atom low level API. supports put_event() and put_events() methods.
     """
 
-    _TAG = "IronSourceAtom"
+    TAG = "IronSourceAtom"
 
-    _SDK_VERSION = "1.1.7"
-    _ATOM_URL = "http://track.atom-data.io/"
-
-    def __init__(self):
-
-        self._endpoint = IronSourceAtom._ATOM_URL
-        self._auth_key = ""
-
-        self._is_debug = False
-
-        self._init_headers()
-
-        # init default logger
-        self._logger = logging.getLogger("ATOM-LOW-LEVEL")
-        self._logger.setLevel(logging.DEBUG)
-
-        stream_object = logging.StreamHandler(sys.stdout)
-        stream_object.setLevel(logging.DEBUG)
-        logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        stream_object.setFormatter(logger_formatter)
-        self._logger.addHandler(stream_object)
-
-    def _init_headers(self):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key=""):
         """
-        Init header map data
+        Atom class init function
+        :param is_debug: Optional, Enable/Disable debug
+        :param endpoint: Optional, Atom API Endpoint
+        :param auth_key: Optional, Atom auth key
         """
-        self._headers = {
-            "x-ironsource-atom-sdk-type": "python",
-            "x-ironsource-atom-sdk-version": IronSourceAtom._SDK_VERSION
-        }
 
-    def set_logger(self, logger):  # pragma: no cover
-        """
-        Set custom logger
-
-        :param logger: custom logger instance
-        :type logger: logging.Logger
-        """
-        self._logger = logger
-
-    def enable_debug(self, is_debug):  # pragma: no cover
-        """
-        Enabling debug information
-
-        :param is_debug: enable printing of debug information
-        :type is_debug: bool
-        """
+        self._endpoint = endpoint
+        self._auth_key = auth_key
         self._is_debug = is_debug
 
-    def set_auth(self, auth_key):
-        """
-        Set HMAC authentication key
+        self._headers = {
+            "x-ironsource-atom-sdk-type": "python",
+            "x-ironsource-atom-sdk-version": config.SDK_VERSION
+        }
 
-        :param auth_key: HMAC auth key for your stream
-        :type auth_key: str
-        """
-        self._auth_key = auth_key
+        # init logger
+        self._logger = logger.get_logger(debug=self._is_debug)
 
-    def set_endpoint(self, endpoint):
+    def set_debug(self, is_debug):  # pragma: no cover
         """
-        Set Atom Endpoint url
+        Enable / Disable debug
 
-        :param endpoint: Atom API endpoint
-        :type endpoint: str
+        :param is_debug: enable printing of debug info
+        :type is_debug: bool
         """
-        self._endpoint = endpoint
-
-    def get_endpoint(self):
-        """
-        Get current Atom API endpoint
-
-        :rtype: str
-        """
-        return self._endpoint
+        self._is_debug = is_debug if isinstance(is_debug, bool) else False
+        self._logger = logger.get_logger(debug=self._is_debug)
 
     def get_auth(self):
         """
@@ -104,22 +57,23 @@ class IronSourceAtom:
 
         This method exposes two ways of sending your events. Either by HTTP(s) POST or GET.
 
-        :param method: the HTTP(s) method to use when sending data - default is POST
+        :param method: The HTTP(s) method to use when sending data - default is POST
         :type method: str
         :param stream: Atom Stream name
         :type stream: str
-        :param data: data (payload) that should be sent to the server
+        :param data: Data (payload) that should be sent to the server
         :type data: object
-        :param auth_key: hmac auth key
+        :param auth_key: Hmac auth key
         :type auth_key: str
 
         :return: requests response object
         """
-
+        if not data or not stream:
+            raise Exception("Stream and/or Data are missing")
         if len(auth_key) == 0:
             auth_key = self._auth_key
 
-        request_data = self.get_request_data(stream, auth_key, data)
+        request_data = self.create_request_data(stream, auth_key, data)
 
         return self.send_data(url=self._endpoint, data=request_data, method=method,
                               headers=self._headers)
@@ -139,21 +93,21 @@ class IronSourceAtom:
 
         :return: requests response object
         """
-        if not isinstance(data, list):
-            raise Exception("Data has to be of data type list")
-
+        if not isinstance(data, list) or not data:
+            raise Exception("Data has to be of a non-empty list")
+        if not stream:
+            raise Exception("Stream is required")
         if len(auth_key) == 0:
             auth_key = self._auth_key
 
         data = json.dumps(data)
-
-        request_data = self.get_request_data(stream, auth_key, data, bulk=True)
+        request_data = self.create_request_data(stream, auth_key, data, batch=True)
 
         return self.send_data(url=self._endpoint + "bulk", data=request_data, method="post",
                               headers=self._headers)
 
     @staticmethod
-    def get_request_data(stream, auth_key, data, bulk=False):
+    def create_request_data(stream, auth_key, data, batch=False):
         """
         Create json data string from input data
 
@@ -163,8 +117,8 @@ class IronSourceAtom:
         :type auth_key: str
         :param data: data to send to the server
         :type data: object
-        :param bulk: send data by bulk
-        :type bulk: bool
+        :param batch: send data by batch(bulk)
+        :type batch: bool
 
         :return: json data
         :rtype: str
@@ -182,7 +136,7 @@ class IronSourceAtom:
                                             msg=data.encode("utf-8"),
                                             digestmod=hashlib.sha256).hexdigest()
 
-        if bulk:
+        if batch:
             request_data["bulk"] = True
 
         return json.dumps(request_data)
@@ -202,19 +156,10 @@ class IronSourceAtom:
         :return: response from server
         :rtype: Response
         """
-        request = Request(url, data, headers)
-
-        if method.lower() == "get":
-            return request.get()
-        else:
-            return request.post()
-
-    def print_log(self, log_info):  # pragma: no cover
-        """
-        Print debug information
-
-        :param log_info: debug information
-        :type log_info: str
-        """
-        if self._is_debug:
-            self._logger.info(IronSourceAtom._TAG + ": " + log_info)
+        with requests.Session() as session:
+            session.headers.update(headers)
+            request = Request(url, data, session)
+            if method.lower() == "get":
+                return request.get()
+            else:
+                return request.post()
