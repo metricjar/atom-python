@@ -15,7 +15,7 @@ class EventStorage:
         """
         Add event (must to be synchronized)
 
-        :param event_object: event data object
+        :param event_object: Event data object
         :type event_object: Event
         """
         pass
@@ -25,6 +25,8 @@ class EventStorage:
         """
         Get event (must to be synchronized)
 
+        :param stream: Atom stream name
+        :type stream str
         :return: Event object from storage
         :rtype: Event
         """
@@ -34,8 +36,9 @@ class EventStorage:
     def remove_event(self, stream):
         """
         Remove event from storage
-        :param stream:
-        :return: None
+
+        :param stream: Atom stream name
+        :type stream str`
         """
         pass
 
@@ -43,6 +46,7 @@ class EventStorage:
     def is_empty(self):
         """
         Check if the storage is empty
+
         :return: True is empty, else False
         """
         pass

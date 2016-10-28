@@ -17,9 +17,13 @@ class IronSourceAtom:
     def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key=""):
         """
         Atom class init function
-        :param is_debug: Optional, Enable/Disable debug
-        :param endpoint: Optional, Atom API Endpoint
-        :param auth_key: Optional, Atom auth key
+
+        :param is_debug:    Optional, Enable/Disable debug
+        :type  is_debug:    bool
+        :param endpoint:    Optional, Atom API Endpoint
+        :type  endpoint:    str
+        :param auth_key:    Optional, Atom auth key
+        :type  auth_key:    str
         """
 
         self._endpoint = endpoint
@@ -38,7 +42,7 @@ class IronSourceAtom:
         """
         Enable / Disable debug
 
-        :param is_debug: enable printing of debug info
+        :param is_debug: Enable printing of debug information
         :type is_debug: bool
         """
         self._is_debug = is_debug if isinstance(is_debug, bool) else False
@@ -61,7 +65,7 @@ class IronSourceAtom:
         :type method: str
         :param stream: Atom Stream name
         :type stream: str
-        :param data: Data (payload) that should be sent to the server
+        :param data: Single data (payload) event that will be sent to the server (string or dict)
         :type data: object
         :param auth_key: Hmac auth key
         :type auth_key: str
@@ -86,9 +90,9 @@ class IronSourceAtom:
 
         :param stream: Atom Stream name
         :type stream: str
-        :param data: a string of data to send to the server
-        :type data: list(str)
-        :param auth_key: a string of data to send to the server
+        :param data: List of strings or dictionaries that will be sent to Atom
+        :type data: list(object)
+        :param auth_key: Optional, Hmac auth key
         :type auth_key: str
 
         :return: requests response object
@@ -111,16 +115,15 @@ class IronSourceAtom:
         """
         Create json data string from input data
 
-        :param stream: the stream name
+        :param stream: Atom stream name
         :type stream: str
-        :param auth_key: secret key for stream
+        :param auth_key: Hmac auth key
         :type auth_key: str
-        :param data: data to send to the server
+        :param data: Data that will be sent to the Atom
         :type data: object
-        :param batch: send data by batch(bulk)
+        :param batch: Send data by batch(bulk)
         :type batch: bool
-
-        :return: json data
+        :return: Serialized data as JSON
         :rtype: str
         """
         if not isinstance(data, str):
@@ -144,14 +147,14 @@ class IronSourceAtom:
     @staticmethod
     def send_data(url, data, method, headers):
         """
-        :param headers: HTTP request headers
-        :type headers: dict
         :param url: Atom API endpoint
         :type url: str
-        :param data: data to send to the server
+        :param data: Data that will be sent to Atom
         :type data: str
-        :param method: type of HTTP request
+        :param method: Type of HTTP request
         :type method: str
+        :param headers: HTTP request headers
+        :type headers: dict
 
         :return: response from server
         :rtype: Response

@@ -5,7 +5,7 @@ def get_logger(name="AtomLogger", debug=False):
     """
     Atom Logger
     :param name: logger name
-    :param debug:  disable/enable debug printing
+    :param debug: Disable/enable debug printing
     :return:
     """
     logger = logging.getLogger(name)

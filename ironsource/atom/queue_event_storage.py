@@ -18,7 +18,7 @@ class QueueEventStorage(EventStorage):
         """
         Add event object to queue
 
-        :param event_object: event information object
+        :param event_object: Event object
         :type event_object: Event
         """
         with self._dictionary_lock:
@@ -30,7 +30,7 @@ class QueueEventStorage(EventStorage):
         """
         Get & remove event object from queue
 
-        :return: Event information object from queue
+        :return: Event object from queue
         :rtype: Event
         """
         with self._dictionary_lock:
@@ -41,14 +41,21 @@ class QueueEventStorage(EventStorage):
 
     def remove_event(self, stream):
         """
-        remove event object from queue
-        :param stream:  atom stream name
+        Remove event object from queue
+
+        :param stream: Atom stream name
+        :type stream: str
         """
         with self._dictionary_lock:
             if stream in self._events and (len(self._events[stream]) > 0):
                 return self._events[stream].popleft()
 
     def is_empty(self):
+        """
+        Check if the storage is empty
+
+        :return: True is empty, else False
+        """
         with self._dictionary_lock:
             for stream in self._events:
                 if len(self._events[stream]) > 0:

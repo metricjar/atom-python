@@ -2,7 +2,8 @@ ironSourceAtom Low Level API
 ============================
 
 .. automodule:: ironsource.atom.ironsource_atom
-	:members:
-	:undoc-members:
+    :members:
+    :special-members:
+    :undoc-members:
 
 

@@ -216,6 +216,7 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 	    - set_bulk_byte_size
 	    - set_endpoint
 	    - set_flush_interval
+    - Improved error handling and input checking
 - BatchEventPool - Added is_empty() func
 - Changed logger (added logger.py)
 - Added config.py for constants
@@ -227,6 +228,8 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
         - get_endpoint()
         - set_endpoint()
         - set_auth()
+- Updated Docs
+
 
 ### v1.1.7
 - Added deque limit on QueueEventStorage(backlog)

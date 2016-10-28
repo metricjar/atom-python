@@ -13,9 +13,9 @@ class BatchEventPool:
     """
         Batch Event Pool constructor
 
-        :param thread_count: count of working threads
+        :param thread_count: Count of working threads
         :type thread_count: int
-        :param max_events: max count of events in queue
+        :param max_events: Max count of events in queue
         :type max_events: int
     """
 

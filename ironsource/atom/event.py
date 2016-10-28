@@ -1,10 +1,10 @@
 class Event:
     """
-        Event object - Holds a single atom event data
+        Event object - Holds a single atom event (inside EventStorage)
 
-        :param stream: atom stream name
+        :param stream: Atom stream name
         :type stream: basestring
-        :param data: payload date to send
+        :param data: Payload data to send
         :type data: object
     """
 

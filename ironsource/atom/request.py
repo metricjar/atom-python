@@ -6,22 +6,24 @@ from ironsource.atom.response import Response
 class Request:
     """
         Wrapper for HTTP requests to Atom API
-
-        :param url: server url
-        :type url: str
-        :param data: data ot send to the server
-        :type data: str
-        :param headers: list of header information
-        :type headers: list(String)
     """
 
-    def __init__(self, url, data, session):
-        self._url = url
+    def __init__(self, endpoint, data, session):
+        """
+        :param endpoint: Atom API endpoint
+        :type endpoint: str
+        :param data: Data that will be sent to server
+        :type data: str
+        :param session: requests.Session object
+        :type session: function
+        """
+        self._url = endpoint
         self._data = data
         self._session = session
 
     def get(self):
-        """Request with GET method
+        """
+        Request with GET method
 
         This method encapsulates the data object with base64 encoding and sends it to the service.
         Sends the request according to the REST API specification
@@ -45,7 +47,8 @@ class Request:
             return Response(response.content, None, response.status_code)
 
     def post(self):
-        """Request with POST method
+        """
+        Request with POST method
 
         This method encapsulates the data and sends it to the service.
         Sends the request according to the REST API specification.
