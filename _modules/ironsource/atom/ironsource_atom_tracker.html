@@ -175,19 +175,31 @@
 <span class="sd">        Tracker init function</span>
 
 <span class="sd">        :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool</span>
-<span class="sd">        :type batch_worker_count: int</span>
+<span class="sd">        :type  batch_worker_count: int</span>
 <span class="sd">        :param batch_pool_size:    Optional, Number of events to hold in BatchEventPool</span>
+<span class="sd">        :type  batch_pool_size:    int</span>
 <span class="sd">        :param event_backlog:      Optional, Custom EventStorage implementation</span>
+<span class="sd">        :type  event_backlog:      object</span>
 <span class="sd">        :param backlog_size:       Optional, Backlog queue size (EventStorage ABC implementation)</span>
+<span class="sd">        :type  backlog_size:       int</span>
 <span class="sd">        :param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)</span>
+<span class="sd">        :type  flush_interval      int</span>
 <span class="sd">        :param retry_max_time:     Optional, Retry max time in seconds</span>
+<span class="sd">        :type  retry_max_time:     int</span>
 <span class="sd">        :param retry_max_count:    Optional, Maximum number of retries in seconds</span>
+<span class="sd">        :type  retry_max_count:    int</span>
 <span class="sd">        :param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)</span>
+<span class="sd">        :type  batch_size:         int</span>
 <span class="sd">        :param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)</span>
+<span class="sd">        :type  batch_bytes_size:   int</span>
 <span class="sd">        :param is_debug:           Optional, Enable printing of debug information</span>
+<span class="sd">        :type  is_debug:           bool</span>
 <span class="sd">        :param endpoint:           Optional, Atom endpoint</span>
+<span class="sd">        :type  endpoint:           str</span>
 <span class="sd">        :param auth_key:           Optional, Default auth key to use (when none is provided in .track)</span>
+<span class="sd">        :type  auth_key:           str</span>
 <span class="sd">        :param callback:           Optional, callback to be called on error (Client 400/ Server 500)</span>
+<span class="sd">        :type  callback:           function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Init Atom basic SDK</span>
@@ -231,14 +243,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
         <span class="c1"># Batch bytes size</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_bytes_size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">batch_bytes_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_bytes_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_bytes_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Batch Bytes Size must be 1 or greater! Setting default: {}&quot;</span>
                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span><span class="p">))</span>
             <span class="n">batch_bytes_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_bytes_size</span> <span class="o">=</span> <span class="n">batch_bytes_size</span>
 
         <span class="c1"># Flush Interval</span>
-        <span class="k">if</span> <span class="n">flush_interval</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flush_interval</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">flush_interval</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Flush Interval must be 1000 or greater! Setting default: {}&quot;</span>
                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">FLUSH_INTERVAL</span><span class="p">))</span>
             <span class="n">flush_interval</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">FLUSH_INTERVAL</span>
