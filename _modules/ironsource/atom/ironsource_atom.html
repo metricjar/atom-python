@@ -178,7 +178,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enable / Disable debug</span>
 
-<span class="sd">        :param is_debug: enable printing of debug info</span>
+<span class="sd">        :param is_debug: Enable printing of debug information</span>
 <span class="sd">        :type is_debug: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">is_debug</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
@@ -201,7 +201,7 @@
 <span class="sd">        :type method: str</span>
 <span class="sd">        :param stream: Atom Stream name</span>
 <span class="sd">        :type stream: str</span>
-<span class="sd">        :param data: Data (payload) that should be sent to the server</span>
+<span class="sd">        :param data: Single data (payload) event that will be sent to the server (string or dict)</span>
 <span class="sd">        :type data: object</span>
 <span class="sd">        :param auth_key: Hmac auth key</span>
 <span class="sd">        :type auth_key: str</span>
@@ -226,9 +226,9 @@
 
 <span class="sd">        :param stream: Atom Stream name</span>
 <span class="sd">        :type stream: str</span>
-<span class="sd">        :param data: a string of data to send to the server</span>
-<span class="sd">        :type data: list(str)</span>
-<span class="sd">        :param auth_key: a string of data to send to the server</span>
+<span class="sd">        :param data: List of strings or dictionaries that will be sent to Atom</span>
+<span class="sd">        :type data: list(object)</span>
+<span class="sd">        :param auth_key: Optional, Hmac auth key</span>
 <span class="sd">        :type auth_key: str</span>
 
 <span class="sd">        :return: requests response object</span>
@@ -251,16 +251,15 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create json data string from input data</span>
 
-<span class="sd">        :param stream: the stream name</span>
+<span class="sd">        :param stream: Atom stream name</span>
 <span class="sd">        :type stream: str</span>
-<span class="sd">        :param auth_key: secret key for stream</span>
+<span class="sd">        :param auth_key: Hmac auth key</span>
 <span class="sd">        :type auth_key: str</span>
-<span class="sd">        :param data: data to send to the server</span>
+<span class="sd">        :param data: Data that will be sent to the Atom</span>
 <span class="sd">        :type data: object</span>
-<span class="sd">        :param batch: send data by batch(bulk)</span>
+<span class="sd">        :param batch: Send data by batch(bulk)</span>
 <span class="sd">        :type batch: bool</span>
-
-<span class="sd">        :return: json data</span>
+<span class="sd">        :return: Serialized data as JSON</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -284,14 +283,14 @@
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="IronSourceAtom.send_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.send_data">[docs]</a>    <span class="k">def</span> <span class="nf">send_data</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param headers: HTTP request headers</span>
-<span class="sd">        :type headers: dict</span>
 <span class="sd">        :param url: Atom API endpoint</span>
 <span class="sd">        :type url: str</span>
-<span class="sd">        :param data: data to send to the server</span>
+<span class="sd">        :param data: Data that will be sent to Atom</span>
 <span class="sd">        :type data: str</span>
-<span class="sd">        :param method: type of HTTP request</span>
+<span class="sd">        :param method: Type of HTTP request</span>
 <span class="sd">        :type method: str</span>
+<span class="sd">        :param headers: HTTP request headers</span>
+<span class="sd">        :type headers: dict</span>
 
 <span class="sd">        :return: response from server</span>
 <span class="sd">        :rtype: Response</span>

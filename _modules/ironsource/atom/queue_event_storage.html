@@ -154,7 +154,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add event object to queue</span>
 
-<span class="sd">        :param event_object: event information object</span>
+<span class="sd">        :param event_object: Event object</span>
 <span class="sd">        :type event_object: Event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
@@ -166,7 +166,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get &amp; remove event object from queue</span>
 
-<span class="sd">        :return: Event information object from queue</span>
+<span class="sd">        :return: Event object from queue</span>
 <span class="sd">        :rtype: Event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
@@ -177,14 +177,21 @@
 
 <div class="viewcode-block" id="QueueEventStorage.remove_event"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.remove_event">[docs]</a>    <span class="k">def</span> <span class="nf">remove_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        remove event object from queue</span>
-<span class="sd">        :param stream:  atom stream name</span>
+<span class="sd">        Remove event object from queue</span>
+
+<span class="sd">        :param stream: Atom stream name</span>
+<span class="sd">        :type stream: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="QueueEventStorage.is_empty"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the storage is empty</span>
+
+<span class="sd">        :return: True is empty, else False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>

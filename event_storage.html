@@ -148,7 +148,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_object</strong> (<a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event"><em>Event</em></a>) &#8211; event data object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_object</strong> (<a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event"><em>Event</em></a>) &#8211; Event data object</td>
 </tr>
 </tbody>
 </table>
@@ -162,19 +162,27 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Event object from storage</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event">Event</a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> &#8211; Atom stream name</td>
 </tr>
 </tbody>
 </table>
+<p>:type stream str
+:return: Event object from storage
+:rtype: Event</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ironsource.atom.event_storage.EventStorage.is_empty">
 <code class="descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/event_storage.html#EventStorage.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.event_storage.EventStorage.is_empty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the storage is empty
-:return: True is empty, else False</p>
+<dd><p>Check if the storage is empty</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True is empty, else False</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -189,6 +197,7 @@
 </tr>
 </tbody>
 </table>
+<p>:type stream str`</p>
 </dd></dl>
 
 </dd></dl>

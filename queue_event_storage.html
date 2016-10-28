@@ -148,7 +148,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_object</strong> (<a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event"><em>Event</em></a>) &#8211; event information object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_object</strong> (<a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event"><em>Event</em></a>) &#8211; Event object</td>
 </tr>
 </tbody>
 </table>
@@ -162,7 +162,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Event information object from queue</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Event object from queue</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="event.html#ironsource.atom.event.Event" title="ironsource.atom.event.Event">Event</a></td>
 </tr>
@@ -173,13 +173,29 @@
 <dl class="method">
 <dt id="ironsource.atom.queue_event_storage.QueueEventStorage.is_empty">
 <code class="descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/queue_event_storage.html#QueueEventStorage.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.queue_event_storage.QueueEventStorage.is_empty" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Check if the storage is empty</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True is empty, else False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="ironsource.atom.queue_event_storage.QueueEventStorage.remove_event">
 <code class="descname">remove_event</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/queue_event_storage.html#QueueEventStorage.remove_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.queue_event_storage.QueueEventStorage.remove_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>remove event object from queue
-:param stream:  atom stream name</p>
+<dd><p>Remove event object from queue</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>str</em>) &#8211; Atom stream name</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

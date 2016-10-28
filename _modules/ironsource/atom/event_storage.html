@@ -151,7 +151,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add event (must to be synchronized)</span>
 
-<span class="sd">        :param event_object: event data object</span>
+<span class="sd">        :param event_object: Event data object</span>
 <span class="sd">        :type event_object: Event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
@@ -161,6 +161,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get event (must to be synchronized)</span>
 
+<span class="sd">        :param stream: Atom stream name</span>
+<span class="sd">        :type stream str</span>
 <span class="sd">        :return: Event object from storage</span>
 <span class="sd">        :rtype: Event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -172,6 +174,7 @@
 <span class="sd">        Remove event from storage</span>
 
 <span class="sd">        :param stream: Atom stream name</span>
+<span class="sd">        :type stream str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
@@ -179,6 +182,7 @@
 <div class="viewcode-block" id="EventStorage.is_empty"><a class="viewcode-back" href="../../../event_storage.html#ironsource.atom.event_storage.EventStorage.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the storage is empty</span>
+
 <span class="sd">        :return: True is empty, else False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div></div>

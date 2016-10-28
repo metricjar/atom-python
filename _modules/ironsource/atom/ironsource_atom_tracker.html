@@ -299,7 +299,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enable / Disable debug</span>
 
-<span class="sd">        :param is_debug: enable printing of debug info</span>
+<span class="sd">        :param is_debug: Enable printing of debug information</span>
 <span class="sd">        :type is_debug: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">is_debug</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
@@ -310,18 +310,22 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Track event</span>
 
-<span class="sd">        :param stream: atom stream name</span>
+<span class="sd">        :param stream: Atom stream name</span>
 <span class="sd">        :type stream: str</span>
-<span class="sd">        :param data: data to send (payload)</span>
+<span class="sd">        :param data: Data to send (payload) (dict or string)</span>
 <span class="sd">        :type data: object</span>
-<span class="sd">        :param auth_key: secret HMAC auth key for stream</span>
+<span class="sd">        :param auth_key: HMAC auth key for stream</span>
 <span class="sd">        :type auth_key: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">auth_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">auth_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span><span class="o">.</span><span class="n">get_auth</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="p">:</span>
@@ -337,6 +341,7 @@
     <span class="k">def</span> <span class="nf">_flush_peroidcly</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flush everything every {flush_interval}</span>
+
 <span class="sd">        Note: the time.time() is used cause python is not accurate enough and adds a delay</span>
 <span class="sd">        when using time.sleep(x) (where x is a constant)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -389,7 +394,6 @@
 
                     <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">events_buffer</span><span class="p">:</span>
                         <span class="n">events_buffer</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
                     <span class="n">events_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span>
                     <span class="n">events_buffer</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_object</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
@@ -403,6 +407,7 @@
     <span class="k">def</span> <span class="nf">_flush_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Send data to server using IronSource Atom Low-level API</span>
+
 <span class="sd">        NOTE: this function is passed a lambda to the BatchEventPool so it might continue running if it was</span>
 <span class="sd">        triggered already even after a graceful killing for at least (retry_max_count) times</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -412,7 +417,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span><span class="o">.</span><span class="n">put_events</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
                 <span class="k">return</span>
 
             <span class="c1"># Response on first try</span>
@@ -456,8 +461,8 @@
 <span class="sd">        Tracker exit handler</span>
 <span class="sd">        :param frame: current stack frame</span>
 <span class="sd">        :type frame: frame</span>
-<span class="sd">        :type sig: OS SIGNAL number</span>
 <span class="sd">        :param sig: integer</span>
+<span class="sd">        :type sig: OS signal number</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Intercepted signal </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sig</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span><span class="p">:</span>
@@ -467,10 +472,16 @@
     <span class="k">def</span> <span class="nf">_error_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">,</span> <span class="n">unix_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">error_msg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sent_data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log an error and send it to a callback function (if defined by user)</span>
-<span class="sd">        :param unix_time: unix(epoch) timestamp</span>
+<span class="sd">        :param attempt: Sending attempt to atom</span>
+<span class="sd">        :type  attempt: int</span>
+<span class="sd">        :param unix_time: Unix(epoch) timestamp</span>
+<span class="sd">        :type  unix_time: float</span>
 <span class="sd">        :param status: HTTP status</span>
+<span class="sd">        :type  status: int</span>
 <span class="sd">        :param error_msg: Error msg from server</span>
+<span class="sd">        :type  error_msg: str</span>
 <span class="sd">        :param sent_data: Data that was sent to server</span>
+<span class="sd">        :type  sent_data: object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">unix_time</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">,</span> <span class="n">sent_data</span><span class="p">)</span>

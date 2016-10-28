@@ -142,22 +142,24 @@
 <div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../../request.html#ironsource.atom.request.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wrapper for HTTP requests to Atom API</span>
-
-<span class="sd">        :param url: server url</span>
-<span class="sd">        :type url: str</span>
-<span class="sd">        :param data: data ot send to the server</span>
-<span class="sd">        :type data: str</span>
-<span class="sd">        :param headers: list of header information</span>
-<span class="sd">        :type headers: list(String)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param endpoint: Atom API endpoint</span>
+<span class="sd">        :type endpoint: str</span>
+<span class="sd">        :param data: Data that will be sent to server</span>
+<span class="sd">        :type data: str</span>
+<span class="sd">        :param session: requests.Session object</span>
+<span class="sd">        :type session: function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">endpoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span>
 
 <div class="viewcode-block" id="Request.get"><a class="viewcode-back" href="../../../request.html#ironsource.atom.request.Request.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Request with GET method</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Request with GET method</span>
 
 <span class="sd">        This method encapsulates the data object with base64 encoding and sends it to the service.</span>
 <span class="sd">        Sends the request according to the REST API specification</span>
@@ -181,7 +183,8 @@
             <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Request.post"><a class="viewcode-back" href="../../../request.html#ironsource.atom.request.Request.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Request with POST method</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Request with POST method</span>
 
 <span class="sd">        This method encapsulates the data and sends it to the service.</span>
 <span class="sd">        Sends the request according to the REST API specification.</span>

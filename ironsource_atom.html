@@ -178,14 +178,14 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>stream</strong> (<em>str</em>) &#8211; the stream name</li>
-<li><strong>auth_key</strong> (<em>str</em>) &#8211; secret key for stream</li>
-<li><strong>data</strong> (<em>object</em>) &#8211; data to send to the server</li>
-<li><strong>batch</strong> (<em>bool</em>) &#8211; send data by batch(bulk)</li>
+<li><strong>stream</strong> (<em>str</em>) &#8211; Atom stream name</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; Hmac auth key</li>
+<li><strong>data</strong> (<em>object</em>) &#8211; Data that will be sent to the Atom</li>
+<li><strong>batch</strong> (<em>bool</em>) &#8211; Send data by batch(bulk)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">json data</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Serialized data as JSON</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
@@ -221,7 +221,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; The HTTP(s) method to use when sending data - default is POST</li>
 <li><strong>stream</strong> (<em>str</em>) &#8211; Atom Stream name</li>
-<li><strong>data</strong> (<em>object</em>) &#8211; Data (payload) that should be sent to the server</li>
+<li><strong>data</strong> (<em>object</em>) &#8211; Single data (payload) event that will be sent to the server (string or dict)</li>
 <li><strong>auth_key</strong> (<em>str</em>) &#8211; Hmac auth key</li>
 </ul>
 </td>
@@ -245,8 +245,8 @@ to Atom using HTTP(s) POST.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>stream</strong> (<em>str</em>) &#8211; Atom Stream name</li>
-<li><strong>data</strong> (<em>list(str)</em>) &#8211; a string of data to send to the server</li>
-<li><strong>auth_key</strong> (<em>str</em>) &#8211; a string of data to send to the server</li>
+<li><strong>data</strong> (<em>list(object)</em>) &#8211; List of strings or dictionaries that will be sent to Atom</li>
+<li><strong>auth_key</strong> (<em>str</em>) &#8211; Optional, Hmac auth key</li>
 </ul>
 </td>
 </tr>
@@ -265,10 +265,10 @@ to Atom using HTTP(s) POST.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>headers</strong> (<em>dict</em>) &#8211; HTTP request headers</li>
 <li><strong>url</strong> (<em>str</em>) &#8211; Atom API endpoint</li>
-<li><strong>data</strong> (<em>str</em>) &#8211; data to send to the server</li>
-<li><strong>method</strong> (<em>str</em>) &#8211; type of HTTP request</li>
+<li><strong>data</strong> (<em>str</em>) &#8211; Data that will be sent to Atom</li>
+<li><strong>method</strong> (<em>str</em>) &#8211; Type of HTTP request</li>
+<li><strong>headers</strong> (<em>dict</em>) &#8211; HTTP request headers</li>
 </ul>
 </td>
 </tr>
@@ -290,7 +290,7 @@ to Atom using HTTP(s) POST.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>is_debug</strong> (<em>bool</em>) &#8211; enable printing of debug info</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>is_debug</strong> (<em>bool</em>) &#8211; Enable printing of debug information</td>
 </tr>
 </tbody>
 </table>
