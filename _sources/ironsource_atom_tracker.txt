@@ -1,7 +1,7 @@
 ironSourceAtom High Level - Tracker
 ===================================
 
-.. autoclass:: ironsource.atom.ironsource_atom_tracker
-	:members:
-	:undoc-members:
-        :special-members:
+.. automodule:: ironsource.atom.ironsource_atom_tracker
+    :members:
+    :special-members:
+    :undoc-members:
