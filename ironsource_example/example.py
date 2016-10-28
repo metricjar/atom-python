@@ -12,9 +12,7 @@ if __name__ == "__main__":
     stream = "sdkdev_sdkdev.public.zeev"
     auth_key = "I40iwPPOsG3dfWX30labriCg9HqMfL"
 
-    api_ = IronSourceAtom(is_debug=True)
-    api_.enable_debug(True)
-    api_.set_endpoint("https://track.atom-data.io/")
+    api_ = IronSourceAtom(is_debug=False, endpoint="https://track.atom-data.io/")
 
     # put_event() GET example
     print ("==== GET REQUEST TO ATOM WITH JSON DUMPS ====")
@@ -50,21 +48,23 @@ if __name__ == "__main__":
     print ("POST Response data: " + str(response_post.data) + "; error: " + str(response_post.error) +
            "; status: " + str(response_post.status))
 
-    # tracker example
+    # Tracker example
     print ("\n==== TESTING ATOM TRACKER ====")
 
-    # Tracker callback function example
+
     def callback_func(timestmap, status, msg, data):
+        # Tracker callback function example
         print("[EXAMPLE CALLBACK FUNCTION] timestamp: {}, status: {} message: {}".format(timestmap, status, msg))
 
-    api_tracker = IronSourceAtomTracker(flush_interval=2000, callback=callback_func)
-    api_tracker.set_batch_bytes_size(64000)
-    api_tracker.set_batch_size(100)
-    # The flush interval is set twice in order to see the change while it's running
-    api_tracker.set_flush_interval(10000)
-    api_tracker.enable_debug(True)
-    api_tracker.set_endpoint("http://track.atom-data.io/")
-    # api_tracker.set_endpoint("http://127.0.0.1:3000/")
+
+    endpoint = "http://127.0.0.1:3000/"
+    # endpoint = "http://track.atom-data.io/"
+    api_tracker = IronSourceAtomTracker(flush_interval=10000,
+                                        callback=callback_func,
+                                        batch_bytes_size=64000,
+                                        batch_size=100,
+                                        is_debug=True,
+                                        endpoint=endpoint)
 
 
     class ThreadClass:

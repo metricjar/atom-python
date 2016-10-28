@@ -32,29 +32,33 @@ class IronSourceAtomTracker:
                  batch_size=config.BATCH_SIZE,
                  batch_bytes_size=config.BATCH_BYTES_SIZE,
                  is_debug=False,
+                 endpoint=config.ATOM_ENDPOINT,
+                 auth_key="",
                  callback=None):
         """
         Tracker init function
         :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
-        :param batch_pool_size: Optional, Number of events to hold in BatchEventPool
-        :param event_backlog: Optional, Custom EventStorage implementation
-        :param backlog_size: Optional, Backlog queue size (EventStorage ABC implementation)
-        :param flush_interval: Optional, Tracker flush interval in milliseconds
-        :param retry_max_time: Optional, Retry max time in seconds
-        :param retry_max_count: Optional, Maximum number of retries in seconds
-        :param batch_size: Optional, Amount of events in every batch (bulk)
-        :param batch_bytes_size: Optional, Size of each batch (bulk) in bytes
-        :param is_debug: Optional, Enable printing of debug information
-        :param callback: Optional, callback to be called on error
+        :param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
+        :param event_backlog:      Optional, Custom EventStorage implementation
+        :param backlog_size:       Optional, Backlog queue size (EventStorage ABC implementation)
+        :param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)
+        :param retry_max_time:     Optional, Retry max time in seconds
+        :param retry_max_count:    Optional, Maximum number of retries in seconds
+        :param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
+        :param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
+        :param is_debug:           Optional, Enable printing of debug information
+        :param endpoint:           Optional, Atom endpoint
+        :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
+        :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
         """
 
-        self._atom = IronSourceAtom()
+        # Init Atom basic SDK
         self._is_debug = is_debug
+        self._atom = IronSourceAtom(endpoint=endpoint, is_debug=self._is_debug, auth_key=auth_key)
+        self._logger = logger.get_logger(debug=self._is_debug)
 
         # Optional callback to be called on error, convention: time, status, error_msg, data
         self._callback = callback if callable(callback) else lambda timestamp, status, error_msg, data: None
-
-        self._logger = logger.get_logger(debug=self._is_debug)
 
         self._is_run_worker = True
         self._flush_all = False
@@ -66,13 +70,38 @@ class IronSourceAtomTracker:
         # Streams to keys map
         self._stream_keys = {}
 
-        # Retry with exponential backoff conf
+        # Retry with exponential backoff config
+        # Retry max time
+        if not isinstance(retry_max_time, int) or retry_max_time < 120:
+            self._logger.warning("Retry Max Time must be 120 or greater! Setting default: {}"
+                                 .format(config.RETRY_MAX_TIME))
+            retry_max_time = config.RETRY_MAX_TIME
         self._retry_max_time = retry_max_time
+
+        # Retry max count
+        if not isinstance(retry_max_count, int) or retry_max_count < 1:
+            self._logger.warning("Retry Max Count must be 1 or greater! Setting default: {}"
+                                 .format(config.RETRY_MAX_COUNT))
+            retry_max_count = config.RETRY_MAX_COUNT
         self._retry_max_count = retry_max_count
 
         # Batch size and flush interval config
+        if not isinstance(batch_size, int) or batch_size < 1:
+            self._logger.warning("Batch Size must be 1 or greater! Setting default: {}"
+                                 .format(config.BATCH_SIZE))
+            batch_size = config.BATCH_SIZE
         self._batch_size = batch_size
+
+        if not isinstance(batch_bytes_size, (int, float)) or batch_bytes_size < 1:
+            self._logger.warning("Batch Bytes Size must be 1 or greater! Setting default: {}"
+                                 .format(config.BATCH_BYTES_SIZE))
+            batch_bytes_size = config.BATCH_BYTES_SIZE
         self._batch_bytes_size = batch_bytes_size
+
+        if flush_interval < 1000:
+            self._logger.warning("Flush Interval must be 1000 or greater! Setting default: {}"
+                                 .format(config.FLUSH_INTERVAL))
+            flush_interval = config.FLUSH_INTERVAL
         self._flush_interval = flush_interval
 
         # Holds the events after .track method
@@ -114,15 +143,6 @@ class IronSourceAtomTracker:
             i += 1
             time.sleep(1)
 
-    def enable_debug(self, is_debug):  # pragma: no cover
-        """
-        Enable / Disable debug - this is here for compatibility reasons
-
-        :param is_debug: enable printing of debug info
-        :type is_debug: bool
-        """
-        self.set_debug(is_debug)
-
     def set_debug(self, is_debug):  # pragma: no cover
         """
         Enable / Disable debug
@@ -131,68 +151,8 @@ class IronSourceAtomTracker:
         :type is_debug: bool
         """
         self._is_debug = is_debug if isinstance(is_debug, bool) else False
-        self._logger = logger.get_logger(debug=is_debug)
-
-    def set_endpoint(self, endpoint):
-        """
-        Set server host address
-
-        :param endpoint: server url
-        :type endpoint: str
-        """
-        self._atom.set_endpoint(endpoint)
-
-    def set_auth(self, auth_key):
-        """
-        Set auth key for stream
-
-        :param auth_key: secret auth key
-        :type auth_key: str
-        """
-        self._atom.set_auth(auth_key)
-
-    def set_bulk_size(self, batch_size):
-        """
-        Set batch amount(size) (this function is here for compatibility reasons)
-        :param batch_size: count of batch (bulk) events
-        :type batch_size: int
-        """
-        self.set_batch_size(batch_size)
-
-    def set_batch_size(self, batch_size):
-        """
-        Set batch amount(size)
-        :param batch_size: count of batch(bulk) events
-        :type batch_size: int
-        """
-        self._batch_size = batch_size
-
-    def set_bulk_bytes_size(self, batch_bytes_size):
-        """
-        Set batch bytes size (this function is here for compatibility reasons)
-
-        :param batch_bytes_size: batch(bulk) size in bytes
-        :type batch_bytes_size: int
-        """
-        self.set_batch_bytes_size(batch_bytes_size)
-
-    def set_batch_bytes_size(self, batch_bytes_size):
-        """
-        Set bulk bytes size
-
-        :param batch_bytes_size: bulk size in bytes
-        :type batch_bytes_size: int
-        """
-        self._batch_bytes_size = batch_bytes_size
-
-    def set_flush_interval(self, flush_interval):
-        """
-        Set flush interval milliseconds
-
-        :param flush_interval: interval for flush data
-        :type flush_interval: int
-        """
-        self._flush_interval = flush_interval
+        self._logger = logger.get_logger(debug=self._is_debug)
+        self._atom.set_debug(self._is_debug)
 
     def track(self, stream, data, auth_key=""):
         """
@@ -336,8 +296,8 @@ class IronSourceAtomTracker:
         :param attempt: attempt number
         :type attempt: int
         """
-        expo_backoff = min(self._retry_max_time, pow(2, attempt) * config.RETRY_EXPO_BACKOFF_BASE)
-        return random.uniform(0, expo_backoff)
+        exponential_backoff = min(self._retry_max_time, pow(2, attempt) * config.RETRY_EXPO_BACKOFF_BASE)
+        return random.uniform(0, exponential_backoff)
 
     def graceful_kill(self, sig, frame):
         """

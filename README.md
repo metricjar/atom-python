@@ -63,32 +63,33 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
                                 batch_size=config.BATCH_SIZE,
                                 batch_bytes_size=config.BATCH_BYTES_SIZE,
                                 is_debug=False,
-                                callback=None)             
+                                endpoint=config.ATOM_ENDPOINT,
+                                auth_key="",
+                                callback=None)
 """
 :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
-:param batch_pool_size: Optional, Number of events to hold in BatchEventPool
-:param event_backlog: Optional, Custom EventStorage implementation
-:param backlog_size: Optional, Backlog queue size (EventStorage ABC implementation)
-:param flush_interval: Optional, Tracker flush interval in milliseconds
-:param retry_max_time: Optional, Retry max time in seconds
-:param retry_max_count: Optional, Maximum number of retries in seconds
-:param batch_size: Optional, Amount of events in every batch (bulk)
-:param batch_bytes_size: Optional, Size of each batch (bulk) in bytes
-:param is_debug: Optional, Enable printing of debug information
-:param callback: Optional, callback to be called on error (Client 400/ Server 500)
+:param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
+:param event_backlog:      Optional, Custom EventStorage implementation
+:param backlog_size:       Optional, Backlog queue size (EventStorage ABC implementation)
+:param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)
+:param retry_max_time:     Optional, Retry max time in seconds
+:param retry_max_count:    Optional, Maximum number of retries in seconds
+:param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
+:param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
+:param is_debug:           Optional, Enable printing of debug information
+:param endpoint:           Optional, Atom endpoint
+:param auth_key:           Optional, Default auth key to use (when none is provided in .track)
+:param callback:           Optional, callback to be called on error (Client 400/ Server 500)
 """
 ```
+
 Importing the library and initializing  
 ```python
 from ironsource.atom.ironsource_atom_tracker import IronSourceAtomTracker
 
 # Note the parameters as described above
-tracker = IronSourceAtomTracker()
-tracker.set_batch_bytes_size(2048) # Optional, Size of each bulk in bytes (default: 64KB)
-tracker.set_batch_size(12) # Optional, Number of events per bulk (batch) (default: 500) 
-tracker.set_flush_interval(2000) # Optional, Tracker flush interval in milliseconds (default: 10 seconds)
-tracker.enable_debug(True) # Optional, Print debug information
-tracker.set_endpoint("http://track.atom-data.io/") # Optional, Atom endpoint
+tracker = IronSourceAtomTracker(batch_bytes_size=2048, batch_size=12, flush_interval=2000)
+tracker.set_debug(True) # Optional, Print debug information (You can also set it at the constructor)
 
 # Sending an event
 stream = "YOUR_STREAM_NAME"
@@ -160,8 +161,8 @@ class EventStorage:
 
 # Using custom storage implementation:
 
-custom_event_storage_backlog = new MyCustomEventStorage()
-tracker = new IronSourceAtomTracker(event_backlog=custom_event_storage_backlog)
+custom_event_storage_backlog = MyCustomEventStorage()
+tracker = IronSourceAtomTracker(event_backlog=custom_event_storage_backlog)
 ```
 
 ### Low level API usage
@@ -173,28 +174,25 @@ The Low Level API has 2 methods:
 ```python
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
-api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL)
+auth = "DEFAULT_AUTH_KEY"
+api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth)
 """
 Atom class init function
 :param is_debug: Optional, Enable/Disable debug
 :param endpoint: Optional, Atom API Endpoint
+:param auth_key: Optional, Atom auth key
 """
-# Note - on all methods: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
+# Note: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
 # Else it won't use any.
 
-api.enable_debug(True)
-api.set_auth("YOUR_AUTH_KEY")
-api.set_endpoint("http://track.atom-data.io/")
 # Sending an event - should be a string.
-
 stream = "YOUR_STREAM_NAME"
 auth2 = "YOUR_AUTH_KEY"
 data = {"event_name": "PYTHON_SDK_POST_EXAMPLE"}
-api.put_event(stream=stream, data=data, method="post", auth_key=auth2)
-api.put_event(stream=stream, data=data)
+api.put_event(stream=stream, data=data, method="post", auth_key=auth2) # Will send with auth2
+api.put_event(stream=stream, data=data) # Will send with auth
 
 # Sending a bulk of events - should be a list of strings.
-
 stream = "YOUR_STREAM_NAME"
 data = [{"strings": "data: test 1"}, {"strings": "data: test 2"}]
 api.put_events(stream=stream, data=data, auth_key=auth2)
@@ -212,16 +210,23 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
     - Added more verbose logging
 	- Added callback function to tracker (optional callback on error)
 	- Added Exponential backoff with full jitter
-	- Renamed The following:
-	    - enable_debug -> set_debug (also on Atom class)
-		- set_bulk_size - > set_batch_size
-	    - set_bulk_byte_size -> set_batch_byte_size
+	- Renamed enable_debug -> set_debug (also on Atom class)
+	- Removed the following (moved them to the constructor):
+	    - set_bulk_size
+	    - set_bulk_byte_size
+	    - set_endpoint
+	    - set_flush_interval
 - BatchEventPool - Added is_empty() func
 - Changed logger (added logger.py)
 - Added config.py for constants
 - EventStorage and QueueEventStorage - Added is_empty() func
 - Requests class - Improved HTTP class, changed error handling and removed useless code
-- Atom Class - Improved error handling and input checking
+- Atom Class:
+    - Improved error handling and input checking
+    - Removed the following (moved them to the constructor):
+        - get_endpoint()
+        - set_endpoint()
+        - set_auth()
 
 ### v1.1.7
 - Added deque limit on QueueEventStorage(backlog)
@@ -249,7 +254,7 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 - Fixing auth mechanism
 
 ### v1.0.2
-- Added support to send a bulk of events via the put_events method
+- Added support to send a bulk(batch) of events via the put_events method
 
 ### v1.0.1
 - Added Docs

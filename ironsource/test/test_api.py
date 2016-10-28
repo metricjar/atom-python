@@ -21,17 +21,14 @@ class TestApiSetterGetter(unittest.TestCase):
         self.url = "http://track.atom-data.io/"
         self.data = {"event_name": "test", "id": "2"}
         self.stream = "streamname"
-        self.atom_client = ironsource_atom.IronSourceAtom()
+        self.auth_key = "test_key"
+        self.atom_client = ironsource_atom.IronSourceAtom(auth_key=self.auth_key)
 
     def test_auth(self):
-        expected_auth = "test_auth"
-        self.atom_client.set_auth(expected_auth)
-        self.assertEqual(self.atom_client.get_auth(), expected_auth)
+        self.assertEqual(self.atom_client.get_auth(), self.auth_key)
 
     def test_endpoint(self):
-        expected_endpoint = "test_endpoint"
-        self.atom_client.set_endpoint(expected_endpoint)
-        self.assertEqual(self.atom_client.get_endpoint(), expected_endpoint)
+        self.assertEqual(self.atom_client._endpoint, self.url)
 
 
 class TestApiGET(unittest.TestCase):
@@ -60,8 +57,8 @@ class TestApiGET(unittest.TestCase):
 
         self.assertEqual(res.status, 501)
 
-class TestApiPost(unittest.TestCase):
 
+class TestApiPost(unittest.TestCase):
     def setUp(self):
         self.url = "http://track.atom-data.io/"
         self.data = {"event_name": "test", "id": "2"}
