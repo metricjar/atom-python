@@ -80,6 +80,10 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param endpoint:           Optional, Atom endpoint
 :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
 :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
+
+Note: the callback is: callback(unix_time, http_code, error_msg, sent_data)
+error_msg = Sdk/server error msg
+sent_data = Data that caused the error
 """
 ```
 
