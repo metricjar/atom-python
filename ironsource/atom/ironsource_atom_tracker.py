@@ -68,6 +68,8 @@ class IronSourceAtomTracker:
 
         # Init Atom basic SDK
         self._is_debug = is_debug
+        # For debug printing
+        self._debug_counter = 0
         self._atom = IronSourceAtom(endpoint=endpoint, is_debug=self._is_debug, auth_key=auth_key)
         self._logger = logger.get_logger(debug=self._is_debug)
 
@@ -195,6 +197,7 @@ class IronSourceAtomTracker:
             if stream not in self._stream_keys:
                 self._stream_keys[stream] = auth_key
             self._event_backlog.add_event(Event(stream, data))
+            self._debug_counter += 1
 
     def flush(self):
         """
@@ -291,9 +294,12 @@ class IronSourceAtomTracker:
             # Status 200 - OK or 400 - Client Error
             if 200 <= response.status < 500:
                 if 200 <= response.status < 400:
-                    self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
-                                                                                   str(response.data),
-                                                                                   str(response.error)))
+                    if self._debug_counter >= 1000:
+                        self._logger.info('Tracked 1000 events')
+                        self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
+                                                                                       str(response.data),
+                                                                                       str(response.error)))
+                        self._debug_counter = 0
                 else:
                     # 400
                     self._error_log(attempt, time.time(), response.status, response.error, data)

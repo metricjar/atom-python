@@ -62,8 +62,8 @@ if __name__ == "__main__":
     api_tracker = IronSourceAtomTracker(flush_interval=10000,
                                         callback=callback_func,
                                         batch_bytes_size=64000,
-                                        batch_size=100,
-                                        is_debug=True,
+                                        batch_size=64,
+                                        is_debug=False,
                                         endpoint=endpoint)
 
 
@@ -73,19 +73,20 @@ if __name__ == "__main__":
             self._thread_lock = Lock()
 
         def thread_worker(self, args):
+            print("[EXAMPLE] Thread {} started".format(args))
 
             while True:
                 with self._thread_lock:
                     self._call_index += 1
                     data_track = {"id": self._call_index, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE",
                                   "string_value": str(random.random())}
-                    # exit after 40
+                    # exit after 100
                     if self._call_index >= 100:
                         return
                     else:
                         # Track every odd event with delay
                         if self._call_index % 10 == 0:
-                            time.sleep(3)
+                            time.sleep(1)
                             print("[EXAMPLE] Tracking Data")
                     api_tracker.track(stream=stream, data=data_track, auth_key=auth_key)
 
@@ -103,5 +104,4 @@ if __name__ == "__main__":
     for thread in threads_array:
         thread.join()
 
-    time.sleep(10000)
     print ("Finished all example methods.")

@@ -1,12 +1,5 @@
 from threading import Thread
-from collections import deque
-
-
-class BatchEventPoolException(Exception):
-    """
-    Event task pool exception
-    """
-    pass
+from Queue import Queue
 
 
 class BatchEventPool:
@@ -20,7 +13,7 @@ class BatchEventPool:
     """
 
     def __init__(self, thread_count, max_events):
-        self._events = deque(maxlen=max_events)
+        self._events = Queue(maxsize=max_events)
 
         self._is_running = True
         self._max_events = max_events
@@ -36,6 +29,8 @@ class BatchEventPool:
         """
         Stop all working threads
         """
+        # The put event is here to unblock the task_worker (get() is blocking)
+        self._events.put(lambda: 0)
         self._is_running = False
 
     def task_worker(self):
@@ -43,13 +38,8 @@ class BatchEventPool:
         Worker method - for call action lambda
         """
         while self._is_running:
-            if len(self._events) > 0:
-                try:
-                    action = self._events.popleft()
-                except IndexError:
-                    continue
-
-                action()
+            func = self._events.get()
+            func()
 
     def add_event(self, event_action):
         """
@@ -59,14 +49,11 @@ class BatchEventPool:
         :type event_action: lambda
         :raises: EventTaskPoolException
         """
-        if (len(self._events) + 1) > self._max_events:
-            raise BatchEventPoolException("Exceeded max event count in Event Task Pool!")
-
-        self._events.append(event_action)
+        self._events.put(event_action)
 
     def is_empty(self):
         """
         Check if the event pool is empty
         :return: True if empty, else False
         """
-        return not self._events
+        return self._events.empty()

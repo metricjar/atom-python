@@ -30,7 +30,7 @@ By default the BatchEventPool is configured to use one thread (worker), you can 
 These are the default parameters for both Classes (inside config.py):
 ```python
 # Tracker Config
-BATCH_SIZE = 500
+BATCH_SIZE = 64
 BATCH_BYTES_SIZE = 64 * 1024
 # Default flush interval in millisecodns
 FLUSH_INTERVAL = 10000
@@ -38,12 +38,12 @@ FLUSH_INTERVAL = 10000
 # Batch Event Pool Config
 # Default Number of workers(threads) for BatchEventPool
 BATCH_WORKER_COUNT = 1
-# Default Number of events to hold in BatchEventPool
-BATCH_POOL_SIZE = 3000
+# Default Number of batch events to hold in BatchEventPool
+BATCH_POOL_SIZE = 1
 
 # EventStorage Config (backlog)
 # Default backlog queue size (per stream)
-BACKLOG_SIZE = 12000
+BACKLOG_SIZE = 500
 
 # Retry on 500 / Connection error conf
 # Retry max time in seconds
@@ -204,6 +204,13 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 
 ## Change Log
 
+### v1.5.1
+- Tracker changes:
+    - bug fix: replaced dequeue with Queue.Queuq on Backlog & BatchEventPool.  
+      dequeue caused excessive consumption of memory and cpu.  
+      Note that .track() is now blocking when backlog is full
+    - Changed defaults for Backlog & BatchEventPool
+    
 ### v1.5.0
 - Tracker changes:
     - Added periodical flush function and changed the interval mechanism

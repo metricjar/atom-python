@@ -1,6 +1,6 @@
 from ironsource.atom.event_storage import EventStorage
+from Queue import Queue
 from threading import Lock
-from collections import deque
 
 
 class QueueEventStorage(EventStorage):
@@ -23,8 +23,8 @@ class QueueEventStorage(EventStorage):
         """
         with self._dictionary_lock:
             if event_object.stream not in self._events:
-                self._events[event_object.stream] = deque(maxlen=self._queue_size)
-            self._events[event_object.stream].append(event_object)
+                self._events[event_object.stream] = Queue(maxsize=self._queue_size)
+            self._events[event_object.stream].put(event_object)
 
     def get_event(self, stream):
         """
@@ -33,11 +33,8 @@ class QueueEventStorage(EventStorage):
         :return: Event object from queue
         :rtype: Event
         """
-        with self._dictionary_lock:
-            if stream in self._events and (len(self._events[stream]) > 0):
-                return self._events[stream].popleft()
-
-        return None
+        if stream in self._events and not self._events[stream].empty():
+            return self._events[stream].get()
 
     def remove_event(self, stream):
         """
@@ -46,9 +43,7 @@ class QueueEventStorage(EventStorage):
         :param stream: Atom stream name
         :type stream: str
         """
-        with self._dictionary_lock:
-            if stream in self._events and (len(self._events[stream]) > 0):
-                return self._events[stream].popleft()
+        return self.get_event(stream)
 
     def is_empty(self):
         """
@@ -56,8 +51,7 @@ class QueueEventStorage(EventStorage):
 
         :return: True is empty, else False
         """
-        with self._dictionary_lock:
-            for stream in self._events:
-                if len(self._events[stream]) > 0:
-                    return False
-            return True
+        for stream in self._events:
+            if not self._events[stream].empty():
+                return False
+        return True
