@@ -13,7 +13,6 @@ import random
 
 from threading import Lock
 from threading import Thread
-from threading import Timer
 
 
 class IronSourceAtomTracker:
