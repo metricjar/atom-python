@@ -13,6 +13,7 @@ import random
 
 from threading import Lock
 from threading import Thread
+from threading import Timer
 
 
 class IronSourceAtomTracker:
@@ -223,8 +224,13 @@ class IronSourceAtomTracker:
             if i % 2 == 0:
                 self._logger.debug("Flushing In {} Seconds".format(next_call - time.time()))
             i += 1
-            time.sleep(next_call - time.time())
-            self.flush()
+            try:
+                time.sleep(next_call - time.time())
+                self.flush()
+            except (IOError, ValueError) as e:
+                # Can happen after sleep
+                self._logger.error("Timer error: {}".format(str(e.args)))
+                next_call = time.time()
 
     def _tracker_handler(self):
         """
