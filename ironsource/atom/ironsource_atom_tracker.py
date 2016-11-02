@@ -234,6 +234,7 @@ class IronSourceAtomTracker:
         events_buffer = {}
         # Dict to hold events size for every stream
         events_size = {}
+        self._logger.info("Tracker Handler Started")
 
         def flush_data(stream, auth_key):
             # This 'if' is needed for the flush_all case
@@ -244,6 +245,9 @@ class IronSourceAtomTracker:
                 self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, temp_buffer))
 
         while self._is_run_worker:
+            if self._event_backlog.is_empty():
+                time.sleep(2)
+
             if self._flush_all:
                 for stream_name, stream_key in self._stream_keys.items():
                     flush_data(stream_name, stream_key)
@@ -307,10 +311,10 @@ class IronSourceAtomTracker:
 
             # Server Error >= 500 - Retry with exponential backoff
             duration = self._get_duration(attempt)
-            self._logger.debug("Retry duration: {}".format(duration))
+            self._error_log(attempt, time.time(), response.status, response.error, data)
+            self._logger.info("Retry duration: {}".format(duration))
             attempt += 1
             time.sleep(duration)
-            self._error_log(attempt, time.time(), response.status, response.error, data)
         # after max attempts reached queue the msgs back to the end of the queue
         else:
             self._logger.warning("Queueing back data after reaching max attempts")

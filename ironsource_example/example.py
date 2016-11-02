@@ -105,3 +105,4 @@ if __name__ == "__main__":
         thread.join()
 
     print ("Finished all example methods.")
+    time.sleep(1000000)
