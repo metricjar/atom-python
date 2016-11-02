@@ -68,6 +68,8 @@ class IronSourceAtomTracker:
 
         # Init Atom basic SDK
         self._is_debug = is_debug
+        # For debug printing
+        self._debug_counter = 0
         self._atom = IronSourceAtom(endpoint=endpoint, is_debug=self._is_debug, auth_key=auth_key)
         self._logger = logger.get_logger(debug=self._is_debug)
 
@@ -195,6 +197,7 @@ class IronSourceAtomTracker:
             if stream not in self._stream_keys:
                 self._stream_keys[stream] = auth_key
             self._event_backlog.add_event(Event(stream, data))
+            self._debug_counter += 1
 
     def flush(self):
         """
@@ -220,8 +223,13 @@ class IronSourceAtomTracker:
             if i % 2 == 0:
                 self._logger.debug("Flushing In {} Seconds".format(next_call - time.time()))
             i += 1
-            time.sleep(next_call - time.time())
-            self.flush()
+            try:
+                time.sleep(next_call - time.time())
+                self.flush()
+            except (IOError, ValueError) as e:
+                # Can happen after sleep
+                self._logger.error("Timer error: {}".format(str(e.args)))
+                next_call = time.time()
 
     def _tracker_handler(self):
         """
@@ -231,6 +239,7 @@ class IronSourceAtomTracker:
         events_buffer = {}
         # Dict to hold events size for every stream
         events_size = {}
+        self._logger.info("Tracker Handler Started")
 
         def flush_data(stream, auth_key):
             # This 'if' is needed for the flush_all case
@@ -241,6 +250,9 @@ class IronSourceAtomTracker:
                 self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, temp_buffer))
 
         while self._is_run_worker:
+            if self._event_backlog.is_empty():
+                time.sleep(2)
+
             if self._flush_all:
                 for stream_name, stream_key in self._stream_keys.items():
                     flush_data(stream_name, stream_key)
@@ -291,9 +303,12 @@ class IronSourceAtomTracker:
             # Status 200 - OK or 400 - Client Error
             if 200 <= response.status < 500:
                 if 200 <= response.status < 400:
-                    self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
-                                                                                   str(response.data),
-                                                                                   str(response.error)))
+                    if self._debug_counter >= 1000:
+                        self._logger.info('Tracked 1000 events')
+                        self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
+                                                                                       str(response.data),
+                                                                                       str(response.error)))
+                        self._debug_counter = 0
                 else:
                     # 400
                     self._error_log(attempt, time.time(), response.status, response.error, data)
@@ -301,10 +316,10 @@ class IronSourceAtomTracker:
 
             # Server Error >= 500 - Retry with exponential backoff
             duration = self._get_duration(attempt)
-            self._logger.debug("Retry duration: {}".format(duration))
+            self._error_log(attempt, time.time(), response.status, response.error, data)
+            self._logger.info("Retry duration: {}".format(duration))
             attempt += 1
             time.sleep(duration)
-            self._error_log(attempt, time.time(), response.status, response.error, data)
         # after max attempts reached queue the msgs back to the end of the queue
         else:
             self._logger.warning("Queueing back data after reaching max attempts")

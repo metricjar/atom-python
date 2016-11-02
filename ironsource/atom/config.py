@@ -1,10 +1,10 @@
 # Atom Python SDK config file
 
-SDK_VERSION = "1.5.0"
+SDK_VERSION = "1.5.1"
 ATOM_ENDPOINT = "http://track.atom-data.io/"
 
 # Tracker Config
-BATCH_SIZE = 500
+BATCH_SIZE = 64
 BATCH_BYTES_SIZE = 64 * 1024
 
 # Default flush interval in millisecodns
@@ -13,12 +13,12 @@ FLUSH_INTERVAL = 10000
 # Batch Event Pool Config
 # Default Number of workers(threads) for BatchEventPool
 BATCH_WORKER_COUNT = 1
-# Default Number of events to hold in BatchEventPool
-BATCH_POOL_SIZE = 3000
+# Default Number of batch events to hold in BatchEventPool
+BATCH_POOL_SIZE = 1
 
 # EventStorage Config (backlog)
 # Default backlog queue size (per stream)
-BACKLOG_SIZE = 12000
+BACKLOG_SIZE = 500
 
 # Retry on 500 / Connection error conf
 
