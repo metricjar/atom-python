@@ -206,10 +206,12 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 
 ### v1.5.1
 - Tracker changes:
-    - bug fix: replaced dequeue with Queue.Queuq on Backlog & BatchEventPool.  
+    - bug fix: replaced dequeue with Queue.Queue on Backlog & BatchEventPool.  
       dequeue caused excessive consumption of memory and cpu.  
       Note that .track() is now blocking when backlog is full
     - Changed defaults for Backlog & BatchEventPool
+    - bug fix: fixing a case of negative timer when executing after sleep
+    - bug fix: fixing a bug in the tracker handler when there are no tracked events (busy waiting)
     
 ### v1.5.0
 - Tracker changes:
