@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.queue_event_storage &mdash; ironSourceAtom 1.5.0 documentation</title>
+  <title>ironsource.atom.queue_event_storage &mdash; ironSourceAtom 1.5.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.0 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.1 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.5.0
+                1.5.1
               </div>
             
           
@@ -135,8 +135,8 @@
             
   <h1>Source code for ironsource.atom.queue_event_storage</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">ironsource.atom.event_storage</span> <span class="kn">import</span> <span class="n">EventStorage</span>
+<span class="kn">from</span> <span class="nn">Queue</span> <span class="kn">import</span> <span class="n">Queue</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 
 
 <div class="viewcode-block" id="QueueEventStorage"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage">[docs]</a><span class="k">class</span> <span class="nc">QueueEventStorage</span><span class="p">(</span><span class="n">EventStorage</span><span class="p">):</span>
@@ -159,8 +159,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">event_object</span><span class="o">.</span><span class="n">stream</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">event_object</span><span class="o">.</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_queue_size</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">event_object</span><span class="o">.</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_object</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">event_object</span><span class="o">.</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_queue_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">event_object</span><span class="o">.</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">event_object</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QueueEventStorage.get_event"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.get_event">[docs]</a>    <span class="k">def</span> <span class="nf">get_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -169,11 +169,8 @@
 <span class="sd">        :return: Event object from queue</span>
 <span class="sd">        :rtype: Event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="QueueEventStorage.remove_event"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.remove_event">[docs]</a>    <span class="k">def</span> <span class="nf">remove_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -182,9 +179,7 @@
 <span class="sd">        :param stream: Atom stream name</span>
 <span class="sd">        :type stream: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QueueEventStorage.is_empty"><a class="viewcode-back" href="../../../queue_event_storage.html#ironsource.atom.queue_event_storage.QueueEventStorage.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -192,11 +187,10 @@
 
 <span class="sd">        :return: True is empty, else False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictionary_lock</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">return</span> <span class="bp">True</span></div></div>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span></div></div>
 </pre></div>
 
            </div>
@@ -230,7 +224,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.5.0',
+            VERSION:'1.5.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.0 documentation</title>
+  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.0 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.1 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.5.0
+                1.5.1
               </div>
             
           
@@ -204,6 +204,8 @@
 
         <span class="c1"># Init Atom basic SDK</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span>
+        <span class="c1"># For debug printing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">is_debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span>
 
@@ -330,7 +332,8 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth_key</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="IronSourceAtomTracker.flush"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -356,8 +359,13 @@
             <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flushing In {} Seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">next_call</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">next_call</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">next_call</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># Can happen after sleep</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Timer error: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>
+                <span class="n">next_call</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_tracker_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -367,6 +375,7 @@
         <span class="n">events_buffer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Dict to hold events size for every stream</span>
         <span class="n">events_size</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tracker Handler Started&quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">flush_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
             <span class="c1"># This &#39;if&#39; is needed for the flush_all case</span>
@@ -377,6 +386,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_batch_event_pool</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">temp_buffer</span><span class="p">))</span>
 
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_all</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">stream_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">flush_data</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">stream_key</span><span class="p">)</span>
@@ -427,9 +439,12 @@
             <span class="c1"># Status 200 - OK or 400 - Client Error</span>
             <span class="k">if</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
                 <span class="k">if</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Status: {}; Response: {}; Error: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
-                                                                                   <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
-                                                                                   <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">)))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">&gt;=</span> <span class="mi">1000</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Tracked 1000 events&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Status: {}; Response: {}; Error: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
+                                                                                       <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                                                                                       <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">)))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># 400</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -437,10 +452,10 @@
 
             <span class="c1"># Server Error &gt;= 500 - Retry with exponential backoff</span>
             <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_duration</span><span class="p">(</span><span class="n">attempt</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Retry duration: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Retry duration: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
             <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="c1"># after max attempts reached queue the msgs back to the end of the queue</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Queueing back data after reaching max attempts&quot;</span><span class="p">)</span>
@@ -525,7 +540,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.5.0',
+            VERSION:'1.5.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
