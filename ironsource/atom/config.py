@@ -24,7 +24,9 @@ BACKLOG_SIZE = 500
 
 # Retry max time in seconds
 RETRY_MAX_TIME = 1800
-# Maximum number of retries
+# Maximum number of retries (set it to 1 in order to disable retry). This value is ignored if RETRY_FOREVER = False
 RETRY_MAX_COUNT = 12
 # Base multiplier for exponential backoff calculation
 RETRY_EXPO_BACKOFF_BASE = 3
+# Should the worker in BatchEventPool retry forever on server error (recommended)
+RETRY_FOREVER = True

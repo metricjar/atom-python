@@ -41,15 +41,19 @@ class BatchEventPool:
             func = self._events.get()
             func()
 
-    def add_event(self, event_action):
+    def add_event(self, event_action, block=True, timeout=None):
         """
         Add event for task pool
 
+        :param timeout: timeout in seconds (Raises Full exception after x seconds)
+        :type timeout: int
+        :param block: put an item if one is available, else raise Full exception (timeout is ignored in that case).
+        :type block: bool
         :param event_action: event lambda
         :type event_action: lambda
         :raises: EventTaskPoolException
         """
-        self._events.put(event_action)
+        self._events.put(event_action, block=block, timeout=timeout)
 
     def is_empty(self):
         """

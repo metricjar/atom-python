@@ -31,8 +31,9 @@ class IronSourceAtom:
         self._is_debug = is_debug
 
         self._headers = {
-            "x-ironsource-atom-sdk-type": "python",
-            "x-ironsource-atom-sdk-version": config.SDK_VERSION
+            'x-ironsource-atom-sdk-type': 'python',
+            'x-ironsource-atom-sdk-version': config.SDK_VERSION,
+            'Content-Type': 'application/json'
         }
 
         # init logger

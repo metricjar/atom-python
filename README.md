@@ -32,6 +32,7 @@ These are the default parameters for both Classes (inside config.py):
 # Tracker Config
 BATCH_SIZE = 64
 BATCH_BYTES_SIZE = 64 * 1024
+
 # Default flush interval in millisecodns
 FLUSH_INTERVAL = 10000
 
@@ -46,12 +47,16 @@ BATCH_POOL_SIZE = 1
 BACKLOG_SIZE = 500
 
 # Retry on 500 / Connection error conf
+
 # Retry max time in seconds
 RETRY_MAX_TIME = 1800
-# Maximum number of retries
+# Maximum number of retries (set it to 1 in order to disable retry).
+# This value is ignored if RETRY_FOREVER = False
 RETRY_MAX_COUNT = 12
 # Base multiplier for exponential backoff calculation
 RETRY_EXPO_BACKOFF_BASE = 3
+# Should the worker in BatchEventPool retry forever on server error (recommended)
+RETRY_FOREVER = True
 
 # Init a new tracker:
 tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
@@ -80,6 +85,7 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param endpoint:           Optional, Atom endpoint
 :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
 :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
+:param retry_forever:      Optional, should the worker in BatchEventPool retry forever on server error (500)
 
 The callback convention is: callback(unix_time, http_code, error_msg, sent_data)
 error_msg = Sdk/server error msg
@@ -203,6 +209,9 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 ```
 
 ## Change Log
+
+### v1.5.2
+- Added retry_forever option for tracker
 
 ### v1.5.1
 - Tracker changes:

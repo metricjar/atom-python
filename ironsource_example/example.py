@@ -63,7 +63,7 @@ if __name__ == "__main__":
                                         callback=callback_func,
                                         batch_bytes_size=64000,
                                         batch_size=64,
-                                        is_debug=False,
+                                        is_debug=True,
                                         endpoint=endpoint)
 
 

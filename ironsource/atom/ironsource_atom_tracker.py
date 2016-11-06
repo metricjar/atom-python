@@ -7,7 +7,6 @@ from ironsource.atom.batch_event_pool import BatchEventPool
 from ironsource.atom.event import Event
 import ironsource.atom.atom_logger as logger
 import ironsource.atom.config as config
-
 import time
 import random
 
@@ -34,7 +33,8 @@ class IronSourceAtomTracker:
                  is_debug=False,
                  endpoint=config.ATOM_ENDPOINT,
                  auth_key="",
-                 callback=None):
+                 callback=None,
+                 retry_forever=config.RETRY_FOREVER):
         """
         Tracker init function
 
@@ -64,6 +64,8 @@ class IronSourceAtomTracker:
         :type  auth_key:           str
         :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
         :type  callback:           function
+        :param retry_forever:      Optional, should the worker in BatchEventPool retry forever on server error (500)
+        :type  retry_forever:      bool
         """
 
         # Init Atom basic SDK
@@ -128,6 +130,9 @@ class IronSourceAtomTracker:
         # Holds batch of events for each stream and sends them using {thread_count} workers
         self._batch_event_pool = BatchEventPool(thread_count=batch_worker_count,
                                                 max_events=batch_pool_size)
+
+        # Retry forever on server error (500)
+        self._retry_forever = retry_forever
 
         # Start the handler thread - daemon since we want to exit even if it didn't stop yet
         handler_thread = Thread(target=self._tracker_handler)
@@ -287,9 +292,9 @@ class IronSourceAtomTracker:
         NOTE: this function is passed a lambda to the BatchEventPool so it might continue running if it was
         triggered already even after a graceful killing for at least (retry_max_count) times
         """
-        attempt = 0
+        attempt = 1
 
-        while attempt < self._retry_max_count:
+        while True:
             try:
                 response = self._atom.put_events(stream, data=data, auth_key=auth_key)
             except Exception as e:
@@ -297,7 +302,7 @@ class IronSourceAtomTracker:
                 return
 
             # Response on first try
-            if attempt == 0:
+            if attempt == 1:
                 self._logger.debug('Got Status: {}; Data: {}'.format(str(response.status), str(data)))
 
             # Status 200 - OK or 400 - Client Error
@@ -314,16 +319,18 @@ class IronSourceAtomTracker:
                     self._error_log(attempt, time.time(), response.status, response.error, data)
                 return
 
-            # Server Error >= 500 - Retry with exponential backoff
+            # Server Error >= 500:
+            # This should run forever (when we get a 500) unless retry_forever is False
+            # In this case we call error_log() function and data will be lost (you can save it with the callback)
+            if not self._retry_forever and attempt == self._retry_max_count:
+                self._error_log(attempt, time.time(), 500, "Retry Max Count has been reached, discarding data", data)
+                break
+            # Retry with exponential backoff
             duration = self._get_duration(attempt)
             self._error_log(attempt, time.time(), response.status, response.error, data)
             self._logger.info("Retry duration: {}".format(duration))
             attempt += 1
             time.sleep(duration)
-        # after max attempts reached queue the msgs back to the end of the queue
-        else:
-            self._logger.warning("Queueing back data after reaching max attempts")
-            self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, data))
 
     def _get_duration(self, attempt):
         """
