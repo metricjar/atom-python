@@ -26,7 +26,7 @@ class EventStorage:
         Get event (must to be synchronized)
 
         :param stream: Atom stream name
-        :type stream str
+        :type stream: str
         :return: Event object from storage
         :rtype: Event
         """

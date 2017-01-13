@@ -1,4 +1,4 @@
-__author__ = 'g8y3e'
-__version__ = '1.5.1'
+__author__ = 'Atom Core Team'
+__version__ = '1.5.2'
 __license__ = 'MIT'
 __copyright__ = "ironSource"

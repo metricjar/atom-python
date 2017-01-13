@@ -45,6 +45,10 @@ class BatchEventPool:
         """
         Add event for task pool
 
+        :param timeout: timeout in seconds (Raises Full exception after x seconds)
+        :type timeout: int
+        :param block: put an item if one is available, else raise Full exception (timeout is ignored in that case).
+        :type block: bool
         :param event_action: event lambda
         :type event_action: lambda
         :raises: EventTaskPoolException
