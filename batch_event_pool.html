@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom Batch Event Pool &mdash; ironSourceAtom 1.5.1 documentation</title>
+  <title>ironSourceAtom Batch Event Pool &mdash; ironSourceAtom 1.5.2 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.1 documentation" href="index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.2 documentation" href="index.html"/>
         <link rel="next" title="ironSourceAtom Request" href="request.html"/>
         <link rel="prev" title="ironSourceAtom Queue event storage" href="queue_event_storage.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -160,9 +160,15 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_action</strong> (<em>lambda</em>) &#8211; event lambda</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>timeout</strong> (<em>int</em>) &#8211; timeout in seconds (Raises Full exception after x seconds)</li>
+<li><strong>block</strong> (<em>bool</em>) &#8211; put an item if one is available, else raise Full exception (timeout is ignored in that case).</li>
+<li><strong>event_action</strong> (<em>lambda</em>) &#8211; event lambda</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">EventTaskPoolException</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">EventTaskPoolException</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -232,7 +238,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.5.1',
+            VERSION:'1.5.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

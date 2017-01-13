@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.5.1 documentation</title>
+  <title>ironSourceAtom High Level - Tracker &mdash; ironSourceAtom 1.5.2 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.1 documentation" href="index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.2 documentation" href="index.html"/>
         <link rel="next" title="ironSourceAtom Low Level API" href="ironsource_atom.html"/>
         <link rel="prev" title="Welcome to ironSourceAtom’s documentation!" href="index.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -138,7 +138,7 @@
 <span id="ironsourceatom-high-level-tracker"></span><h1>ironSourceAtom High Level - Tracker<a class="headerlink" href="#module-ironsource.atom.ironsource_atom_tracker" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker">
-<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=1</em>, <em>event_backlog=None</em>, <em>backlog_size=500</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=64</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ironsource.atom.ironsource_atom_tracker.</code><code class="descname">IronSourceAtomTracker</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=1</em>, <em>event_backlog=None</em>, <em>backlog_size=500</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=64</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em>, <em>retry_forever=True</em>, <em>is_blocking=True</em>, <em>backlog_timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>ironSource Atom high level API class (Tracker), supports: track() and flush()</p>
 <dl class="attribute">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.TAG">
@@ -147,7 +147,7 @@
 
 <dl class="method">
 <dt id="ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=1</em>, <em>event_backlog=None</em>, <em>backlog_size=500</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=64</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>batch_worker_count=1</em>, <em>batch_pool_size=1</em>, <em>event_backlog=None</em>, <em>backlog_size=500</em>, <em>flush_interval=10000</em>, <em>retry_max_time=1800</em>, <em>retry_max_count=12</em>, <em>batch_size=64</em>, <em>batch_bytes_size=65536</em>, <em>is_debug=False</em>, <em>endpoint='http://track.atom-data.io/'</em>, <em>auth_key=''</em>, <em>callback=None</em>, <em>retry_forever=True</em>, <em>is_blocking=True</em>, <em>backlog_timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ironsource/atom/ironsource_atom_tracker.html#IronSourceAtomTracker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tracker init function</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -167,6 +167,9 @@
 <li><strong>endpoint</strong> (<em>str</em>) &#8211; Optional, Atom endpoint</li>
 <li><strong>auth_key</strong> (<em>str</em>) &#8211; Optional, Default auth key to use (when none is provided in .track)</li>
 <li><strong>callback</strong> (<em>function</em>) &#8211; Optional, callback to be called on error (Client 400/ Server 500)</li>
+<li><strong>retry_forever</strong> (<em>bool</em>) &#8211; Optional, should the BatchEventPool retry forever on server error (default: True)</li>
+<li><strong>is_blocking</strong> (<em>bool</em>) &#8211; Optional, should the tracker backlog block (default: True)</li>
+<li><strong>backlog_timeout</strong> (<em>bool</em>) &#8211; Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)</li>
 </ul>
 </td>
 </tr>
@@ -269,7 +272,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.5.1',
+            VERSION:'1.5.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

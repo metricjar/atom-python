@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.1 documentation</title>
+  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.2 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.1 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.2 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -136,14 +136,13 @@
   <h1>Source code for ironsource.atom.ironsource_atom_tracker</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">signal</span>
-
+<span class="kn">import</span> <span class="nn">Queue</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.ironsource_atom</span> <span class="kn">import</span> <span class="n">IronSourceAtom</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.queue_event_storage</span> <span class="kn">import</span> <span class="n">QueueEventStorage</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.batch_event_pool</span> <span class="kn">import</span> <span class="n">BatchEventPool</span>
 <span class="kn">from</span> <span class="nn">ironsource.atom.event</span> <span class="kn">import</span> <span class="n">Event</span>
 <span class="kn">import</span> <span class="nn">ironsource.atom.atom_logger</span> <span class="kn">as</span> <span class="nn">logger</span>
 <span class="kn">import</span> <span class="nn">ironsource.atom.config</span> <span class="kn">as</span> <span class="nn">config</span>
-
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
@@ -170,7 +169,10 @@
                  <span class="n">is_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                  <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ATOM_ENDPOINT</span><span class="p">,</span>
                  <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                 <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">retry_forever</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">RETRY_FOREVER</span><span class="p">,</span>
+                 <span class="n">is_blocking</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BACKLOG_BLOCKING</span><span class="p">,</span>
+                 <span class="n">backlog_timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BACKLOG_TIMEOUT</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tracker init function</span>
 
@@ -200,6 +202,12 @@
 <span class="sd">        :type  auth_key:           str</span>
 <span class="sd">        :param callback:           Optional, callback to be called on error (Client 400/ Server 500)</span>
 <span class="sd">        :type  callback:           function</span>
+<span class="sd">        :param retry_forever:      Optional, should the BatchEventPool retry forever on server error (default: True)</span>
+<span class="sd">        :type  retry_forever:      bool</span>
+<span class="sd">        :param is_blocking:        Optional, should the tracker backlog block (default: True)</span>
+<span class="sd">        :type  is_blocking:        bool</span>
+<span class="sd">        :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)</span>
+<span class="sd">        :type  backlog_timeout:    bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Init Atom basic SDK</span>
@@ -210,7 +218,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span>
 
         <span class="c1"># Optional callback to be called on error, convention: time, status, error_msg, data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="bp">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flush_all</span> <span class="o">=</span> <span class="bp">False</span>
@@ -259,7 +267,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_flush_interval</span> <span class="o">=</span> <span class="n">flush_interval</span>
 
         <span class="c1"># Holds the events after .track method</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span> <span class="o">=</span> <span class="n">event_backlog</span> <span class="k">if</span> <span class="n">event_backlog</span> <span class="k">else</span> <span class="n">QueueEventStorage</span><span class="p">(</span><span class="n">queue_size</span><span class="o">=</span><span class="n">backlog_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span> <span class="o">=</span> <span class="n">event_backlog</span> <span class="k">if</span> <span class="n">event_backlog</span> <span class="k">else</span> <span class="n">QueueEventStorage</span><span class="p">(</span><span class="n">queue_size</span><span class="o">=</span><span class="n">backlog_size</span><span class="p">,</span>
+                                                                                    <span class="n">block</span><span class="o">=</span><span class="n">is_blocking</span><span class="p">,</span>
+                                                                                    <span class="n">timeout</span><span class="o">=</span><span class="n">backlog_timeout</span><span class="p">)</span>
+
+        <span class="c1"># Retry forever on server error (500) - When False and no callback is provided it may cause data loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retry_forever</span> <span class="o">=</span> <span class="n">retry_forever</span>
 
         <span class="c1"># Holds batch of events for each stream and sends them using {thread_count} workers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_event_pool</span> <span class="o">=</span> <span class="n">BatchEventPool</span><span class="p">(</span><span class="n">thread_count</span><span class="o">=</span><span class="n">batch_worker_count</span><span class="p">,</span>
@@ -326,14 +339,17 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
                 <span class="k">return</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth_key</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">+=</span> <span class="mi">1</span></div>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Full</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="s2">&quot;Tracker backlog is full, can&#39;t enqueue events&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IronSourceAtomTracker.flush"><a class="viewcode-back" href="../../../ironsource_atom_tracker.html#ironsource.atom.ironsource_atom_tracker.IronSourceAtomTracker.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -374,7 +390,7 @@
         <span class="c1"># Buffer between backlog and batch pool</span>
         <span class="n">events_buffer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Dict to hold events size for every stream</span>
-        <span class="n">events_size</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">batch_bytes_size</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tracker Handler Started&quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">flush_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">):</span>
@@ -382,7 +398,7 @@
             <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">events_buffer</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">events_buffer</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">temp_buffer</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">events_buffer</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span>
                 <span class="k">del</span> <span class="n">events_buffer</span><span class="p">[</span><span class="n">stream</span><span class="p">][:]</span>
-                <span class="n">events_size</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">batch_bytes_size</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_batch_event_pool</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">temp_buffer</span><span class="p">))</span>
 
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span><span class="p">:</span>
@@ -397,19 +413,23 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">stream_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="c1"># Get one event from the backlog</span>
-                    <span class="n">event_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">get_event</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">event_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_backlog</span><span class="o">.</span><span class="n">get_event</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
                     <span class="k">if</span> <span class="n">event_object</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                         <span class="k">continue</span>
 
-                    <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">events_size</span><span class="p">:</span>
-                        <span class="n">events_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">batch_bytes_size</span><span class="p">:</span>
+                        <span class="n">batch_bytes_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
                     <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">events_buffer</span><span class="p">:</span>
                         <span class="n">events_buffer</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="n">events_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span>
+                    <span class="n">batch_bytes_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span>
                     <span class="n">events_buffer</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_object</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">events_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_bytes_size</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">batch_bytes_size</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_bytes_size</span><span class="p">:</span>
                         <span class="n">flush_data</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">stream_key</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events_buffer</span><span class="p">[</span><span class="n">stream_name</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">:</span>
@@ -423,17 +443,17 @@
 <span class="sd">        NOTE: this function is passed a lambda to the BatchEventPool so it might continue running if it was</span>
 <span class="sd">        triggered already even after a graceful killing for at least (retry_max_count) times</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">attempt</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">while</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_max_count</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span><span class="o">.</span><span class="n">put_events</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">400</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
                 <span class="k">return</span>
 
             <span class="c1"># Response on first try</span>
-            <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Got Status: {}; Data: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
 
             <span class="c1"># Status 200 - OK or 400 - Client Error</span>
@@ -447,19 +467,26 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># 400</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
                 <span class="k">return</span>
 
-            <span class="c1"># Server Error &gt;= 500 - Retry with exponential backoff</span>
+            <span class="c1"># Server Error &gt;= 500:</span>
+            <span class="c1"># This should run forever (when we get a 500) unless retry_forever is False</span>
+            <span class="c1"># In this case we call error_log() function and data will be lost (you can save it with the callback)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_forever</span> <span class="ow">and</span> <span class="n">attempt</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_max_count</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;Retry Max Count has been reached, discarding data&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
+                                <span class="n">stream</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="c1"># Retry with exponential backoff</span>
             <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_duration</span><span class="p">(</span><span class="n">attempt</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Retry duration: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Got code: {status} from server, error: {error}. stream: {stream}, retry duration: {duration}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">status</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+                    <span class="n">error</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+                    <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+                    <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">))</span>
             <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
-        <span class="c1"># after max attempts reached queue the msgs back to the end of the queue</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Queueing back data after reaching max attempts&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_batch_event_pool</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -484,7 +511,7 @@
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_error_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">,</span> <span class="n">unix_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">error_msg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sent_data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_error_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">,</span> <span class="n">unix_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">error_msg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sent_data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log an error and send it to a callback function (if defined by user)</span>
 <span class="sd">        :param attempt: Sending attempt to atom</span>
@@ -497,9 +524,11 @@
 <span class="sd">        :type  error_msg: str</span>
 <span class="sd">        :param sent_data: Data that was sent to server</span>
 <span class="sd">        :type  sent_data: object</span>
+<span class="sd">        :param stream: Atom Stream name</span>
+<span class="sd">        :type stream: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">unix_time</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">,</span> <span class="n">sent_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">unix_time</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">,</span> <span class="n">sent_data</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Wrong arguments given to callback function: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
@@ -540,7 +569,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.5.1',
+            VERSION:'1.5.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
