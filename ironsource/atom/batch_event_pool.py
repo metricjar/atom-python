@@ -41,7 +41,7 @@ class BatchEventPool:
             func = self._events.get()
             func()
 
-    def add_event(self, event_action, block=True, timeout=None):
+    def add_event(self, event_action):
         """
         Add event for task pool
 
@@ -53,7 +53,7 @@ class BatchEventPool:
         :type event_action: lambda
         :raises: EventTaskPoolException
         """
-        self._events.put(event_action, block=block, timeout=timeout)
+        self._events.put(event_action)
 
     def is_empty(self):
         """

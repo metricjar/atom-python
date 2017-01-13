@@ -1,6 +1,6 @@
 import json
 import signal
-
+import Queue
 from ironsource.atom.ironsource_atom import IronSourceAtom
 from ironsource.atom.queue_event_storage import QueueEventStorage
 from ironsource.atom.batch_event_pool import BatchEventPool
@@ -34,7 +34,9 @@ class IronSourceAtomTracker:
                  endpoint=config.ATOM_ENDPOINT,
                  auth_key="",
                  callback=None,
-                 retry_forever=config.RETRY_FOREVER):
+                 retry_forever=config.RETRY_FOREVER,
+                 is_blocking=config.BACKLOG_BLOCKING,
+                 backlog_timeout=config.BACKLOG_TIMEOUT):
         """
         Tracker init function
 
@@ -64,8 +66,12 @@ class IronSourceAtomTracker:
         :type  auth_key:           str
         :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
         :type  callback:           function
-        :param retry_forever:      Optional, should the worker in BatchEventPool retry forever on server error (500)
+        :param retry_forever:      Optional, should the BatchEventPool retry forever on server error (default: True)
         :type  retry_forever:      bool
+        :param is_blocking:        Optional, should the tracker backlog block (default: True)
+        :type  is_blocking:        bool
+        :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)
+        :type  backlog_timeout:    bool
         """
 
         # Init Atom basic SDK
@@ -76,7 +82,7 @@ class IronSourceAtomTracker:
         self._logger = logger.get_logger(debug=self._is_debug)
 
         # Optional callback to be called on error, convention: time, status, error_msg, data
-        self._callback = callback if callable(callback) else lambda timestamp, status, error_msg, data: None
+        self._callback = callback if callable(callback) else lambda timestamp, status, error_msg, data, stream: None
 
         self._is_run_worker = True
         self._flush_all = False
@@ -125,14 +131,16 @@ class IronSourceAtomTracker:
         self._flush_interval = flush_interval
 
         # Holds the events after .track method
-        self._event_backlog = event_backlog if event_backlog else QueueEventStorage(queue_size=backlog_size)
+        self._event_backlog = event_backlog if event_backlog else QueueEventStorage(queue_size=backlog_size,
+                                                                                    block=is_blocking,
+                                                                                    timeout=backlog_timeout)
+
+        # Retry forever on server error (500) - When False and no callback is provided it may cause data loss
+        self._retry_forever = retry_forever
 
         # Holds batch of events for each stream and sends them using {thread_count} workers
         self._batch_event_pool = BatchEventPool(thread_count=batch_worker_count,
                                                 max_events=batch_pool_size)
-
-        # Retry forever on server error (500)
-        self._retry_forever = retry_forever
 
         # Start the handler thread - daemon since we want to exit even if it didn't stop yet
         handler_thread = Thread(target=self._tracker_handler)
@@ -195,14 +203,18 @@ class IronSourceAtomTracker:
             try:
                 data = json.dumps(data)
             except TypeError as e:
-                self._error_log(0, time.time(), 400, str(e), data)
+                self._error_log(0, time.time(), 400, str(e), data, stream)
                 return
 
         with self._data_lock:
             if stream not in self._stream_keys:
                 self._stream_keys[stream] = auth_key
-            self._event_backlog.add_event(Event(stream, data))
-            self._debug_counter += 1
+            try:
+                self._event_backlog.add_event(Event(stream, data))
+            except Queue.Full:
+                self._error_log(0, time.time(), 400, "Tracker backlog is full, can't enqueue events", data, stream)
+            else:
+                self._debug_counter += 1
 
     def flush(self):
         """
@@ -243,7 +255,7 @@ class IronSourceAtomTracker:
         # Buffer between backlog and batch pool
         events_buffer = {}
         # Dict to hold events size for every stream
-        events_size = {}
+        batch_bytes_size = {}
         self._logger.info("Tracker Handler Started")
 
         def flush_data(stream, auth_key):
@@ -251,7 +263,7 @@ class IronSourceAtomTracker:
             if stream in events_buffer and len(events_buffer[stream]) > 0:
                 temp_buffer = list(events_buffer[stream])
                 del events_buffer[stream][:]
-                events_size[stream] = 0
+                batch_bytes_size[stream] = 0
                 self._batch_event_pool.add_event(lambda: self._flush_data(stream, auth_key, temp_buffer))
 
         while self._is_run_worker:
@@ -266,19 +278,23 @@ class IronSourceAtomTracker:
             else:
                 for stream_name, stream_key in self._stream_keys.items():
                     # Get one event from the backlog
-                    event_object = self._event_backlog.get_event(stream_name)
+                    try:
+                        event_object = self._event_backlog.get_event(stream_name)
+                    except Queue.Empty:
+                        continue
+
                     if event_object is None:
                         continue
 
-                    if stream_name not in events_size:
-                        events_size[stream_name] = 0
+                    if stream_name not in batch_bytes_size:
+                        batch_bytes_size[stream_name] = 0
 
                     if stream_name not in events_buffer:
                         events_buffer[stream_name] = []
-                    events_size[stream_name] += len(event_object.data.encode("utf8"))
+                    batch_bytes_size[stream_name] += len(event_object.data.encode("utf8"))
                     events_buffer[stream_name].append(event_object.data)
 
-                    if events_size[stream_name] >= self._batch_bytes_size:
+                    if batch_bytes_size[stream_name] >= self._batch_bytes_size:
                         flush_data(stream_name, auth_key=stream_key)
 
                     if len(events_buffer[stream_name]) >= self._batch_size:
@@ -298,7 +314,7 @@ class IronSourceAtomTracker:
             try:
                 response = self._atom.put_events(stream, data=data, auth_key=auth_key)
             except Exception as e:
-                self._error_log(attempt, time.time(), 400, str(e), data)
+                self._error_log(attempt, time.time(), 400, str(e), data, stream)
                 return
 
             # Response on first try
@@ -316,19 +332,24 @@ class IronSourceAtomTracker:
                         self._debug_counter = 0
                 else:
                     # 400
-                    self._error_log(attempt, time.time(), response.status, response.error, data)
+                    self._error_log(attempt, time.time(), response.status, response.error, data, stream)
                 return
 
             # Server Error >= 500:
             # This should run forever (when we get a 500) unless retry_forever is False
             # In this case we call error_log() function and data will be lost (you can save it with the callback)
             if not self._retry_forever and attempt == self._retry_max_count:
-                self._error_log(attempt, time.time(), 500, "Retry Max Count has been reached, discarding data", data)
+                self._error_log(attempt, time.time(), 500, "Retry Max Count has been reached, discarding data", data,
+                                stream)
                 break
             # Retry with exponential backoff
             duration = self._get_duration(attempt)
-            self._error_log(attempt, time.time(), response.status, response.error, data)
-            self._logger.info("Retry duration: {}".format(duration))
+            self._logger.warn(
+                "Got code: {status} from server, error: {error}. stream: {stream}, retry duration: {duration}".format(
+                    status=response.status,
+                    error=response.error,
+                    stream=stream,
+                    duration=duration))
             attempt += 1
             time.sleep(duration)
 
@@ -355,7 +376,7 @@ class IronSourceAtomTracker:
             return
         self.stop()
 
-    def _error_log(self, attempt, unix_time=None, status=None, error_msg=None, sent_data=None):
+    def _error_log(self, attempt, unix_time=None, status=None, error_msg=None, sent_data=None, stream=None):
         """
         Log an error and send it to a callback function (if defined by user)
         :param attempt: Sending attempt to atom
@@ -368,9 +389,11 @@ class IronSourceAtomTracker:
         :type  error_msg: str
         :param sent_data: Data that was sent to server
         :type  sent_data: object
+        :param stream: Atom Stream name
+        :type stream: str
         """
         try:
-            self._callback(unix_time, status, error_msg, sent_data)
+            self._callback(unix_time, status, error_msg, sent_data, stream)
         except TypeError as e:
             self._logger.error('Wrong arguments given to callback function: {}'.format(e))
 
