@@ -23,3 +23,5 @@ env3
 
 # IntelliJ / PyCharm IDE
 .idea/
+
+ironsource_example/client.py
