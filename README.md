@@ -68,7 +68,7 @@ RETRY_FOREVER = True
 # Tracker backlog conf
 # Tracker backlog Queue GET & PUT Block or not.
 BACKLOG_BLOCKING = True
-# Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
+# Tracker backlog Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
 BACKLOG_TIMEOUT = 1
 
 # Init a new tracker:

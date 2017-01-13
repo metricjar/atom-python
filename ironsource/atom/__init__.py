@@ -1,1 +1,1 @@
-__author__ = 'g8y3e'
+__author__ = 'Atom Core Team'

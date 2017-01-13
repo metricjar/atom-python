@@ -211,10 +211,9 @@ class IronSourceAtomTracker:
                 self._stream_keys[stream] = auth_key
             try:
                 self._event_backlog.add_event(Event(stream, data))
+                self._debug_counter += 1
             except Queue.Full:
                 self._error_log(0, time.time(), 400, "Tracker backlog is full, can't enqueue events", data, stream)
-            else:
-                self._debug_counter += 1
 
     def flush(self):
         """

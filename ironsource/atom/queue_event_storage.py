@@ -21,8 +21,6 @@ class QueueEventStorage(EventStorage):
         self._block = block
         self._timeout = timeout if not block else None
 
-        print("timeout: {}, block: {}".format(self._timeout, self._block))
-
     def add_event(self, event_object):
         """
         Add event object to queue

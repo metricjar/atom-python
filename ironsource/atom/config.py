@@ -7,7 +7,7 @@ ATOM_ENDPOINT = "http://track.atom-data.io/"
 BATCH_SIZE = 64
 BATCH_BYTES_SIZE = 64 * 1024
 
-# Default flush interval in millisecodns
+# Default flush interval in milliseconds
 FLUSH_INTERVAL = 10000
 
 # Batch Event Pool Config
@@ -33,5 +33,5 @@ RETRY_FOREVER = True
 # Tracker backlog conf
 # Tracker backlog Queue GET & PUT Block or not.
 BACKLOG_BLOCKING = True
-# Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
+# Tracker backlog Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
 BACKLOG_TIMEOUT = 1
