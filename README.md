@@ -1,33 +1,42 @@
 # ironSource.atom SDK for Python
- [![License][license-image]][license-url]
- [![Docs][docs-image]][docs-url]
- [![Python supported version][python-support]][python-url]
- [![PyPI version][package-image]][package-url]
- [![Build status][travis-image]][travis-url]
- [![Coverage Status][coverage-image]][coverage-url]
 
-atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Python programming language.
+[![License][license-image]][license-url]
+[![Docs][docs-image]][docs-url]
+[![Build status][travis-image]][travis-url]
+[![Coverage Status][coverage-image]][coverage-url]
+[![Python supported version][python-support]][python-url]
+[![PyPI version][package-image]][package-url]
+ 
+
+atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for Python
 
 - [Signup](https://atom.ironsrc.com/#/signup)
-- [Documentation](https://ironsource.github.io/atom-python/)
+- [Documentation][docs-url]
 - [Installation](#installation)
 - [Usage](#usage)
 - [Change Log](#change-log)
 - [Example](#example)
 
 ## Installation
-Installing with pip:
+
+### Installing with pip:
 ```bash
 $ pip install --upgrade ironsource-atom
 ```
 
 ## Usage
- 
-### High Level API - "Tracker"
+
+You may use the SDK in two different ways:
+
+1. High level "Tracker" - contains in-memory storage and tracks events based on certain parameters.
+2. Low level - contains 2 methods: putEvent() and putEvents() to send 1 event or a batch respectively.
+
+### High Level SDK - "Tracker"
 **NOTE:**
 The tracker is a based on a thread pool which is controlled by BatchEventPool and a backlog (QueueEventStorage)
 By default the BatchEventPool is configured to use one thread (worker), you can change it when constructing the tracker.  
 These are the default parameters for both Classes (inside config.py):
+
 ```python
 # Tracker Config
 BATCH_SIZE = 64
@@ -47,16 +56,20 @@ BATCH_POOL_SIZE = 1
 BACKLOG_SIZE = 500
 
 # Retry on 500 / Connection error conf
-
 # Retry max time in seconds
 RETRY_MAX_TIME = 1800
-# Maximum number of retries (set it to 1 in order to disable retry).
-# This value is ignored if RETRY_FOREVER = False
+# Maximum number of retries (set it to 1 in order to disable retry). This value is ignored if RETRY_FOREVER = True
 RETRY_MAX_COUNT = 12
 # Base multiplier for exponential backoff calculation
 RETRY_EXPO_BACKOFF_BASE = 3
 # Should the worker in BatchEventPool retry forever on server error (recommended)
 RETRY_FOREVER = True
+
+# Tracker backlog conf
+# Tracker backlog Queue GET & PUT Block or not.
+BACKLOG_BLOCKING = True
+# Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
+BACKLOG_TIMEOUT = 1
 
 # Init a new tracker:
 tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
@@ -70,7 +83,10 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
                                 is_debug=False,
                                 endpoint=config.ATOM_ENDPOINT,
                                 auth_key="",
-                                callback=None)
+                                callback=None,
+                                retry_forever=config.RETRY_FOREVER,
+                                is_blocking=config.BACKLOG_BLOCKING,
+                                backlog_timeout=config.BACKLOG_TIMEOUT)
 """
 :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
 :param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
@@ -85,11 +101,12 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param endpoint:           Optional, Atom endpoint
 :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
 :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
-:param retry_forever:      Optional, should the worker in BatchEventPool retry forever on server error (500)
+:param retry_forever:      Optional, should the BatchEventPool retry forever on server error (default: True)
+:param is_blocking:        Optional, should the tracker backlog block (default: True)
+:param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)
 
-The callback convention is: callback(unix_time, http_code, error_msg, sent_data)
+The callback convention is: callback(unix_time, http_code, error_msg, sent_data, stream_name)
 error_msg = Sdk/server error msg
-sent_data = Data that caused the error
 """
 ```
 
@@ -175,11 +192,11 @@ custom_event_storage_backlog = MyCustomEventStorage()
 tracker = IronSourceAtomTracker(event_backlog=custom_event_storage_backlog)
 ```
 
-### Low level API usage
+### Low Level (Basic) SDK
 
-The Low Level API has 2 methods:  
-- putEvent - Sends a single event to Atom  
-- putEvents - Sends a bulk (batch) of events to Atom
+The Low Level SDK has 2 methods:  
+- putEvent - Sends a single event to Atom.
+- putEvents - Sends a bulk (batch) of events to Atom.
 
 ```python
 from ironsource.atom.ironsource_atom import IronSourceAtom
@@ -211,7 +228,8 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 ## Change Log
 
 ### v1.5.2
-- Added retry_forever option for tracker
+- Added retry_forever option for tracker (default now)
+- Added an option to set the tracker backlog queue as non-blocking
 
 ### v1.5.1
 - Tracker changes:
@@ -294,9 +312,9 @@ You can use our [example][example-url] for sending data to Atom
 ## License
 [MIT][license-url]
 
+[example-url]: ironsource_example/
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: LICENSE
-[example-url]: ironsource_example/
 [travis-image]: https://img.shields.io/travis/ironSource/atom-python.svg
 [travis-url]: https://travis-ci.org/ironSource/atom-python
 [package-image]: https://badge.fury.io/py/ironsource-atom.svg

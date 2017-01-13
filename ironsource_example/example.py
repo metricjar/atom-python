@@ -52,7 +52,7 @@ if __name__ == "__main__":
     print ("\n==== TESTING ATOM TRACKER ====")
 
 
-    def callback_func(timestmap, status, msg, data):
+    def callback_func(timestmap, status, msg, data, stream):
         # Tracker callback function example
         print("[EXAMPLE CALLBACK FUNCTION] timestamp: {}, status: {} message: {}".format(timestmap, status, msg))
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                     if self._call_index >= 100:
                         return
                     else:
-                        # Track every odd event with delay
+                        # Track every 10th event with delay
                         if self._call_index % 10 == 0:
                             time.sleep(1)
                             print("[EXAMPLE] Tracking Data")
