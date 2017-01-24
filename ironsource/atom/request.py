@@ -8,7 +8,7 @@ class Request:
         Wrapper for HTTP requests to Atom API
     """
 
-    def __init__(self, endpoint, data, session):
+    def __init__(self, endpoint, data, session, timeout):
         """
         :param endpoint: Atom API endpoint
         :type endpoint: str
@@ -16,10 +16,12 @@ class Request:
         :type data: str
         :param session: requests.Session object
         :type session: function
+        :param timeout: request timeout
         """
         self._url = endpoint
         self._data = data
         self._session = session
+        self._timeout = timeout
 
     def get(self):
         """
@@ -36,7 +38,7 @@ class Request:
         params = {'data': base64_str}
 
         try:
-            response = self._session.get(self._url, params=params)
+            response = self._session.get(self._url, params=params, timeout=self._timeout)
         except requests.exceptions.ConnectionError:  # pragma: no cover
             return Response("No connection to server", None, 500)
         except requests.exceptions.RequestException as ex:  # pragma: no cover
@@ -57,7 +59,7 @@ class Request:
         :rtype: Response
         """
         try:
-            response = self._session.post(url=self._url, data=self._data)
+            response = self._session.post(url=self._url, data=self._data, timeout=self._timeout)
         except requests.exceptions.ConnectionError:  # pragma: no cover
             return Response("No connection to server", None, 500)
         except requests.exceptions.RequestException as ex:  # pragma: no cover
