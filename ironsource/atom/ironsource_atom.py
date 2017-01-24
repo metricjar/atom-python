@@ -24,6 +24,9 @@ class IronSourceAtom:
         :type  endpoint:    str
         :param auth_key:    Optional, Atom auth key
         :type  auth_key:    str
+        :param timeout:     Optional, request timeout
+        :type  timeout:     int
+
         """
 
         self._endpoint = endpoint

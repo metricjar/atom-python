@@ -202,12 +202,13 @@ The Low Level SDK has 2 methods:
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
 auth = "DEFAULT_AUTH_KEY"
-api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth)
+api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth, timeout=60)
 """
 Atom class init function
 :param is_debug: Optional, Enable/Disable debug
 :param endpoint: Optional, Atom API Endpoint
 :param auth_key: Optional, Atom auth key
+:param timeout:  Optional, request timeout
 """
 # Note: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
 # Else it won't use any.
@@ -226,6 +227,9 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 ```
 
 ## Change Log
+
+### v1.5.3
+- Added timeout to GET and POST (default 60 seconds)
 
 ### v1.5.2
 - Added retry_forever option for tracker (default now)
