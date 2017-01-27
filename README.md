@@ -7,7 +7,6 @@
 [![Python supported version][python-support]][python-url]
 [![PyPI version][package-image]][package-url]
  
-
 atom-python is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for Python
 
 - [Signup](https://atom.ironsrc.com/#/signup)
