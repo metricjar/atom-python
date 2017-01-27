@@ -14,21 +14,25 @@ class IronSourceAtom:
 
     TAG = "IronSourceAtom"
 
-    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key=""):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", request_timeout=60):
         """
         Atom class init function
 
-        :param is_debug:    Optional, Enable/Disable debug
-        :type  is_debug:    bool
-        :param endpoint:    Optional, Atom API Endpoint
-        :type  endpoint:    str
-        :param auth_key:    Optional, Atom auth key
-        :type  auth_key:    str
+        :param is_debug:            Optional, Enable/Disable debug
+        :type  is_debug:            bool
+        :param endpoint:            Optional, Atom API Endpoint
+        :type  endpoint:            str
+        :param auth_key:            Optional, Atom auth key
+        :type  auth_key:            str
+        :param request_timeout:     Optional, request timeout (default: 60)
+        :type  request_timeout:     int
+
         """
 
         self._endpoint = endpoint
         self._auth_key = auth_key
         self._is_debug = is_debug
+        self._timeout = request_timeout
 
         self._headers = {
             'x-ironsource-atom-sdk-type': 'python',
@@ -81,7 +85,7 @@ class IronSourceAtom:
         request_data = self.create_request_data(stream, auth_key, data)
 
         return self.send_data(url=self._endpoint, data=request_data, method=method,
-                              headers=self._headers)
+                              headers=self._headers, timeout=self._timeout)
 
     def put_events(self, stream, data, auth_key=""):
         """Send multiple events (batch) to Atom API
@@ -109,7 +113,7 @@ class IronSourceAtom:
         request_data = self.create_request_data(stream, auth_key, data, batch=True)
 
         return self.send_data(url=self._endpoint + "bulk", data=request_data, method="post",
-                              headers=self._headers)
+                              headers=self._headers, timeout=self._timeout)
 
     @staticmethod
     def create_request_data(stream, auth_key, data, batch=False):
@@ -146,7 +150,7 @@ class IronSourceAtom:
         return json.dumps(request_data)
 
     @staticmethod
-    def send_data(url, data, method, headers):
+    def send_data(url, data, method, headers, timeout):
         """
         :param url: Atom API endpoint
         :type url: str
@@ -156,13 +160,14 @@ class IronSourceAtom:
         :type method: str
         :param headers: HTTP request headers
         :type headers: dict
+        :param timeout: request timeout
 
         :return: response from server
         :rtype: Response
         """
         with requests.Session() as session:
             session.headers.update(headers)
-            request = Request(url, data, session)
+            request = Request(url, data, session, timeout)
             if method.lower() == "get":
                 return request.get()
             else:

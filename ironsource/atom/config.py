@@ -35,3 +35,6 @@ RETRY_FOREVER = True
 BACKLOG_BLOCKING = True
 # Tracker backlog Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
 BACKLOG_TIMEOUT = 1
+
+# HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
+REQUEST_TIMEOUT = 60
