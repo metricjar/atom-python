@@ -1,6 +1,6 @@
 # Atom Python SDK config file
 
-SDK_VERSION = "1.5.2"
+SDK_VERSION = "1.5.3"
 ATOM_ENDPOINT = "http://track.atom-data.io/"
 
 # Tracker Config
