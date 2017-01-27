@@ -150,21 +150,25 @@
 
     <span class="n">TAG</span> <span class="o">=</span> <span class="s2">&quot;IronSourceAtom&quot;</span>
 
-<div class="viewcode-block" id="IronSourceAtom.__init__"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ATOM_ENDPOINT</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtom.__init__"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ATOM_ENDPOINT</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">request_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Atom class init function</span>
 
-<span class="sd">        :param is_debug:    Optional, Enable/Disable debug</span>
-<span class="sd">        :type  is_debug:    bool</span>
-<span class="sd">        :param endpoint:    Optional, Atom API Endpoint</span>
-<span class="sd">        :type  endpoint:    str</span>
-<span class="sd">        :param auth_key:    Optional, Atom auth key</span>
-<span class="sd">        :type  auth_key:    str</span>
+<span class="sd">        :param is_debug:            Optional, Enable/Disable debug</span>
+<span class="sd">        :type  is_debug:            bool</span>
+<span class="sd">        :param endpoint:            Optional, Atom API Endpoint</span>
+<span class="sd">        :type  endpoint:            str</span>
+<span class="sd">        :param auth_key:            Optional, Atom auth key</span>
+<span class="sd">        :type  auth_key:            str</span>
+<span class="sd">        :param request_timeout:     Optional, request timeout (default: 60)</span>
+<span class="sd">        :type  request_timeout:     int</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">=</span> <span class="n">endpoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auth_key</span> <span class="o">=</span> <span class="n">auth_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">request_timeout</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;x-ironsource-atom-sdk-type&#39;</span><span class="p">:</span> <span class="s1">&#39;python&#39;</span><span class="p">,</span>
@@ -217,7 +221,7 @@
         <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_data</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
+                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IronSourceAtom.put_events"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.put_events">[docs]</a>    <span class="k">def</span> <span class="nf">put_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send multiple events (batch) to Atom API</span>
@@ -245,7 +249,7 @@
         <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_data</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span> <span class="o">+</span> <span class="s2">&quot;bulk&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span>
-                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span></div>
+                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="IronSourceAtom.create_request_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.create_request_data">[docs]</a>    <span class="k">def</span> <span class="nf">create_request_data</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">auth_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -282,7 +286,7 @@
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request_data</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="IronSourceAtom.send_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.send_data">[docs]</a>    <span class="k">def</span> <span class="nf">send_data</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+<div class="viewcode-block" id="IronSourceAtom.send_data"><a class="viewcode-back" href="../../../ironsource_atom.html#ironsource.atom.ironsource_atom.IronSourceAtom.send_data">[docs]</a>    <span class="k">def</span> <span class="nf">send_data</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param url: Atom API endpoint</span>
 <span class="sd">        :type url: str</span>
@@ -292,13 +296,14 @@
 <span class="sd">        :type method: str</span>
 <span class="sd">        :param headers: HTTP request headers</span>
 <span class="sd">        :type headers: dict</span>
+<span class="sd">        :param timeout: request timeout</span>
 
 <span class="sd">        :return: response from server</span>
 <span class="sd">        :rtype: Response</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
             <span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
-            <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>

@@ -172,7 +172,8 @@
                  <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">retry_forever</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">RETRY_FOREVER</span><span class="p">,</span>
                  <span class="n">is_blocking</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BACKLOG_BLOCKING</span><span class="p">,</span>
-                 <span class="n">backlog_timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BACKLOG_TIMEOUT</span><span class="p">):</span>
+                 <span class="n">backlog_timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BACKLOG_TIMEOUT</span><span class="p">,</span>
+                 <span class="n">request_timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">REQUEST_TIMEOUT</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tracker init function</span>
 
@@ -208,13 +209,18 @@
 <span class="sd">        :type  is_blocking:        bool</span>
 <span class="sd">        :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)</span>
 <span class="sd">        :type  backlog_timeout:    bool</span>
+<span class="sd">        :param request_timeout:    Optional, HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)</span>
+<span class="sd">        :type  request_timeout:    int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Init Atom basic SDK</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span> <span class="o">=</span> <span class="n">is_debug</span>
         <span class="c1"># For debug printing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">is_debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">,</span> <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+                                    <span class="n">is_debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">,</span>
+                                    <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">,</span>
+                                    <span class="n">request_timeout</span><span class="o">=</span><span class="n">request_timeout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span>
 
         <span class="c1"># Optional callback to be called on error, convention: time, status, error_msg, data</span>
