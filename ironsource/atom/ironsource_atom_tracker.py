@@ -36,7 +36,8 @@ class IronSourceAtomTracker:
                  callback=None,
                  retry_forever=config.RETRY_FOREVER,
                  is_blocking=config.BACKLOG_BLOCKING,
-                 backlog_timeout=config.BACKLOG_TIMEOUT):
+                 backlog_timeout=config.BACKLOG_TIMEOUT,
+                 request_timeout=config.REQUEST_TIMEOUT):
         """
         Tracker init function
 
@@ -72,13 +73,18 @@ class IronSourceAtomTracker:
         :type  is_blocking:        bool
         :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)
         :type  backlog_timeout:    bool
+        :param request_timeout:    Optional, HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
+        :type  request_timeout:    int
         """
 
         # Init Atom basic SDK
         self._is_debug = is_debug
         # For debug printing
         self._debug_counter = 0
-        self._atom = IronSourceAtom(endpoint=endpoint, is_debug=self._is_debug, auth_key=auth_key)
+        self._atom = IronSourceAtom(endpoint=endpoint,
+                                    is_debug=self._is_debug,
+                                    auth_key=auth_key,
+                                    request_timeout=request_timeout)
         self._logger = logger.get_logger(debug=self._is_debug)
 
         # Optional callback to be called on error, convention: time, status, error_msg, data

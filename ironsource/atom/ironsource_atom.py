@@ -14,25 +14,25 @@ class IronSourceAtom:
 
     TAG = "IronSourceAtom"
 
-    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", timeout=60):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", request_timeout=60):
         """
         Atom class init function
 
-        :param is_debug:    Optional, Enable/Disable debug
-        :type  is_debug:    bool
-        :param endpoint:    Optional, Atom API Endpoint
-        :type  endpoint:    str
-        :param auth_key:    Optional, Atom auth key
-        :type  auth_key:    str
-        :param timeout:     Optional, request timeout
-        :type  timeout:     int
+        :param is_debug:            Optional, Enable/Disable debug
+        :type  is_debug:            bool
+        :param endpoint:            Optional, Atom API Endpoint
+        :type  endpoint:            str
+        :param auth_key:            Optional, Atom auth key
+        :type  auth_key:            str
+        :param request_timeout:     Optional, request timeout (default: 60)
+        :type  request_timeout:     int
 
         """
 
         self._endpoint = endpoint
         self._auth_key = auth_key
         self._is_debug = is_debug
-        self._timeout = timeout
+        self._timeout = request_timeout
 
         self._headers = {
             'x-ironsource-atom-sdk-type': 'python',

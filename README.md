@@ -86,7 +86,8 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
                                 callback=None,
                                 retry_forever=config.RETRY_FOREVER,
                                 is_blocking=config.BACKLOG_BLOCKING,
-                                backlog_timeout=config.BACKLOG_TIMEOUT)
+                                backlog_timeout=config.BACKLOG_TIMEOUT,
+                                request_timeout=config.REQUEST_TIMEOUT)
 """
 :param batch_worker_count: Optional, Number of workers(threads) for BatchEventPool
 :param batch_pool_size:    Optional, Number of events to hold in BatchEventPool
@@ -104,6 +105,8 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param retry_forever:      Optional, should the BatchEventPool retry forever on server error (default: True)
 :param is_blocking:        Optional, should the tracker backlog block (default: True)
 :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)
+:param request_timeout:    Optional, HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
+:type  request_timeout:    int
 
 The callback convention is: callback(unix_time, http_code, error_msg, sent_data, stream_name)
 error_msg = Sdk/server error msg
@@ -202,13 +205,17 @@ The Low Level SDK has 2 methods:
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
 auth = "DEFAULT_AUTH_KEY"
-api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth, timeout=60)
+api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth, request_timeout=60)
 """
 Atom class init function
-:param is_debug: Optional, Enable/Disable debug
-:param endpoint: Optional, Atom API Endpoint
-:param auth_key: Optional, Atom auth key
-:param timeout:  Optional, request timeout
+:param is_debug:            Optional, Enable/Disable debug
+:type  is_debug:            bool
+:param endpoint:            Optional, Atom API Endpoint
+:type  endpoint:            str
+:param auth_key:            Optional, Atom auth key
+:type  auth_key:            str
+:param request_timeout:     Optional, request timeout (default: 60)
+:type  request_timeout:     int
 """
 # Note: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
 # Else it won't use any.
