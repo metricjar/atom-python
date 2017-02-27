@@ -31,6 +31,8 @@ class IronSourceAtomTracker:
                  batch_size=config.BATCH_SIZE,
                  batch_bytes_size=config.BATCH_BYTES_SIZE,
                  is_debug=False,
+                 debug_to_file=False,
+                 debug_file_path=config.DEBUG_FILE_PATH,
                  endpoint=config.ATOM_ENDPOINT,
                  auth_key="",
                  callback=None,
@@ -61,6 +63,10 @@ class IronSourceAtomTracker:
         :type  batch_bytes_size:   int
         :param is_debug:           Optional, Enable printing of debug information
         :type  is_debug:           bool
+        :param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
+        :type  debug_to_file:      bool
+        :param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
+        :type  debug_file_path:    str
         :param endpoint:           Optional, Atom endpoint
         :type  endpoint:           str
         :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
@@ -84,7 +90,9 @@ class IronSourceAtomTracker:
         self._atom = IronSourceAtom(endpoint=endpoint,
                                     is_debug=self._is_debug,
                                     auth_key=auth_key,
-                                    request_timeout=request_timeout)
+                                    request_timeout=request_timeout,
+                                    debug_to_file=debug_to_file,
+                                    debug_file_path=debug_file_path)
         self._logger = logger.get_logger(debug=self._is_debug)
 
         # Optional callback to be called on error, convention: time, status, error_msg, data
@@ -330,7 +338,7 @@ class IronSourceAtomTracker:
             if 200 <= response.status < 500:
                 if 200 <= response.status < 400:
                     if self._debug_counter >= 1000:
-                        self._logger.info('Tracked 1000 events')
+                        self._logger.info('Tracked 1000 events to Atom')
                         self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
                                                                                        str(response.data),
                                                                                        str(response.error)))
@@ -345,6 +353,11 @@ class IronSourceAtomTracker:
             # In this case we call error_log() function and data will be lost (you can save it with the callback)
             if not self._retry_forever and attempt == self._retry_max_count:
                 self._error_log(attempt, time.time(), 500, "Retry Max Count has been reached, discarding data", data,
+                                stream)
+                break
+            # In Case we are in a graceful shutdown and we get a 500 > Call the error_log func
+            if not self._is_run_worker:
+                self._error_log(attempt, time.time(), 500, "Server error while on graceful shutdown", data,
                                 stream)
                 break
             # Retry with exponential backoff

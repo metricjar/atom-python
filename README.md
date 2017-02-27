@@ -73,6 +73,7 @@ BACKLOG_TIMEOUT = 1
 # Init a new tracker:
 tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
                                 batch_pool_size=config.BATCH_POOL_SIZE,
+                                event_backlog=None,
                                 backlog_size=config.BACKLOG_SIZE,
                                 flush_interval=config.FLUSH_INTERVAL,
                                 retry_max_time=config.RETRY_MAX_TIME,
@@ -80,6 +81,8 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
                                 batch_size=config.BATCH_SIZE,
                                 batch_bytes_size=config.BATCH_BYTES_SIZE,
                                 is_debug=False,
+                                debug_to_file=False,
+                                debug_file_path=config.DEBUG_FILE_PATH,
                                 endpoint=config.ATOM_ENDPOINT,
                                 auth_key="",
                                 callback=None,
@@ -98,6 +101,8 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
 :param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
 :param is_debug:           Optional, Enable printing of debug information
+:param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
+:param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
 :param endpoint:           Optional, Atom endpoint
 :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
 :param callback:           Optional, callback to be called on error (Client 400/ Server 500)
@@ -105,7 +110,6 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param is_blocking:        Optional, should the tracker backlog block (default: True)
 :param backlog_timeout:    Optional, tracker backlog block timeout (ignored if is_blocking, default: 1 second)
 :param request_timeout:    Optional, HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
-:type  request_timeout:    int
 
 The callback convention is: callback(unix_time, http_code, error_msg, sent_data, stream_name)
 error_msg = Sdk/server error msg
@@ -134,6 +138,14 @@ tracker.flush()
 # To stop the tracker, use:
 tracker.stop()
 ```
+### Logging of request/response to file (since version 1.5.4)
+**Note: this is recommended only if you want to debug the SDK**  
+To enable use: `debug_to_file` parameter at the tracker construction  
+To specify path use: `debug_file_path` (default to /tmp)  
+The logging will produce JSON files with request and response objects.  
+Each request-response pair will have a unique id.  
+Logging file name is: atom-raw.{month}-{day}.json  
+The file will log-rotate at 10MB and save up to 100 files. using: RotatingFileHandler at Python Logging module.
 
 ### Abstract class for storing data at tracker backlog `EventStorage`
 If you'd like to customize the tracker backlog, implement the following abstract class.
@@ -208,13 +220,11 @@ api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth, re
 """
 Atom class init function
 :param is_debug:            Optional, Enable/Disable debug
-:type  is_debug:            bool
 :param endpoint:            Optional, Atom API Endpoint
-:type  endpoint:            str
 :param auth_key:            Optional, Atom auth key
-:type  auth_key:            str
 :param request_timeout:     Optional, request timeout (default: 60)
-:type  request_timeout:     int
+:param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
+:param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
 """
 # Note: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
 # Else it won't use any.
@@ -234,6 +244,11 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 
 ## Change Log
 
+### v1.5.4
+- Added support for logging all requests and responses to file
+- BugFix: Graceful shutdown did not stop the tracker completely while there are requests in flight and retrying.
+- Added raw 'requests' lib response to the Response class.
+
 ### v1.5.3
 - Added timeout to GET and POST (default 60 seconds)
 
@@ -243,7 +258,7 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 
 ### v1.5.1
 - Tracker changes:
-    - bug fix: replaced dequeue with Queue.Queue on Backlog & BatchEventPool.  
+    - BugFix: replaced dequeue with Queue.Queue on Backlog & BatchEventPool.  
       dequeue caused excessive consumption of memory and cpu.  
       Note that .track() is now blocking when backlog is full
     - Changed defaults for Backlog & BatchEventPool

@@ -39,14 +39,16 @@ class Request:
 
         try:
             response = self._session.get(self._url, params=params, timeout=self._timeout)
-        except requests.exceptions.ConnectionError:  # pragma: no cover
-            return Response("No connection to server", None, 500)
+        except requests.exceptions.ConnectionError as ex:  # pragma: no cover
+            response = ex
+            return Response("No connection to server", None, 500, response)
         except requests.exceptions.RequestException as ex:  # pragma: no cover
-            return Response(ex, None, 400)
+            response = ex
+            return Response(ex, None, 400, response)
         if 200 <= response.status_code < 400:
-            return Response(None, response.content, response.status_code)
+            return Response(None, response.content, response.status_code, response)
         else:
-            return Response(response.content, None, response.status_code)
+            return Response(response.content, None, response.status_code, response)
 
     def post(self):
         """
@@ -60,12 +62,14 @@ class Request:
         """
         try:
             response = self._session.post(url=self._url, data=self._data, timeout=self._timeout)
-        except requests.exceptions.ConnectionError:  # pragma: no cover
-            return Response("No connection to server", None, 500)
+        except requests.exceptions.ConnectionError as ex:  # pragma: no cover
+            response = ex
+            return Response("No connection to server", None, 500, response)
         except requests.exceptions.RequestException as ex:  # pragma: no cover
-            return Response(ex, None, 400)
+            response = ex
+            return Response(ex, None, 400, response)
 
         if 200 <= response.status_code < 400:
-            return Response(None, response.content, response.status_code)
+            return Response(None, response.content, response.status_code, response)
         else:
-            return Response(response.content, None, response.status_code)
+            return Response(response.content, None, response.status_code, response)

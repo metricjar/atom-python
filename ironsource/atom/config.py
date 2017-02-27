@@ -38,3 +38,6 @@ BACKLOG_TIMEOUT = 1
 
 # HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
 REQUEST_TIMEOUT = 60
+
+# Debug file path once debug_to_file is enabled
+DEBUG_FILE_PATH = "/tmp/"
