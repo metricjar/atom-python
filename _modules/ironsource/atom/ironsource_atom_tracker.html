@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.3 documentation</title>
+  <title>ironsource.atom.ironsource_atom_tracker &mdash; ironSourceAtom 1.5.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -167,6 +167,8 @@
                  <span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
                  <span class="n">batch_bytes_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span><span class="p">,</span>
                  <span class="n">is_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">debug_to_file</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">debug_file_path</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DEBUG_FILE_PATH</span><span class="p">,</span>
                  <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ATOM_ENDPOINT</span><span class="p">,</span>
                  <span class="n">auth_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                  <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
@@ -197,6 +199,10 @@
 <span class="sd">        :type  batch_bytes_size:   int</span>
 <span class="sd">        :param is_debug:           Optional, Enable printing of debug information</span>
 <span class="sd">        :type  is_debug:           bool</span>
+<span class="sd">        :param debug_to_file:      Optional, Should the Tracker write the request and response objects to file</span>
+<span class="sd">        :type  debug_to_file:      bool</span>
+<span class="sd">        :param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)</span>
+<span class="sd">        :type  debug_file_path:    str</span>
 <span class="sd">        :param endpoint:           Optional, Atom endpoint</span>
 <span class="sd">        :type  endpoint:           str</span>
 <span class="sd">        :param auth_key:           Optional, Default auth key to use (when none is provided in .track)</span>
@@ -220,7 +226,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_atom</span> <span class="o">=</span> <span class="n">IronSourceAtom</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
                                     <span class="n">is_debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">,</span>
                                     <span class="n">auth_key</span><span class="o">=</span><span class="n">auth_key</span><span class="p">,</span>
-                                    <span class="n">request_timeout</span><span class="o">=</span><span class="n">request_timeout</span><span class="p">)</span>
+                                    <span class="n">request_timeout</span><span class="o">=</span><span class="n">request_timeout</span><span class="p">,</span>
+                                    <span class="n">debug_to_file</span><span class="o">=</span><span class="n">debug_to_file</span><span class="p">,</span>
+                                    <span class="n">debug_file_path</span><span class="o">=</span><span class="n">debug_file_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_debug</span><span class="p">)</span>
 
         <span class="c1"># Optional callback to be called on error, convention: time, status, error_msg, data</span>
@@ -252,22 +260,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_retry_max_count</span> <span class="o">=</span> <span class="n">retry_max_count</span>
 
         <span class="c1"># Batch size</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Batch Size must be 1 or greater! Setting default: {}&quot;</span>
-                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE_LIMIT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid Bulk size, must between 1 to {max}, setting it to {default}&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE_LIMIT</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">))</span>
             <span class="n">batch_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
         <span class="c1"># Batch bytes size</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_bytes_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_bytes_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Batch Bytes Size must be 1 or greater! Setting default: {}&quot;</span>
-                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_bytes_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="n">batch_bytes_size</span> <span class="o">&lt;</span> <span class="mi">1024</span> \
+                <span class="ow">or</span> <span class="n">batch_bytes_size</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE_LIMIT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid Bulk byte size, must between 1KB to {max}KB, setting it to {default}KB&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE_LIMIT</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">,</span>
+                                         <span class="n">default</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">))</span>
             <span class="n">batch_bytes_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">BATCH_BYTES_SIZE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_bytes_size</span> <span class="o">=</span> <span class="n">batch_bytes_size</span>
 
         <span class="c1"># Flush Interval</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flush_interval</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">flush_interval</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Flush Interval must be 1000 or greater! Setting default: {}&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Flush Interval must be 1000ms or greater! Setting default: {}&quot;</span>
                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">FLUSH_INTERVAL</span><span class="p">))</span>
             <span class="n">flush_interval</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">FLUSH_INTERVAL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flush_interval</span> <span class="o">=</span> <span class="n">flush_interval</span>
@@ -466,7 +477,7 @@
             <span class="k">if</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
                 <span class="k">if</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_counter</span> <span class="o">&gt;=</span> <span class="mi">1000</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Tracked 1000 events&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Tracked 1000 events to Atom&#39;</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Status: {}; Response: {}; Error: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
                                                                                        <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
                                                                                        <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">error</span><span class="p">)))</span>
@@ -481,6 +492,11 @@
             <span class="c1"># In this case we call error_log() function and data will be lost (you can save it with the callback)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_forever</span> <span class="ow">and</span> <span class="n">attempt</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_max_count</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;Retry Max Count has been reached, discarding data&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
+                                <span class="n">stream</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="c1"># In Case we are in a graceful shutdown and we get a 500 &gt; Call the error_log func</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_run_worker</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_error_log</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;Server error while on graceful shutdown&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
                                 <span class="n">stream</span><span class="p">)</span>
                 <span class="k">break</span>
             <span class="c1"># Retry with exponential backoff</span>
@@ -575,7 +591,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.5.3',
+            VERSION:'1.5.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

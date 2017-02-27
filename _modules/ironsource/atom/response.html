@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ironsource.atom.response &mdash; ironSourceAtom 1.5.3 documentation</title>
+  <title>ironsource.atom.response &mdash; ironSourceAtom 1.5.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="ironSourceAtom 1.5.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="ironSourceAtom 1.5.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -136,20 +136,24 @@
   <h1>Source code for ironsource.atom.response</h1><div class="highlight"><pre>
 <div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../../response.html#ironsource.atom.response.Response">[docs]</a><span></span><span class="k">class</span> <span class="nc">Response</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Response information from server</span>
+<span class="sd">        Response information from Atom server</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">raw_response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param error: Error information</span>
 <span class="sd">        :type error: object</span>
 <span class="sd">        :param data: Response information data</span>
 <span class="sd">        :type data: object</span>
 <span class="sd">        :param status: Response status from server</span>
 <span class="sd">        :type status: int</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="sd">        :param raw_response: Original response object</span>
+<span class="sd">        :type raw_response: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_response</span> <span class="o">=</span> <span class="n">raw_response</span></div>
 </pre></div>
 
            </div>
@@ -183,7 +187,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.5.3',
+            VERSION:'1.5.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
