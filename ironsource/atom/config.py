@@ -1,12 +1,13 @@
 # Atom Python SDK config file
 
-SDK_VERSION = "1.5.3"
+SDK_VERSION = "1.5.4"
 ATOM_ENDPOINT = "http://track.atom-data.io/"
 
 # Tracker Config
-BATCH_SIZE = 64
+BATCH_SIZE = 256
+BATCH_SIZE_LIMIT = 2000
 BATCH_BYTES_SIZE = 64 * 1024
-
+BATCH_BYTES_SIZE_LIMIT = 512 * 1024
 # Default flush interval in milliseconds
 FLUSH_INTERVAL = 10000
 

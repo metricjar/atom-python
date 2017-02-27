@@ -16,7 +16,7 @@ def get_logger(name="AtomLogger", debug=False, file_name="atom-raw.json"):
         logger.setLevel(logging.INFO)
         ch = logging.handlers.RotatingFileHandler(file_name,
                                                   encoding="utf8",
-                                                  maxBytes=10 * 1024 * 1024,
+                                                  maxBytes=50 * 1024 * 1024,
                                                   backupCount=100)
         ch.setLevel(logging.INFO)
         logger.addHandler(ch)

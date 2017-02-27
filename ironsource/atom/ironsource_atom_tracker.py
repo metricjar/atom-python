@@ -124,22 +124,25 @@ class IronSourceAtomTracker:
         self._retry_max_count = retry_max_count
 
         # Batch size
-        if not isinstance(batch_size, int) or batch_size < 1:
-            self._logger.warning("Batch Size must be 1 or greater! Setting default: {}"
-                                 .format(config.BATCH_SIZE))
+        if not isinstance(batch_size, int) or batch_size < 1 or batch_size > config.BATCH_SIZE_LIMIT:
+            self._logger.warning("Invalid Bulk size, must between 1 to {max}, setting it to {default}"
+                                 .format(max=config.BATCH_SIZE_LIMIT, default=config.BATCH_SIZE))
             batch_size = config.BATCH_SIZE
         self._batch_size = batch_size
 
         # Batch bytes size
-        if not isinstance(batch_bytes_size, int) or batch_bytes_size < 1:
-            self._logger.warning("Batch Bytes Size must be 1 or greater! Setting default: {}"
-                                 .format(config.BATCH_BYTES_SIZE))
+        if not isinstance(batch_bytes_size, int) \
+                or batch_bytes_size < 1024 \
+                or batch_bytes_size > config.BATCH_BYTES_SIZE_LIMIT:
+            self._logger.warning("Invalid Bulk byte size, must between 1KB to {max}KB, setting it to {default}KB"
+                                 .format(max=config.BATCH_BYTES_SIZE_LIMIT / 1024,
+                                         default=config.BATCH_BYTES_SIZE / 1024))
             batch_bytes_size = config.BATCH_BYTES_SIZE
         self._batch_bytes_size = batch_bytes_size
 
         # Flush Interval
         if not isinstance(flush_interval, int) or flush_interval < 1000:
-            self._logger.warning("Flush Interval must be 1000 or greater! Setting default: {}"
+            self._logger.warning("Flush Interval must be 1000ms or greater! Setting default: {}"
                                  .format(config.FLUSH_INTERVAL))
             flush_interval = config.FLUSH_INTERVAL
         self._flush_interval = flush_interval

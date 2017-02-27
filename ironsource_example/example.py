@@ -62,7 +62,7 @@ if __name__ == "__main__":
     endpoint = "http://track.atom-data.io/"
     api_tracker = IronSourceAtomTracker(flush_interval=10000,
                                         callback=callback_func,
-                                        batch_bytes_size=64000,
+                                        batch_bytes_size=64 * 1024,
                                         batch_size=64,
                                         is_debug=True,
                                         debug_to_file=True,
