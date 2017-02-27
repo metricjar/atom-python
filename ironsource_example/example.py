@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import random
 from ironsource.atom.ironsource_atom import IronSourceAtom
@@ -64,6 +65,8 @@ if __name__ == "__main__":
                                         batch_bytes_size=64000,
                                         batch_size=64,
                                         is_debug=True,
+                                        debug_to_file=True,
+                                        debug_file_path="./",
                                         endpoint=endpoint)
 
 
@@ -79,7 +82,9 @@ if __name__ == "__main__":
                 with self._thread_lock:
                     self._call_index += 1
                     data_track = {"id": self._call_index, "event_name": "PYTHON_SDK_TRACKER_EXAMPLE",
-                                  "string_value": str(random.random())}
+                                  "string_value": str(random.random()),
+                                  "non_ascii": "Lista de leitura, novos recursos de privacidade e segurança, "
+                                               "além de mais velocidade Esses são os atrativos do novo Safari"}
                     # exit after 100
                     if self._call_index >= 100:
                         return
