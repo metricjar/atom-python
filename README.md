@@ -139,17 +139,17 @@ tracker.flush()
 tracker.stop()
 ```
 ### Logging of request/response to file (since version 1.5.4)
-**Note: this is recommended only if you want to debug the SDK**  
+**Note:** this is recommended only if you want to debug the SDK  
 To enable use: `debug_to_file` parameter at the tracker construction  
-To specify path use: `debug_file_path` (default to /tmp)  
+To specify path use: `debug_file_path` (defaults to /tmp/)  
 The logging will produce JSON files with request and response objects.  
 Each request-response pair will have a unique id.  
 Logging file name is: atom-raw.{month}-{day}.json  
-The file will log-rotate at 10MB and save up to 100 files. using: RotatingFileHandler at Python Logging module.
+The file will log-rotate at 10MB and save up to 100 files, based on: RotatingFileHandler at Python Logging module.
 
 ### Abstract class for storing data at tracker backlog `EventStorage`
 If you'd like to customize the tracker backlog, implement the following abstract class.
-Implementation must to be synchronized for multithreading use.
+Implementation must to be synchronized for multi threading use.
 ```python
 import abc
 
@@ -246,7 +246,7 @@ api.put_events(stream=stream, data=data, auth_key=auth2)
 
 ### v1.5.4
 - Added support for logging all requests and responses to file
-- BugFix: Graceful shutdown did not stop the tracker completely while there are requests in flight and retrying.
+- BugFix: Graceful shutdown did not stop the tracker completely while there are requests in flight and server-error.
 - Added raw 'requests' lib response to the Response class.
 
 ### v1.5.3
