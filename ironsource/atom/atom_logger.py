@@ -1,15 +1,27 @@
 import logging
+import logging.handlers
 
 
-def get_logger(name="AtomLogger", debug=False):
+def get_logger(name="AtomLogger", debug=False, file_name="atom-raw.json"):
     """
-    Atom Logger
+    Atom Logger factory: If AtomRawLogger == name then it will return a rotating-file logger, else just logs to stdout.
     :param name: logger name
     :param debug: Disable/enable debug printing
     :return:
     """
     logger = logging.getLogger(name)
     new_level = logging.DEBUG if debug else logging.INFO
+
+    if name == "AtomRawLogger":
+        logger.setLevel(logging.INFO)
+        ch = logging.handlers.RotatingFileHandler(file_name,
+                                                  encoding="utf8",
+                                                  maxBytes=50 * 1024 * 1024,
+                                                  backupCount=100)
+        ch.setLevel(logging.INFO)
+        logger.addHandler(ch)
+        logger.propagate = 0
+        return logger
 
     if logger.level == logging.NOTSET or logger.level != new_level:
         logger.setLevel(new_level)

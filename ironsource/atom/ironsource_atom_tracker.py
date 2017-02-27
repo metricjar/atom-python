@@ -31,6 +31,8 @@ class IronSourceAtomTracker:
                  batch_size=config.BATCH_SIZE,
                  batch_bytes_size=config.BATCH_BYTES_SIZE,
                  is_debug=False,
+                 debug_to_file=False,
+                 debug_file_path=config.DEBUG_FILE_PATH,
                  endpoint=config.ATOM_ENDPOINT,
                  auth_key="",
                  callback=None,
@@ -61,6 +63,10 @@ class IronSourceAtomTracker:
         :type  batch_bytes_size:   int
         :param is_debug:           Optional, Enable printing of debug information
         :type  is_debug:           bool
+        :param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
+        :type  debug_to_file:      bool
+        :param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
+        :type  debug_file_path:    str
         :param endpoint:           Optional, Atom endpoint
         :type  endpoint:           str
         :param auth_key:           Optional, Default auth key to use (when none is provided in .track)
@@ -84,7 +90,9 @@ class IronSourceAtomTracker:
         self._atom = IronSourceAtom(endpoint=endpoint,
                                     is_debug=self._is_debug,
                                     auth_key=auth_key,
-                                    request_timeout=request_timeout)
+                                    request_timeout=request_timeout,
+                                    debug_to_file=debug_to_file,
+                                    debug_file_path=debug_file_path)
         self._logger = logger.get_logger(debug=self._is_debug)
 
         # Optional callback to be called on error, convention: time, status, error_msg, data
@@ -116,22 +124,25 @@ class IronSourceAtomTracker:
         self._retry_max_count = retry_max_count
 
         # Batch size
-        if not isinstance(batch_size, int) or batch_size < 1:
-            self._logger.warning("Batch Size must be 1 or greater! Setting default: {}"
-                                 .format(config.BATCH_SIZE))
+        if not isinstance(batch_size, int) or batch_size < 1 or batch_size > config.BATCH_SIZE_LIMIT:
+            self._logger.warning("Invalid Bulk size, must between 1 to {max}, setting it to {default}"
+                                 .format(max=config.BATCH_SIZE_LIMIT, default=config.BATCH_SIZE))
             batch_size = config.BATCH_SIZE
         self._batch_size = batch_size
 
         # Batch bytes size
-        if not isinstance(batch_bytes_size, int) or batch_bytes_size < 1:
-            self._logger.warning("Batch Bytes Size must be 1 or greater! Setting default: {}"
-                                 .format(config.BATCH_BYTES_SIZE))
+        if not isinstance(batch_bytes_size, int) \
+                or batch_bytes_size < 1024 \
+                or batch_bytes_size > config.BATCH_BYTES_SIZE_LIMIT:
+            self._logger.warning("Invalid Bulk byte size, must between 1KB to {max}KB, setting it to {default}KB"
+                                 .format(max=config.BATCH_BYTES_SIZE_LIMIT / 1024,
+                                         default=config.BATCH_BYTES_SIZE / 1024))
             batch_bytes_size = config.BATCH_BYTES_SIZE
         self._batch_bytes_size = batch_bytes_size
 
         # Flush Interval
         if not isinstance(flush_interval, int) or flush_interval < 1000:
-            self._logger.warning("Flush Interval must be 1000 or greater! Setting default: {}"
+            self._logger.warning("Flush Interval must be 1000ms or greater! Setting default: {}"
                                  .format(config.FLUSH_INTERVAL))
             flush_interval = config.FLUSH_INTERVAL
         self._flush_interval = flush_interval
@@ -330,7 +341,7 @@ class IronSourceAtomTracker:
             if 200 <= response.status < 500:
                 if 200 <= response.status < 400:
                     if self._debug_counter >= 1000:
-                        self._logger.info('Tracked 1000 events')
+                        self._logger.info('Tracked 1000 events to Atom')
                         self._logger.info('Status: {}; Response: {}; Error: {}'.format(str(response.status),
                                                                                        str(response.data),
                                                                                        str(response.error)))
@@ -345,6 +356,11 @@ class IronSourceAtomTracker:
             # In this case we call error_log() function and data will be lost (you can save it with the callback)
             if not self._retry_forever and attempt == self._retry_max_count:
                 self._error_log(attempt, time.time(), 500, "Retry Max Count has been reached, discarding data", data,
+                                stream)
+                break
+            # In Case we are in a graceful shutdown and we get a 500 > Call the error_log func
+            if not self._is_run_worker:
+                self._error_log(attempt, time.time(), 500, "Server error while on graceful shutdown", data,
                                 stream)
                 break
             # Retry with exponential backoff

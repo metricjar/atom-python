@@ -1,10 +1,13 @@
 import json
 import hmac
+import datetime
 import requests
 import hashlib
 import ironsource.atom.atom_logger as logger
 from ironsource.atom.request import Request
 import ironsource.atom.config as config
+import uuid
+import os
 
 
 class IronSourceAtom:
@@ -14,7 +17,9 @@ class IronSourceAtom:
 
     TAG = "IronSourceAtom"
 
-    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", request_timeout=60):
+    def __init__(self, is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", request_timeout=60,
+                 debug_to_file=False,
+                 debug_file_path=config.DEBUG_FILE_PATH):
         """
         Atom class init function
 
@@ -26,6 +31,10 @@ class IronSourceAtom:
         :type  auth_key:            str
         :param request_timeout:     Optional, request timeout (default: 60)
         :type  request_timeout:     int
+        :param debug_to_file:       Optional, Should the Tracker write the request and response objects to file
+        :type  debug_to_file:       bool
+        :param debug_file_path:     Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
+        :type  debug_file_path:     str
 
         """
 
@@ -42,6 +51,18 @@ class IronSourceAtom:
 
         # init logger
         self._logger = logger.get_logger(debug=self._is_debug)
+
+        self._debug_to_file = debug_to_file
+        if self._debug_to_file:
+            if os.path.isdir(debug_file_path) and os.access(debug_file_path, os.W_OK | os.R_OK):
+                self._debug_file_path = debug_file_path
+            else:
+                self._debug_file_path = config.DEBUG_FILE_PATH
+                self._logger.error("No Read & Write access to the supplied log file path, setting default: {}"
+                                   .format(config.DEBUG_FILE_PATH))
+            now = datetime.datetime.now()
+            log_file_name = self._debug_file_path + "atom-raw.{day}-{month}.json".format(day=now.day, month=now.month)
+            self._raw_logger = logger.get_logger(name="AtomRawLogger", file_name=log_file_name)
 
     def set_debug(self, is_debug):  # pragma: no cover
         """
@@ -82,10 +103,13 @@ class IronSourceAtom:
         if len(auth_key) == 0:
             auth_key = self._auth_key
 
+        request_time = datetime.datetime.now().isoformat()
         request_data = self.create_request_data(stream, auth_key, data)
-
-        return self.send_data(url=self._endpoint, data=request_data, method=method,
-                              headers=self._headers, timeout=self._timeout)
+        response = self.send_data(url=self._endpoint, data=request_data, method=method, headers=self._headers,
+                                  timeout=self._timeout)
+        if self._debug_to_file:
+            self._session_to_file(response, request_time)
+        return response
 
     def put_events(self, stream, data, auth_key=""):
         """Send multiple events (batch) to Atom API
@@ -112,8 +136,12 @@ class IronSourceAtom:
         data = json.dumps(data)
         request_data = self.create_request_data(stream, auth_key, data, batch=True)
 
-        return self.send_data(url=self._endpoint + "bulk", data=request_data, method="post",
-                              headers=self._headers, timeout=self._timeout)
+        request_time = datetime.datetime.now().isoformat()
+        response = self.send_data(url=self._endpoint + "bulk", data=request_data, method="post", headers=self._headers,
+                                  timeout=self._timeout)
+        if self._debug_to_file:
+            self._session_to_file(response, request_time)
+        return response
 
     @staticmethod
     def create_request_data(stream, auth_key, data, batch=False):
@@ -172,3 +200,39 @@ class IronSourceAtom:
                 return request.get()
             else:
                 return request.post()
+
+    def _session_to_file(self, response, request_time):
+        """
+        Writes SDK request and response to JSON file in the following format:
+        [{req},{res}...]
+        :param request_time: request time
+        :param response: The 'requests' lib response object (including the original request)
+        """
+        raw_request = response.raw_response.request
+        request_data = raw_request.body if raw_request.body is not None else '"{}"'.format(raw_request.path_url)
+        session_id = uuid.uuid4()
+        # self._raw_logger.emit("hi")
+        self._raw_logger.info('''{"request": {"id": "%s", "requestTime": "%s", "data": %s, "headers": %s}}''' %
+                              (session_id,
+                               request_time,
+                               request_data,
+                               json.dumps(str(raw_request.headers))
+                               ))
+        # Format response
+        response_headers = json.dumps(str(response.raw_response.headers)) \
+            if hasattr(response.raw_response, "headers") else "\"None\""
+        response_body = response.data if response.data is not None else response.error
+        try:
+            response_body = json.loads(response_body)
+        except ValueError:
+            pass
+        # There is no consistency at API response on v1
+        if response.status == 401:
+            response_body = str(response_body).replace("\"", "'")
+        self._raw_logger.info(
+            '''{"response": {"id": "%s", "responseTime": "%s", "body": "%s", "code": %s, "headers": %s}}''' %
+            (session_id,
+             datetime.datetime.now().isoformat(),
+             response_body,
+             response.status,
+             response_headers))
