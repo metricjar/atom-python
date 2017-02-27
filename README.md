@@ -38,10 +38,11 @@ These are the default parameters for both Classes (inside config.py):
 
 ```python
 # Tracker Config
-BATCH_SIZE = 64
+BATCH_SIZE = 256
+BATCH_SIZE_LIMIT = 2000
 BATCH_BYTES_SIZE = 64 * 1024
-
-# Default flush interval in millisecodns
+BATCH_BYTES_SIZE_LIMIT = 512 * 1024
+# Default flush interval in milliseconds
 FLUSH_INTERVAL = 10000
 
 # Batch Event Pool Config
@@ -69,6 +70,12 @@ RETRY_FOREVER = True
 BACKLOG_BLOCKING = True
 # Tracker backlog Queue GET & PUT timeout in seconds (ignored if backlog is blocking)
 BACKLOG_TIMEOUT = 1
+
+# HTTP requests lib session GET/POST timeout in seconds (default: 60 seconds)
+REQUEST_TIMEOUT = 60
+
+# Debug file path once debug_to_file is enabled
+DEBUG_FILE_PATH = "/tmp/"
 
 # Init a new tracker:
 tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
@@ -98,7 +105,7 @@ tracker = IronSourceAtomTracker(batch_worker_count=config.BATCH_WORKER_COUNT,
 :param flush_interval:     Optional, Tracker flush interval in milliseconds (default 10000)
 :param retry_max_time:     Optional, Retry max time in seconds
 :param retry_max_count:    Optional, Maximum number of retries in seconds
-:param batch_size:         Optional, Amount of events in every batch (bulk) (default: 500)
+:param batch_size:         Optional, Amount of events in every batch (bulk) (default: 256)
 :param batch_bytes_size:   Optional, Size of each batch (bulk) in bytes (default: 64KB)
 :param is_debug:           Optional, Enable printing of debug information
 :param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
@@ -216,15 +223,16 @@ The Low Level SDK has 2 methods:
 from ironsource.atom.ironsource_atom import IronSourceAtom
 
 auth = "DEFAULT_AUTH_KEY"
-api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_URL, auth_key=auth, request_timeout=60)
+api = IronSourceAtom(is_debug=False, endpoint=config.ATOM_ENDPOINT, auth_key="", request_timeout=60,
+                     debug_to_file=False, debug_file_path=config.DEBUG_FILE_PATH)
 """
 Atom class init function
 :param is_debug:            Optional, Enable/Disable debug
 :param endpoint:            Optional, Atom API Endpoint
 :param auth_key:            Optional, Atom auth key
 :param request_timeout:     Optional, request timeout (default: 60)
-:param debug_to_file:      Optional, Should the Tracker write the request and response objects to file
-:param debug_file_path:    Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
+:param debug_to_file:       Optional, Should the Tracker write the request and response objects to file (default: False)
+:param debug_file_path:     Optional, the path to the debug file (debug_to_file must be True) (default: /tmp)
 """
 # Note: If you don't specify an auth key, then it would use the default (if you set it with set_auth)
 # Else it won't use any.
