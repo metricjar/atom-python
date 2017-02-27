@@ -1,7 +1,6 @@
 import json
 import hmac
 import datetime
-import time
 import requests
 import hashlib
 import ironsource.atom.atom_logger as logger
